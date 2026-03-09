@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  backend:
+    image: navistresundios/lamviec360-backend:dev-latest
+    container_name: lv360_backend_dev
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/lv360
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGINS=https://appdev.lamviec360.com,https://dev.lamviec360.com
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - lv360_pgdata_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: lv360_postgres_dev
+    restart: always
+    environment:
+      - POSTGRES_DB=lv360
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - lv360_pgdata_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: lv360_redis_dev
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  pg-backup:
+    image: postgres:15-alpine
+    container_name: lv360_pg_backup_dev
+    restart: always
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./backups:/backups
+      - postgres_data:/var/lib/postgresql/data
+      - lv360_pgdata_dev:/var/lib/postgresql/data
+    networks:
+      - backend-network
+    command: >
+      sh -c "
+      while true; do
+        pg_dump -h postgres -U postgres lv360 > /backups/backup_$$(date +%Y%m%d_%H%M%S).sql
+        find /backups -name '*.sql' -mtime +30 -delete
+        sleep 86400
+      done
+      "
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    external: false
+  lv360_pgdata_dev:
+    external: true
+
+networks:
+  backend-network:
+    driver: bridge
+    name: lv360-backend-network

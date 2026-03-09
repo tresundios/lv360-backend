@@ -1,0 +1,322 @@
+///////////////////////////////////////////////////////////////////////////////
+// Jenkinsfile.backend — FastAPI CI/CD Pipeline
+// Triggers on PR merge to dev, or manual trigger
+///////////////////////////////////////////////////////////////////////////////
+
+pipeline {
+    agent any
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timestamps()
+    }
+
+    parameters {
+        choice(
+            name: 'TARGET_ENV',
+            choices: ['dev', 'qa', 'uat', 'prod'],
+            description: 'Target deployment environment'
+        )
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Skip test stage (emergency deploys only)'
+        )
+        booleanParam(
+            name: 'RUN_MIGRATIONS',
+            defaultValue: true,
+            description: 'Run Alembic migrations before deployment'
+        )
+    }
+
+    environment {
+        DOCKER_REGISTRY    = 'docker.io'
+        DOCKER_REPO        = 'navistresundios/lamviec360-backend'
+        IMAGE_TAG           = "${params.TARGET_ENV}-${BUILD_NUMBER}"
+        IMAGE_FULL          = "${DOCKER_REGISTRY}/${DOCKER_REPO}:${IMAGE_TAG}"
+        IMAGE_LATEST        = "${DOCKER_REGISTRY}/${DOCKER_REPO}:${params.TARGET_ENV}-latest"
+
+        // Jenkins credentials IDs — configure in Jenkins Credentials Store
+        DOCKER_CREDENTIALS  = 'dockerhub-credentials'
+        SSH_CREDENTIALS     = "ssh-${params.TARGET_ENV}-server"
+        ENV_FILE_CREDENTIALS = "env-file-${params.TARGET_ENV}"
+
+        // Deploy hosts per environment
+        DEPLOY_HOST_dev     = '103.175.146.37'
+        DEPLOY_HOST_qa      = '${QA_SERVER_IP}'     // TODO: set when QA server is provisioned
+        DEPLOY_HOST_uat     = '${UAT_SERVER_IP}'    // TODO: set when UAT server is provisioned
+        DEPLOY_HOST_prod    = '${PROD_SERVER_IP}'   // TODO: set when prod server is provisioned
+
+        // Paths on remote server
+        REMOTE_PROJECT_DIR  = '/opt/lamviec360'
+        COMPOSE_FILE        = "docker-compose.${params.TARGET_ENV}.yml"
+    }
+
+    triggers {
+        // Trigger on PR merge to dev branch via GitHub webhook
+        githubPush()
+    }
+
+    stages {
+        // ---------------------------------------------------------------------
+        // Stage 1: Checkout
+        // ---------------------------------------------------------------------
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_BRANCH_NAME = sh(
+                        script: 'git rev-parse --abbrev-ref HEAD',
+                        returnStdout: true
+                    ).trim()
+                    echo "Building commit ${env.GIT_COMMIT_SHORT} on branch ${env.GIT_BRANCH_NAME}"
+
+                    // Path-based trigger: skip if no backend-relevant files changed
+                    def changedFiles = sh(
+                        script: 'git diff --name-only HEAD~1 HEAD || echo ""',
+                        returnStdout: true
+                    ).trim()
+                    echo "Changed files:\n${changedFiles}"
+
+                    def backendRelevant = changedFiles.split('\n').any { file ->
+                        file.startsWith('backend/') ||
+                        file.startsWith('docker-compose') ||
+                        file.startsWith('env/') ||
+                        file.startsWith('jenkins/Jenkinsfile.backend')
+                    }
+
+                    if (!backendRelevant && changedFiles != '') {
+                        echo "No backend-relevant files changed. Skipping pipeline."
+                        env.SKIP_PIPELINE = 'true'
+                    } else {
+                        env.SKIP_PIPELINE = 'false'
+                    }
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 2: Run Tests
+        // ---------------------------------------------------------------------
+        stage('Test') {
+            when {
+                allOf {
+                    expression { return !params.SKIP_TESTS }
+                    expression { return env.SKIP_PIPELINE != 'true' }
+                }
+            }
+            steps {
+                dir('backend') {
+                    sh '''
+                        docker build \
+                            -f Dockerfile.prod \
+                            -t ${DOCKER_REPO}:test-${BUILD_NUMBER} .
+
+                        # Run tests in a named container (not --rm) so we can copy results out
+                        docker run --name test-runner-${BUILD_NUMBER} \
+                            --entrypoint "" \
+                            ${DOCKER_REPO}:test-${BUILD_NUMBER} \
+                            python -m pytest tests/ -v --tb=short --junitxml=/tmp/results.xml || true
+
+                        # Copy JUnit XML from container to workspace
+                        docker cp test-runner-${BUILD_NUMBER}:/tmp/results.xml ./results.xml || true
+
+                        # Clean up the test container
+                        docker rm test-runner-${BUILD_NUMBER} || true
+                    '''
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/results.xml'
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 3: Docker Build
+        // ---------------------------------------------------------------------
+        stage('Docker Build') {
+            when {
+                expression { return env.SKIP_PIPELINE != 'true' }
+            }
+            steps {
+                dir('backend') {
+                    sh """
+                        docker build \
+                            -f Dockerfile.prod \
+                            --build-arg BUILD_NUMBER=${BUILD_NUMBER} \
+                            --build-arg GIT_COMMIT=${env.GIT_COMMIT_SHORT} \
+                            -t ${IMAGE_FULL} \
+                            -t ${IMAGE_LATEST} \
+                            .
+                    """
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 4: Docker Push to Registry
+        // ---------------------------------------------------------------------
+        stage('Docker Push') {
+            when {
+                expression { return env.SKIP_PIPELINE != 'true' }
+            }
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: env.DOCKER_CREDENTIALS,
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh """
+                        echo "\${DOCKER_PASS}" | docker login ${DOCKER_REGISTRY} -u "\${DOCKER_USER}" --password-stdin
+                        docker push ${IMAGE_FULL}
+                        docker push ${IMAGE_LATEST}
+                        docker logout ${DOCKER_REGISTRY}
+                    """
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 5: Deploy to Remote Server
+        // ---------------------------------------------------------------------
+        stage('Deploy') {
+            when {
+                expression { return env.SKIP_PIPELINE != 'true' }
+            }
+            steps {
+                sshagent(credentials: [env.SSH_CREDENTIALS]) {
+                    sh """
+                        DEPLOY_HOST=\$(eval echo \${DEPLOY_HOST_${params.TARGET_ENV}})
+                        ssh -o StrictHostKeyChecking=no deploy@\${DEPLOY_HOST} << 'ENDSSH'
+                            cd ${REMOTE_PROJECT_DIR}
+
+                            # Pull latest compose files and configs from git
+                            git config user.email "deploy@lamviec360.com"
+                            git config user.name "Deploy User"
+                            # Stash any local changes before pull
+                            git stash push -m "Auto-stash before deploy" || true
+                            git pull origin ${params.TARGET_ENV} || true
+
+                            # Pull new image
+                            docker pull ${IMAGE_FULL}
+
+                            # Update the env file with new image tag
+                            sed -i 's|DOCKER_IMAGE_TAG=.*|DOCKER_IMAGE_TAG=${IMAGE_TAG}|' env/.env.${params.TARGET_ENV}
+
+                            # Export env vars so docker compose interpolation can read them
+                            set -a
+                            source env/.env.${params.TARGET_ENV}
+                            set +a
+
+                            # Stop ALL containers from this compose project
+                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} down --remove-orphans || true
+
+                            # Kill any rogue containers still binding required ports
+                            for PORT in 5432 8000 6379; do
+                                CONTAINER_ID=\$(docker ps -q --filter "publish=\${PORT}")
+                                if [ -n "\${CONTAINER_ID}" ]; then
+                                    echo "Killing rogue container on port \${PORT}: \${CONTAINER_ID}"
+                                    docker rm -f \${CONTAINER_ID} || true
+                                fi
+                            done
+
+                            # Start supporting services (postgres, redis) then backend
+                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d postgres redis
+                            sleep 5
+
+                            # Start fastapi, pg-backup, and react with the new image
+                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d fastapi pg-backup react
+
+                            # Wait for container to be ready
+                            echo "Waiting for container to start..."
+                            sleep 15
+ENDSSH
+                    """
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 6: Run Migrations (handled by container entrypoint)
+        // ---------------------------------------------------------------------
+        stage('Run Migrations') {
+            when {
+                allOf {
+                    expression { return params.RUN_MIGRATIONS }
+                    expression { return env.SKIP_PIPELINE != 'true' }
+                }
+            }
+            steps {
+                echo "Migrations are handled by container entrypoint (RUN_MIGRATIONS=true)"
+                sshagent(credentials: [env.SSH_CREDENTIALS]) {
+                    sh """
+                        DEPLOY_HOST=\$(eval echo \${DEPLOY_HOST_${params.TARGET_ENV}})
+                        ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 deploy@\${DEPLOY_HOST} << 'ENDSSH'
+                            cd ${REMOTE_PROJECT_DIR}
+                            echo "Waiting for FastAPI container to start and run migrations..."
+                            # Wait for container to be healthy (migrations run during startup)
+                            timeout 120 bash -c 'until docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} ps fastapi | grep -q "healthy"; do sleep 3; done'
+                            echo "FastAPI container is healthy - migrations completed."
+ENDSSH
+                    """
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 7: Health Check
+        // ---------------------------------------------------------------------
+        stage('Health Check') {
+            when {
+                expression { return env.SKIP_PIPELINE != 'true' }
+            }
+            steps {
+                sshagent(credentials: [env.SSH_CREDENTIALS]) {
+                    sh """
+                        DEPLOY_HOST=\$(eval echo \${DEPLOY_HOST_${params.TARGET_ENV}})
+                        ssh -o StrictHostKeyChecking=no deploy@\${DEPLOY_HOST} << 'ENDSSH'
+                            cd ${REMOTE_PROJECT_DIR}
+                            # Check container logs for debugging
+                            echo "Checking FastAPI container logs..."
+                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} logs --tail=50 fastapi
+                            
+                            # Wait a bit more for app to fully start
+                            echo "Waiting for application to be ready..."
+                            sleep 10
+                            
+                            # Try health check
+                            curl -f http://localhost:8000/health || exit 1
+                            echo "Deployment successful!"
+ENDSSH
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Backend pipeline SUCCESS: ${IMAGE_FULL}"
+        }
+        failure {
+            echo "❌ Backend pipeline FAILED at stage: ${env.STAGE_NAME}"
+        }
+        cleanup {
+            // Clean up local Docker images to save disk space
+            sh """
+                docker rmi ${IMAGE_FULL} ${IMAGE_LATEST} 2>/dev/null || true
+                docker rmi ${DOCKER_REPO}:test-${BUILD_NUMBER} 2>/dev/null || true
+            """
+        }
+    }
+}
