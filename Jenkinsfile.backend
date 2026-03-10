@@ -226,8 +226,9 @@ pipeline {
                             git stash push -m "Auto-stash before deploy" || true
                             git pull origin ${params.TARGET_ENV} || true
 
-                            # Pull new image
+                            # Pull new images (both specific version and latest tag)
                             docker pull ${IMAGE_FULL}
+                            docker pull ${IMAGE_LATEST}
 
                             # Update the env file with new image tag
                             sed -i 's|DOCKER_IMAGE_TAG=.*|DOCKER_IMAGE_TAG=${IMAGE_TAG}|' env/.env.${params.TARGET_ENV}
