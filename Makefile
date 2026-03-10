@@ -2,10 +2,10 @@
 
 # Local development
 up:
-	docker compose -f docker-compose.local.yml --env-file .env.local up -d
+	docker compose -f docker-compose.local.yml --env-file .env.local up -d --remove-orphans
 
 down:
-	docker compose -f docker-compose.local.yml down
+	docker compose -f docker-compose.local.yml --env-file .env.local down --remove-orphans
 
 logs:
 	docker compose -f docker-compose.local.yml logs -f
