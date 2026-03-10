@@ -12,6 +12,11 @@ services:
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
       - CORS_ORIGINS=https://appdev.lamviec360.com,https://dev.lamviec360.com
+      - POSTGRES_DB=lv360
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=lv360_dev_password
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
     depends_on:
       postgres:
         condition: service_healthy
@@ -21,7 +26,6 @@ services:
       - backend-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - lv360_pgdata_dev:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -39,7 +43,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - lv360_pgdata_dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -73,7 +76,6 @@ services:
     volumes:
       - ./backups:/backups
       - postgres_data:/var/lib/postgresql/data
-      - lv360_pgdata_dev:/var/lib/postgresql/data
     networks:
       - backend-network
     command: >
@@ -91,8 +93,6 @@ services:
 volumes:
   postgres_data:
     external: false
-  lv360_pgdata_dev:
-    external: true
 
 networks:
   backend-network:

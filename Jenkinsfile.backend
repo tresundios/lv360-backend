@@ -50,7 +50,7 @@ pipeline {
         DEPLOY_HOST_prod    = '${PROD_SERVER_IP}'   // TODO: set when prod server is provisioned
 
         // Paths on remote server
-        REMOTE_PROJECT_DIR  = '/opt/lamviec360'
+        REMOTE_PROJECT_DIR  = '/opt/lamviec360-backend'
         COMPOSE_FILE        = "docker-compose.${params.TARGET_ENV}.yml"
     }
 
