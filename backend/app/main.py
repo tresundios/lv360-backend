@@ -22,7 +22,7 @@ def seed_hello_world():
     try:
         existing = db.query(HelloWorld).first()
         if not existing:
-            record = HelloWorld(message="Hello World from Postgres")
+            record = HelloWorld(message="Let light shine from heaven")
             db.add(record)
             db.commit()
             print("[SEED] hello_world table seeded.")
