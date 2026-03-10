@@ -234,8 +234,25 @@ pipeline {
                             docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d postgres redis
                             sleep 5
 
-                            # Start fastapi, pg-backup, and react with the new image
-                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d fastapi pg-backup react
+                            # Start backend with the new image
+                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d backend
+
+                            # Create .env file in container for app config
+                            docker exec lv360_backend_dev sh -c 'cat > /app/.env << EOF
+POSTGRES_DB=lv360
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=lv360_dev_password
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_URL=redis://redis:6379/0
+JWT_SECRET=dev_jwt_secret_key_change_in_production
+CORS_ORIGINS=https://appdev.lamviec360.com,https://dev.lamviec360.com
+EOF'
+
+                            # Restart backend to pick up new env
+                            docker restart lv360_backend_dev
 
                             # Wait for container to be ready
                             echo "Waiting for container to start..."
