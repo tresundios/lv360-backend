@@ -1,8 +1,11 @@
-.PHONY: up down logs build test migrate shell clean
+.PHONY: up down logs build test migrate shell clean rebuild
 
 # Local development
 up:
 	docker compose -f docker-compose.local.yml --env-file .env.local up -d --remove-orphans
+
+up-build:
+	docker compose -f docker-compose.local.yml --env-file .env.local up -d --build --remove-orphans
 
 down:
 	docker compose -f docker-compose.local.yml --env-file .env.local down --remove-orphans
@@ -12,6 +15,8 @@ logs:
 
 build:
 	docker compose -f docker-compose.local.yml build
+
+rebuild: down up-build
 
 clean:
 	docker compose -f docker-compose.local.yml down -v
