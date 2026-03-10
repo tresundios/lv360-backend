@@ -139,7 +139,6 @@ pipeline {
             }
         }
 
-        // ---------------------------------------------------------------------
         // Stage 3: Docker Build
         // ---------------------------------------------------------------------
         stage('Docker Build') {
@@ -149,7 +148,14 @@ pipeline {
             steps {
                 dir('backend') {
                     sh """
-                        docker build \
+                        # Ensure buildx is available and set up
+                        docker buildx version || docker buildx install
+                        docker buildx create --use --name multiarch-builder 2>/dev/null || true
+                        
+                        # Build with platform targeting for deploy server compatibility
+                        docker buildx build \
+                            --platform linux/amd64 \
+                            --load \
                             -f Dockerfile.prod \
                             --build-arg BUILD_NUMBER=${BUILD_NUMBER} \
                             --build-arg GIT_COMMIT=${env.GIT_COMMIT_SHORT} \
@@ -169,19 +175,38 @@ pipeline {
                 expression { return env.SKIP_PIPELINE != 'true' }
             }
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: env.DOCKER_CREDENTIALS,
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )
-                ]) {
-                    sh """
-                        echo "\${DOCKER_PASS}" | docker login ${DOCKER_REGISTRY} -u "\${DOCKER_USER}" --password-stdin
-                        docker push ${IMAGE_FULL}
-                        docker push ${IMAGE_LATEST}
-                        docker logout ${DOCKER_REGISTRY}
-                    """
+                timeout(time: 20, unit: 'MINUTES') {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: env.DOCKER_CREDENTIALS,
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )
+                    ]) {
+                        sh """
+                            echo "\${DOCKER_PASS}" | docker login ${DOCKER_REGISTRY} -u "\${DOCKER_USER}" --password-stdin
+                            
+                            # Retry logic for Docker push operations
+                            retry_count=3
+                            for i in \$(seq 1 \$retry_count); do
+                                echo "Docker push attempt \$i/\$retry_count"
+                                if docker push ${IMAGE_FULL} && docker push ${IMAGE_LATEST}; then
+                                    echo "Docker push successful on attempt \$i"
+                                    break
+                                else
+                                    echo "Docker push failed on attempt \$i"
+                                    if [ \$i -eq \$retry_count ]; then
+                                        echo "All \$retry_count attempts failed"
+                                        exit 1
+                                    fi
+                                    echo "Waiting 10 seconds before retry..."
+                                    sleep 10
+                                fi
+                            done
+                            
+                            docker logout ${DOCKER_REGISTRY}
+                        """
+                    }
                 }
             }
         }
