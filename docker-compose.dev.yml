@@ -6,9 +6,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/lv360
+      - DATABASE_URL=postgresql://postgres:lv360_dev_password@postgres:5432/lv360
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=dev_jwt_secret_key_change_in_production
       - CORS_ORIGINS=https://appdev.lamviec360.com,https://dev.lamviec360.com
       - POSTGRES_DB=lv360
       - POSTGRES_USER=postgres
@@ -38,7 +38,7 @@ services:
     environment:
       - POSTGRES_DB=lv360
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PASSWORD=lv360_dev_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -70,7 +70,7 @@ services:
     container_name: lv360_pg_backup_dev
     restart: always
     environment:
-      - PGPASSWORD=${POSTGRES_PASSWORD}
+      - PGPASSWORD=lv360_dev_password
     volumes:
       - ./backups:/backups
       - postgres_data:/var/lib/postgresql/data
