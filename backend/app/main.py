@@ -50,6 +50,8 @@ app = FastAPI(
     redoc_url=None,
 )
 
+# Mount the folder "ux" to the URL path "/ux"
+app.mount("/ux", StaticFiles(directory="ux", html=True), name="ux")
 
 @app.get("/redoc", include_in_schema=False)
 async def redoc_html():
