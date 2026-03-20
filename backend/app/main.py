@@ -12,6 +12,7 @@ from app.models import HelloWorld
 from app.redis_client import check_redis_health
 from app.routers.hello import router as hello_router
 from app.schemas import TaskCreate, TaskResponse, TaskUpdate
+from fastapi.staticfiles import StaticFiles
 
 settings = get_settings()
 
