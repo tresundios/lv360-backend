@@ -15,6 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+
 #RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 RUN python -m venv /venv && \
     /venv/bin/pip install --upgrade pip && \
@@ -48,6 +49,7 @@ COPY ./tests ./tests
 COPY ./alembic ./alembic
 COPY ./alembic.ini ./alembic.ini
 COPY ./scripts ./scripts
+COPY --from=builder /ux ./ux
 
 # Make scripts executable
 RUN chmod +x ./scripts/*.sh 2>/dev/null || true

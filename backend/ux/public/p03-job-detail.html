@@ -1,0 +1,1428 @@
+<!doctype html>
+<!--
+  SCREEN: p03 Job Detail
+  PRD REFS: JSP-FR-003, JSP-FR-005, JSP-FR-010, BR-008, BR-009
+  FLOW: p02-job-search.html → THIS → js03-apply.html OR a01-login.html
+  PERSONA: Job Seekers (public, login required to apply)
+  STAGE: Phase 1 MVP
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Senior Backend Engineer at TechCorp Vietnam JSC</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-50);
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--color-white);
+      border-bottom: var(--border-default);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    /* Logo styles (RULE G-003) */
+    .logo-img {
+      height: 36px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+    @media (max-width: 767px) {
+      .logo-img { height: 28px; }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .nav-link {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      text-decoration: none;
+    }
+    .nav-link:hover { color: var(--color-primary); text-decoration: none; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 44px;
+      min-width: 44px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-ghost { background: transparent; color: var(--color-grey-700); border: 1px solid var(--color-grey-300); }
+    .btn-ghost:hover { background: rgba(15, 23, 42, 0.02); text-decoration: none; }
+    .btn-secondary { background: white; color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-secondary:hover { background: var(--color-primary); color: white; text-decoration: none; }
+    .btn-large { padding: 12px 24px; font-size: var(--text-lg); min-height: 52px; }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      background: white;
+      padding: var(--space-4) 0;
+      border-bottom: var(--border-default);
+    }
+
+    .breadcrumb-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+    }
+
+    .breadcrumb-list {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .breadcrumb-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .breadcrumb-link {
+      color: var(--color-grey-500);
+      text-decoration: none;
+    }
+
+    .breadcrumb-link:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .breadcrumb-separator {
+      color: var(--color-grey-300);
+    }
+
+    .breadcrumb-current {
+      color: var(--color-grey-900);
+      font-weight: 600;
+    }
+
+    /* Main Layout */
+    .main-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-6);
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--space-8);
+    }
+
+    /* Job Header Card */
+    .job-header-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      margin-bottom: var(--space-8);
+    }
+
+    .job-header-top {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .company-logo-large {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      background: var(--color-grey-100);
+      display: grid;
+      place-items: center;
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--color-grey-500);
+      flex-shrink: 0;
+    }
+
+    .company-info {
+      flex: 1;
+    }
+
+    .company-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+
+    .company-name {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .verified-badge {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+      padding: 4px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .job-title {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0 0 var(--space-6) 0;
+      color: var(--color-grey-900);
+    }
+
+    .job-meta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .job-meta-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      flex-wrap: wrap;
+    }
+
+    .job-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .job-stats {
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin-bottom: var(--space-6);
+    }
+
+    .job-stat {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    /* Skills Tags */
+    .skills-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+    }
+
+    .skill-tag {
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    /* Social Share */
+    .social-share {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--color-grey-200);
+    }
+
+    .share-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .share-links {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .share-link {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-grey-700);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .share-link:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Tabs */
+    .tabs-section {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .tabs-nav {
+      display: flex;
+      border-bottom: 1px solid var(--color-grey-200);
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      background: none;
+      border: none;
+      padding: var(--space-4) var(--space-6);
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-600);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-button:hover {
+      color: var(--color-primary);
+    }
+
+    .tab-button.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .tab-content {
+      padding: var(--space-8);
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Tab Content Styling */
+    .tab-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .tab-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .tab-section h3 {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-4) 0;
+      color: var(--color-grey-900);
+    }
+
+    .tab-section p {
+      font-size: var(--text-base);
+      line-height: 1.7;
+      color: var(--color-grey-700);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .requirements-list, .benefits-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .requirements-list li, .benefits-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-2) 0;
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+    }
+
+    .requirements-list li::before {
+      content: "✓";
+      color: var(--color-primary);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .benefits-list li::before {
+      flex-shrink: 0;
+    }
+
+    /* Company Info */
+    .company-card {
+      background: var(--color-grey-50);
+      border: 1px solid var(--color-grey-200);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+
+    .company-card-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      display: grid;
+      place-items: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-grey-500);
+      flex-shrink: 0;
+    }
+
+    .company-card-info {
+      flex: 1;
+    }
+
+    .company-card-name {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: 0 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .company-card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    .apply-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      position: sticky;
+      top: 100px;
+    }
+
+    .apply-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .apply-info {
+      padding: var(--space-4) 0;
+      border-top: 1px solid var(--color-grey-200);
+      border-bottom: 1px solid var(--color-grey-200);
+    }
+
+    .apply-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-2);
+    }
+
+    .apply-info-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .apply-info-label {
+      color: var(--color-grey-600);
+    }
+
+    .apply-info-value {
+      font-weight: 600;
+      color: var(--color-grey-900);
+    }
+
+    .deadline-warning {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin-top: var(--space-4);
+    }
+
+    /* Similar Jobs */
+    .similar-jobs-section {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+    }
+
+    .similar-jobs-header {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: 0 0 var(--space-4) 0;
+      color: var(--color-grey-900);
+    }
+
+    .similar-job-card {
+      border: 1px solid var(--color-grey-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .similar-job-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .similar-job-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .similar-job-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .similar-job-company {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .similar-job-meta {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+    }
+
+    /* Mobile Apply Bar */
+    .mobile-apply-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: var(--border-default);
+      padding: var(--space-4);
+      z-index: 1000;
+    }
+
+    .mobile-apply-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+    }
+
+    /* Similar Jobs Mobile */
+    .similar-jobs-mobile {
+      display: none;
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-top: var(--space-6);
+    }
+
+    .similar-jobs-scroll {
+      display: flex;
+      gap: var(--space-4);
+      overflow-x: auto;
+      padding-bottom: var(--space-2);
+    }
+
+    .similar-job-mobile-card {
+      flex-shrink: 0;
+      width: 280px;
+      border: 1px solid var(--color-grey-200);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+    }
+
+    .similar-job-mobile-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .nav-links { display: none; }
+      
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
+        padding: var(--space-4);
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-apply-bar {
+        display: block;
+      }
+
+      .similar-jobs-mobile {
+        display: block;
+      }
+
+      .job-title {
+        font-size: var(--text-3xl);
+      }
+
+      .job-meta-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+
+      .job-stats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+
+      .social-share {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+
+      .tabs-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
+    /* Responsive: Tablet */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .main-container {
+        gap: var(--space-6);
+      }
+      
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-apply-bar {
+        display: block;
+      }
+
+      .similar-jobs-mobile {
+        display: block;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Logo (RULE G-003) -->
+      <a href="p01-homepage.html" class="logo-link" aria-label="LàmViệc360 homepage">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo-img">
+      </a>
+
+      <!-- Navigation -->
+      <nav class="nav-links" role="navigation" aria-label="Main navigation">
+        <a href="p02-job-search.html" class="nav-link" data-i18n="navFindJobs">Find Jobs</a>
+        <a href="#employers" class="nav-link" data-i18n="navForEmployers">For Employers</a>
+        <a href="p02-job-search.html" class="nav-link" data-i18n="navBrowseCompanies">Browse Companies</a>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Language Toggle (RULE G-002) -->
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        </div>
+
+        <a href="../auth/a01-login.html" class="btn btn-ghost" data-i18n="navSignIn">Sign In</a>
+        <a href="../auth/a02-register-role.html" class="btn btn-primary" data-i18n="navSignUp">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <div class="breadcrumb-container">
+      <ul class="breadcrumb-list">
+        <li class="breadcrumb-item">
+          <a href="p01-homepage.html" class="breadcrumb-link" data-i18n="breadcrumbHome">Home</a>
+          <span class="breadcrumb-separator">›</span>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="p02-job-search.html" class="breadcrumb-link" data-i18n="breadcrumbFindJobs">Find Jobs</a>
+          <span class="breadcrumb-separator">›</span>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="#" class="breadcrumb-link" data-i18n="breadcrumbCategory">IT/Tech</a>
+          <span class="breadcrumb-separator">›</span>
+        </li>
+        <li class="breadcrumb-item">
+          <span class="breadcrumb-current" data-i18n="breadcrumbJobTitle">Senior Backend Engineer</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main id="main-content" class="main-container">
+    <!-- Left Column -->
+    <div class="main-content">
+      <!-- Job Header Card -->
+      <div class="job-header-card">
+        <div class="job-header-top">
+          <div class="company-logo-large">TCV</div>
+          <div class="company-info">
+            <div class="company-header">
+              <h2 class="company-name">TechCorp Vietnam JSC</h2>
+              <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+            </div>
+            <h1 class="job-title" data-i18n="jobTitle">Senior Backend Engineer</h1>
+          </div>
+        </div>
+
+        <div class="job-meta">
+          <div class="job-meta-row">
+            <span class="job-meta-item">📍 Hà Nội</span>
+            <span class="job-meta-item">🏷 Full-time</span>
+            <span class="job-meta-item">💰 25.000.000 – 40.000.000 VND/tháng</span>
+          </div>
+          <div class="job-meta-row">
+            <span class="job-meta-item">📅 Posted: 10 Tháng 3, 2026</span>
+            <span class="job-meta-item">⏰ Deadline: 31 Tháng 3, 2026</span>
+          </div>
+        </div>
+
+        <div class="job-stats">
+          <span class="job-stat">👁 847 views</span>
+          <span class="job-stat">👥 23 applications</span>
+        </div>
+
+        <div class="skills-tags">
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">PostgreSQL</span>
+          <span class="skill-tag">FastAPI</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">AWS</span>
+        </div>
+
+        <div class="social-share">
+          <span class="share-label" data-i18n="shareLabel">Share:</span>
+          <div class="share-links">
+            <a href="#" class="share-link" aria-label="Share on LinkedIn">in</a>
+            <a href="#" class="share-link" aria-label="Share on Facebook">f</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Section -->
+      <div class="tabs-section">
+        <div class="tabs-nav" role="tablist">
+          <button class="tab-button active" data-tab="description" role="tab" data-i18n="tabDescription">Mô tả công việc</button>
+          <button class="tab-button" data-tab="requirements" role="tab" data-i18n="tabRequirements">Yêu cầu</button>
+          <button class="tab-button" data-tab="benefits" role="tab" data-i18n="tabBenefits">Phúc lợi</button>
+          <button class="tab-button" data-tab="company" role="tab" data-i18n="tabCompany">Về công ty</button>
+        </div>
+
+        <div class="tab-content">
+          <!-- Tab 1: Job Description -->
+          <div class="tab-pane active" id="description">
+            <div class="tab-section">
+              <h3 data-i18n="jdOverview">Tổng quan công việc</h3>
+              <p data-i18n="jdOverviewText">
+                Chúng tôi đang tìm kiếm một Senior Backend Engineer tài năng để gia nhập đội ngũ phát triển sản phẩm cốt lõi của TechCorp Vietnam. Bạn sẽ có cơ hội làm việc với các công nghệ hiện đại, tham gia thiết kế và phát triển các hệ thống backend có khả năng mở rộng cao, phục vụ hàng triệu người dùng trên toàn quốc.
+              </p>
+              <p data-i18n="jdOverviewText2">
+                Vị trí này đòi hỏi kinh nghiệm sâu rộng trong phát triển backend, kiến thức vững chắc về kiến trúc hệ thống phân tán, và khả năng giải quyết các vấn đề kỹ thuật phức tạp. Bạn sẽ làm việc trực tiếp với team lead và product owner để đảm bảo chất lượng và tiến độ dự án.
+              </p>
+            </div>
+
+            <div class="tab-section">
+              <h3 data-i18n="responsibilities">Trách nhiệm chính</h3>
+              <ul class="requirements-list">
+                <li data-i18n="responsibility1">Thiết kế, phát triển và bảo trì các API backend sử dụng Node.js và FastAPI</li>
+                <li data-i18n="responsibility2">Tối ưu hóa hiệu suất hệ thống, đảm bảo response time dưới 200ms cho 99% requests</li>
+                <li data-i18n="responsibility3">Xây dựng và quản lý các hệ thống database với PostgreSQL và Redis</li>
+                <li data-i18n="responsibility4">Triển khai và quản lý hệ thống trên cloud infrastructure (AWS, Docker)</li>
+                <li data-i18n="responsibility5">Phối hợp với frontend team để tích hợp API và đảm bảo trải nghiệm người dùng tốt nhất</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tab 2: Requirements -->
+          <div class="tab-pane" id="requirements">
+            <div class="tab-section">
+              <h3 data-i18n="experience">Kinh nghiệm</h3>
+              <p data-i18n="experienceText">3–5 năm kinh nghiệm phát triển Backend development</p>
+            </div>
+
+            <div class="tab-section">
+              <h3 data-i18n="education">Học vấn</h3>
+              <p data-i18n="educationText">Bachelor's degree in Computer Science hoặc ngành liên quan</p>
+            </div>
+
+            <div class="tab-section">
+              <h3 data-i18n="requiredSkills">Kỹ năng bắt buộc</h3>
+              <ul class="requirements-list">
+                <li data-i18n="skill1">Kinh nghiệm sâu với Node.js và JavaScript/TypeScript</li>
+                <li data-i18n="skill2">Thành thạo PostgreSQL và các hệ thống database quan hệ</li>
+                <li data-i18n="skill3">Kiến thức về RESTful API design và microservices architecture</li>
+                <li data-i18n="skill4">Kinh nghiệm với Docker và containerization</li>
+                <li data-i18n="skill5">Hiểu biết về cloud services (AWS, Azure, hoặc GCP)</li>
+                <li data-i18n="skill6">Kỹ năng troubleshooting và performance optimization</li>
+                <li data-i18n="skill7">Kiến thức về security best practices</li>
+                <li data-i18n="skill8">Kinh nghiệm với version control (Git) và CI/CD pipelines</li>
+              </ul>
+            </div>
+
+            <div class="tab-section">
+              <h3 data-i18n="niceToHave">Ưu tiên có</h3>
+              <ul class="requirements-list">
+                <li data-i18n="nice1">Kinh nghiệm với FastAPI hoặc Python frameworks khác</li>
+                <li data-i18n="nice2">Kiến thức về GraphQL</li>
+                <li data-i18n="nice3">Kinh nghiệm với distributed systems và high-availability architectures</li>
+                <li data-i18n="nice4">Kinh nghiệm mentoring junior developers</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tab 3: Benefits -->
+          <div class="tab-pane" id="benefits">
+            <div class="tab-section">
+              <h3 data-i18n="benefitsTitle">Phúc lợi và đãi ngộ</h3>
+              <ul class="benefits-list">
+                <li>💰 <span data-i18n="benefit1">Mức lương cạnh tranh, đánh giá hiệu suất 6 tháng/lần</span></li>
+                <li>🏥 <span data-i18n="benefit2">Bảo hiểm sức khỏe toàn diện cho bạn và gia đình</span></li>
+                <li>📚 <span data-i18n="benefit3">Ngân sách học tập và phát triển chuyên môn</span></li>
+                <li>🏖 <span data-i18n="benefit4">15 ngày nghỉ phép năm + ngày nghỉ lễ</span></li>
+                <li>🍱 <span data-i18n="benefit5">Phụ cấp ăn trưa và đi lại</span></li>
+                <li>💻 <span data-i18n="benefit6">Cung cấp MacBook Pro và thiết bị làm việc</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tab 4: About Company -->
+          <div class="tab-pane" id="company">
+            <div class="tab-section">
+              <div class="company-card">
+                <div class="company-card-logo">TCV</div>
+                <div class="company-card-info">
+                  <h3 class="company-card-name">
+                    TechCorp Vietnam JSC
+                    <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                  </h3>
+                  <div class="company-card-meta">
+                    <span data-i18n="companyIndustry">Industry: IT / SaaS</span>
+                    <span data-i18n="companySize">Size: 51–200 employees</span>
+                    <span data-i18n="companyLocation">Location: Hà Nội</span>
+                    <span data-i18n="companyWebsite">Website: techcorp.vn</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-section">
+              <h3 data-i18n="aboutCompany">Về TechCorp Vietnam</h3>
+              <p data-i18n="aboutCompanyText">
+                TechCorp Vietnam JSC là công ty công nghệ hàng đầu tại Việt Nam, chuyên phát triển các giải pháp SaaS cho doanh nghiệp. Với đội ngũ hơn 150 kỹ sư tài năng, chúng tôi đã phục vụ hơn 500 khách hàng trên toàn quốc và khu vực.
+              </p>
+              <p data-i18n="aboutCompanyText2">
+                Văn hóa làm việc của chúng tôi đề cao sự sáng tạo, hợp tác và phát triển cá nhân. Chúng tôi tin rằng mỗi nhân viên là yếu tố quan trọng nhất tạo nên thành công của công ty.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Similar Jobs Mobile -->
+      <div class="similar-jobs-mobile">
+        <h3 class="similar-jobs-header" data-i18n="similarJobsTitle">Việc làm tương tự</h3>
+        <div class="similar-jobs-scroll">
+          <a href="p03-job-detail.html" class="similar-job-mobile-card">
+            <h4 class="similar-job-title">Backend Developer</h4>
+            <p class="similar-job-company">DataVN Ltd</p>
+            <p class="similar-job-meta">📍 Hà Nội · 💰 20-35M · 📅 3 days ago</p>
+          </a>
+          <a href="p03-job-detail.html" class="similar-job-mobile-card">
+            <h4 class="similar-job-title">Full Stack Engineer</h4>
+            <p class="similar-job-company">FinApp Vietnam</p>
+            <p class="similar-job-meta">📍 Đà Nẵng · 💰 25-40M · 📅 1 week ago</p>
+          </a>
+          <a href="p03-job-detail.html" class="similar-job-mobile-card">
+            <h4 class="similar-job-title">Node.js Developer</h4>
+            <p class="similar-job-company">StartupVN</p>
+            <p class="similar-job-meta">📍 Hà Nội · 💰 18-30M · 📅 5 days ago</p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar">
+      <!-- Apply Card -->
+      <div class="apply-card">
+        <div class="apply-actions">
+          <a href="../auth/a01-login.html?return=p03-job-detail.html" class="btn btn-primary btn-large" data-i18n="applyNow">Ứng tuyển ngay</a>
+          <button class="btn btn-secondary" data-i18n="saveJob">♡ Save Job</button>
+        </div>
+
+        <div class="apply-info">
+          <div class="apply-info-item">
+            <span class="apply-info-label" data-i18n="companyLabel">Company:</span>
+            <span class="apply-info-value">TechCorp Vietnam JSC ✓</span>
+          </div>
+          <div class="apply-info-item">
+            <span class="apply-info-label" data-i18n="deadlineLabel">Deadline:</span>
+            <span class="apply-info-value">31 Tháng 3, 2026</span>
+          </div>
+        </div>
+
+        <div class="deadline-warning">
+          ⚠ <span data-i18n="daysRemaining">7 days remaining</span>
+        </div>
+      </div>
+
+      <!-- Similar Jobs -->
+      <div class="similar-jobs-section">
+        <h3 class="similar-jobs-header" data-i18n="similarJobsTitle">Similar Jobs</h3>
+        
+        <a href="p03-job-detail.html" class="similar-job-card">
+          <h4 class="similar-job-title">Backend Developer</h4>
+          <p class="similar-job-company">DataVN Ltd</p>
+          <p class="similar-job-meta">📍 Hà Nội · 💰 20-35M · 📅 3 days ago</p>
+        </a>
+
+        <a href="p03-job-detail.html" class="similar-job-card">
+          <h4 class="similar-job-title">Full Stack Engineer</h4>
+          <p class="similar-job-company">FinApp Vietnam</p>
+          <p class="similar-job-meta">📍 Đà Nẵng · 💰 25-40M · 📅 1 week ago</p>
+        </a>
+
+        <a href="p03-job-detail.html" class="similar-job-card">
+          <h4 class="similar-job-title">Node.js Developer</h4>
+          <p class="similar-job-company">StartupVN</p>
+          <p class="similar-job-meta">📍 Hà Nội · 💰 18-30M · 📅 5 days ago</p>
+        </a>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Mobile Apply Bar -->
+  <div class="mobile-apply-bar">
+    <div class="mobile-apply-container">
+      <a href="../auth/a01-login.html?return=p03-job-detail.html" class="btn btn-primary btn-large btn-full" data-i18n="applyNow">Ứng tuyển ngay</a>
+    </div>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 p03: Job Detail
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="p02-job-search.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← p02: Job Search</a>
+    <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="../auth/a01-login.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ a01: Login (not logged in)</a>
+    <a href="../jobseeker/js03-apply.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ js03: Apply (logged in)</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        navFindJobs: 'Find Jobs',
+        navForEmployers: 'For Employers',
+        navBrowseCompanies: 'Browse Companies',
+        navSignIn: 'Sign In',
+        navSignUp: 'Sign Up',
+        breadcrumbHome: 'Home',
+        breadcrumbFindJobs: 'Find Jobs',
+        breadcrumbCategory: 'IT/Tech',
+        breadcrumbJobTitle: 'Senior Backend Engineer',
+        verifiedBadge: '✓ Verified',
+        jobTitle: 'Senior Backend Engineer',
+        shareLabel: 'Share:',
+        tabDescription: 'Mô tả công việc',
+        tabRequirements: 'Yêu cầu',
+        tabBenefits: 'Phúc lợi',
+        tabCompany: 'Về công ty',
+        jdOverview: 'Tổng quan công việc',
+        jdOverviewText: 'Chúng tôi đang tìm kiếm một Senior Backend Engineer tài năng để gia nhập đội ngũ phát triển sản phẩm cốt lõi của TechCorp Vietnam. Bạn sẽ có cơ hội làm việc với các công nghệ hiện đại, tham gia thiết kế và phát triển các hệ thống backend có khả năng mở rộng cao, phục vụ hàng triệu người dùng trên toàn quốc.',
+        jdOverviewText2: 'Vị trí này đòi hỏi kinh nghiệm sâu rộng trong phát triển backend, kiến thức vững chắc về kiến trúc hệ thống phân tán, và khả năng giải quyết các vấn đề kỹ thuật phức tạp. Bạn sẽ làm việc trực tiếp với team lead và product owner để đảm bảo chất lượng và tiến độ dự án.',
+        responsibilities: 'Trách nhiệm chính',
+        responsibility1: 'Thiết kế, phát triển và bảo trì các API backend sử dụng Node.js và FastAPI',
+        responsibility2: 'Tối ưu hóa hiệu suất hệ thống, đảm bảo response time dưới 200ms cho 99% requests',
+        responsibility3: 'Xây dựng và quản lý các hệ thống database với PostgreSQL và Redis',
+        responsibility4: 'Triển khai và quản lý hệ thống trên cloud infrastructure (AWS, Docker)',
+        responsibility5: 'Phối hợp với frontend team để tích hợp API và đảm bảo trải nghiệm người dùng tốt nhất',
+        experience: 'Kinh nghiệm',
+        experienceText: '3–5 năm kinh nghiệm phát triển Backend development',
+        education: 'Học vấn',
+        educationText: "Bachelor's degree in Computer Science hoặc ngành liên quan",
+        requiredSkills: 'Kỹ năng bắt buộc',
+        skill1: 'Kinh nghiệm sâu với Node.js và JavaScript/TypeScript',
+        skill2: 'Thành thạo PostgreSQL và các hệ thống database quan hệ',
+        skill3: 'Kiến thức về RESTful API design và microservices architecture',
+        skill4: 'Kinh nghiệm với Docker và containerization',
+        skill5: 'Hiểu biết về cloud services (AWS, Azure, hoặc GCP)',
+        skill6: 'Kỹ năng troubleshooting và performance optimization',
+        skill7: 'Kiến thức về security best practices',
+        skill8: 'Kinh nghiệm với version control (Git) và CI/CD pipelines',
+        niceToHave: 'Ưu tiên có',
+        nice1: 'Kinh nghiệm với FastAPI hoặc Python frameworks khác',
+        nice2: 'Kiến thức về GraphQL',
+        nice3: 'Kinh nghiệm với distributed systems và high-availability architectures',
+        nice4: 'Kinh nghiệm mentoring junior developers',
+        benefitsTitle: 'Phúc lợi và đãi ngộ',
+        benefit1: 'Mức lương cạnh tranh, đánh giá hiệu suất 6 tháng/lần',
+        benefit2: 'Bảo hiểm sức khỏe toàn diện cho bạn và gia đình',
+        benefit3: 'Ngân sách học tập và phát triển chuyên môn',
+        benefit4: '15 ngày nghỉ phép năm + ngày nghỉ lễ',
+        benefit5: 'Phụ cấp ăn trưa và đi lại',
+        benefit6: 'Cung cấp MacBook Pro và thiết bị làm việc',
+        companyIndustry: 'Industry: IT / SaaS',
+        companySize: 'Size: 51–200 employees',
+        companyLocation: 'Location: Hà Nội',
+        companyWebsite: 'Website: techcorp.vn',
+        aboutCompany: 'Về TechCorp Vietnam',
+        aboutCompanyText: 'TechCorp Vietnam JSC là công ty công nghệ hàng đầu tại Việt Nam, chuyên phát triển các giải pháp SaaS cho doanh nghiệp. Với đội ngũ hơn 150 kỹ sư tài năng, chúng tôi đã phục vụ hơn 500 khách hàng trên toàn quốc và khu vực.',
+        aboutCompanyText2: 'Văn hóa làm việc của chúng tôi đề cao sự sáng tạo, hợp tác và phát triển cá nhân. Chúng tôi tin rằng mỗi nhân viên là yếu tố quan trọng nhất tạo nên thành công của công ty.',
+        similarJobsTitle: 'Việc làm tương tự',
+        applyNow: 'Ứng tuyển ngay',
+        saveJob: '♡ Save Job',
+        companyLabel: 'Company:',
+        deadlineLabel: 'Deadline:',
+        daysRemaining: '7 days remaining'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        navFindJobs: 'Find Jobs',
+        navForEmployers: 'For Employers',
+        navBrowseCompanies: 'Browse Companies',
+        navSignIn: 'Sign In',
+        navSignUp: 'Sign Up',
+        breadcrumbHome: 'Home',
+        breadcrumbFindJobs: 'Find Jobs',
+        breadcrumbCategory: 'IT/Tech',
+        breadcrumbJobTitle: 'Senior Backend Engineer',
+        verifiedBadge: '✓ Verified',
+        jobTitle: 'Senior Backend Engineer',
+        shareLabel: 'Share:',
+        tabDescription: 'Job Description',
+        tabRequirements: 'Requirements',
+        tabBenefits: 'Benefits',
+        tabCompany: 'About Company',
+        jdOverview: 'Job Overview',
+        jdOverviewText: 'We are looking for a talented Senior Backend Engineer to join TechCorp Vietnam\'s core product development team. You will have the opportunity to work with modern technologies, design and develop scalable backend systems serving millions of users nationwide.',
+        jdOverviewText2: 'This position requires extensive backend development experience, solid knowledge of distributed system architecture, and the ability to solve complex technical problems. You will work directly with team leads and product owners to ensure project quality and timeline.',
+        responsibilities: 'Key Responsibilities',
+        responsibility1: 'Design, develop and maintain backend APIs using Node.js and FastAPI',
+        responsibility2: 'Optimize system performance, ensure response time under 200ms for 99% of requests',
+        responsibility3: 'Build and manage database systems with PostgreSQL and Redis',
+        responsibility4: 'Deploy and manage systems on cloud infrastructure (AWS, Docker)',
+        responsibility5: 'Collaborate with frontend team to integrate APIs and ensure best user experience',
+        experience: 'Experience',
+        experienceText: '3–5 years of Backend development experience',
+        education: 'Education',
+        educationText: "Bachelor's degree in Computer Science or related field",
+        requiredSkills: 'Required Skills',
+        skill1: 'Deep experience with Node.js and JavaScript/TypeScript',
+        skill2: 'Proficient in PostgreSQL and relational database systems',
+        skill3: 'Knowledge of RESTful API design and microservices architecture',
+        skill4: 'Experience with Docker and containerization',
+        skill5: 'Understanding of cloud services (AWS, Azure, or GCP)',
+        skill6: 'Troubleshooting and performance optimization skills',
+        skill7: 'Knowledge of security best practices',
+        skill8: 'Experience with version control (Git) and CI/CD pipelines',
+        niceToHave: 'Nice to Have',
+        nice1: 'Experience with FastAPI or other Python frameworks',
+        nice2: 'Knowledge of GraphQL',
+        nice3: 'Experience with distributed systems and high-availability architectures',
+        nice4: 'Experience mentoring junior developers',
+        benefitsTitle: 'Benefits and Compensation',
+        benefit1: 'Competitive salary with performance reviews every 6 months',
+        benefit2: 'Comprehensive health insurance for you and your family',
+        benefit3: 'Learning and professional development budget',
+        benefit4: '15 annual leave days + public holidays',
+        benefit5: 'Lunch and transportation allowance',
+        benefit6: 'MacBook Pro and work equipment provided',
+        companyIndustry: 'Industry: IT / SaaS',
+        companySize: 'Size: 51–200 employees',
+        companyLocation: 'Location: Hanoi',
+        companyWebsite: 'Website: techcorp.vn',
+        aboutCompany: 'About TechCorp Vietnam',
+        aboutCompanyText: 'TechCorp Vietnam JSC is a leading technology company in Vietnam, specializing in SaaS solutions for businesses. With a team of over 150 talented engineers, we serve more than 500 customers nationwide and in the region.',
+        aboutCompanyText2: 'Our work culture emphasizes creativity, collaboration, and personal development. We believe that every employee is the most important factor in the company\'s success.',
+        similarJobsTitle: 'Similar Jobs',
+        applyNow: 'Apply Now',
+        saveJob: '♡ Save Job',
+        companyLabel: 'Company:',
+        deadlineLabel: 'Deadline:',
+        daysRemaining: '7 days remaining'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Senior Backend Engineer at TechCorp Vietnam JSC' : 'LàmViệc360 — Senior Backend Engineer at TechCorp Vietnam JSC';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== TAB FUNCTIONALITY ==========
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTab = button.getAttribute('data-tab');
+        
+        // Remove active class from all buttons and panes
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding pane
+        button.classList.add('active');
+        document.getElementById(targetTab).classList.add('active');
+      });
+    });
+
+    // ========== SAVE JOB FUNCTIONALITY (JSP-FR-006) ==========
+    const saveJobBtn = document.querySelector('.apply-actions .btn-secondary');
+    const isLoggedIn = false; // In real app, check session
+
+    saveJobBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      if (!isLoggedIn) {
+        // Redirect to login page
+        window.location.href = '../auth/a01-login.html?return=p03-job-detail.html';
+        return;
+      }
+      
+      // Toggle saved state
+      const isSaved = saveJobBtn.classList.contains('saved');
+      saveJobBtn.classList.toggle('saved');
+      saveJobBtn.innerHTML = isSaved ? '♡ Save Job' : '♥ Saved';
+      
+      // In real app, would save/remove from backend
+      console.log(isSaved ? 'Job removed from saved' : 'Job saved');
+    });
+
+    // ========== APPLY FUNCTIONALITY (JSP-FR-003) ==========
+    const applyButtons = document.querySelectorAll('.btn-primary');
+    
+    applyButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        if (!isLoggedIn) {
+          // Redirect to login page with return URL
+          window.location.href = '../auth/a01-login.html?return=p03-job-detail.html';
+        } else {
+          // Redirect to apply page
+          window.location.href = '../jobseeker/js03-apply.html';
+        }
+      });
+    });
+
+    // ========== SOCIAL SHARE ==========
+    const shareLinks = document.querySelectorAll('.share-link');
+    
+    shareLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const url = window.location.href;
+        const title = document.querySelector('.job-title').textContent;
+        
+        if (link.textContent === 'in') {
+          // LinkedIn share
+          window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+        } else if (link.textContent === 'f') {
+          // Facebook share
+          window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        }
+      });
+    });
+
+    // ========== RESPONSIVE HANDLING ==========
+    function handleResize() {
+      const isMobile = window.innerWidth < 768;
+      const sidebar = document.querySelector('.sidebar');
+      const mobileApplyBar = document.querySelector('.mobile-apply-bar');
+      const similarJobsMobile = document.querySelector('.similar-jobs-mobile');
+      
+      if (isMobile) {
+        sidebar.style.display = 'none';
+        mobileApplyBar.style.display = 'block';
+        similarJobsMobile.style.display = 'block';
+      } else {
+        sidebar.style.display = 'flex';
+        mobileApplyBar.style.display = 'none';
+        similarJobsMobile.style.display = 'none';
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial call
+  </script>
+</body>
+</html>

@@ -1,0 +1,1936 @@
+<!doctype html>
+<!--
+  SCREEN: e03 Create Job
+  PRD REFS: EMP-FR-009, EMP-FR-010, EMP-FR-011, EMP-FR-013, EMP-FR-014, EMP-FR-015, BR-003
+  FLOW: e02-job-list.html → THIS → e04-edit-job.html OR e05-ai-jd-generator.html
+  PERSONA: Company Admin, HR/Recruiter
+  STAGE: Phase 1 MVP
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Post New Job | TechCorp Vietnam JSC</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-50);
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--color-navy);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1000;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo {
+      height: 32px;
+      width: auto;
+      display: block;
+      margin-bottom: var(--space-4);
+      filter: brightness(0) invert(1);
+    }
+
+    .company-info {
+      margin-bottom: var(--space-2);
+    }
+
+    .company-name {
+      font-size: var(--text-base);
+      font-weight: 700;
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .role-badge {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      margin-right: var(--space-2);
+    }
+
+    .verified-badge {
+      display: inline-block;
+      background: var(--color-success);
+      color: white;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-4) 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-6);
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-footer {
+      padding: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
+
+    .sign-out-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: color 0.2s;
+    }
+
+    .sign-out-link:hover {
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .page-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0;
+      color: var(--color-grey-900);
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      border: 1px solid var(--color-grey-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-grey-700);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--color-danger);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: 700;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .user-avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-6);
+      flex: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Progress Indicator */
+    .progress-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .progress-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .progress-percentage {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      font-weight: 600;
+    }
+
+    .progress-bar {
+      display: flex;
+      background: var(--color-grey-200);
+      border-radius: var(--radius-full);
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-segment {
+      flex: 1;
+      height: 100%;
+      border-right: 2px solid white;
+      position: relative;
+    }
+
+    .progress-segment:last-child {
+      border-right: none;
+    }
+
+    .progress-segment.active {
+      background: var(--color-primary);
+    }
+
+    .progress-segment.completed {
+      background: var(--color-success);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--color-grey-600);
+    }
+
+    .progress-label {
+      text-align: center;
+      flex: 1;
+    }
+
+    .progress-label.active {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* Form Styles */
+    .form-container {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .form-section {
+      margin-bottom: var(--space-8);
+      padding-bottom: var(--space-8);
+      border-bottom: 1px solid var(--color-grey-200);
+    }
+
+    .form-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-6) 0;
+      color: var(--color-grey-900);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .required-asterisk {
+      color: var(--color-danger);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error {
+      border-color: var(--color-danger);
+    }
+
+    .form-helper {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin-top: var(--space-1);
+    }
+
+    .form-error {
+      font-size: var(--text-sm);
+      color: var(--color-danger);
+      margin-top: var(--space-1);
+      display: none;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    /* Two Column Layout */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    /* Skills Tags */
+    .skills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      background: white;
+      min-height: 48px;
+      align-items: center;
+    }
+
+    .skill-tag {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .skill-remove {
+      cursor: pointer;
+      color: var(--color-primary-dark);
+      font-weight: 700;
+      margin-left: var(--space-1);
+    }
+
+    .skill-input {
+      border: none;
+      outline: none;
+      flex: 1;
+      min-width: 100px;
+      font-size: var(--text-base);
+    }
+
+    /* AI Generate Section */
+    .ai-generate-section {
+      background: var(--color-primary-light);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .ai-generate-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+
+    .ai-icon {
+      font-size: 24px;
+    }
+
+    .ai-generate-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 0;
+    }
+
+    .ai-generate-description {
+      font-size: var(--text-sm);
+      color: var(--color-primary-dark);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .ai-generate-button {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      padding: var(--space-4) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .ai-generate-button:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .ai-generate-note {
+      font-size: var(--text-xs);
+      color: var(--color-grey-600);
+      margin-top: var(--space-2);
+    }
+
+    /* Rich Text Editor */
+    .rich-text-editor {
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .editor-toolbar {
+      background: var(--color-grey-50);
+      padding: var(--space-2);
+      border-bottom: var(--border-default);
+      display: flex;
+      gap: var(--space-1);
+    }
+
+    .editor-button {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-grey-300);
+      background: white;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .editor-button:hover {
+      background: var(--color-grey-100);
+    }
+
+    .editor-button.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .editor-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: var(--space-4);
+      border: none;
+      outline: none;
+      resize: vertical;
+      font-size: var(--text-base);
+      line-height: 1.6;
+    }
+
+    .editor-footer {
+      background: var(--color-grey-50);
+      padding: var(--space-2) var(--space-4);
+      border-top: var(--border-default);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    /* Radio and Checkbox */
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .radio-item,
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .radio-input,
+    .checkbox-input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .radio-label,
+    .checkbox-label {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      cursor: pointer;
+    }
+
+    /* Checkbox Options */
+    .checkbox-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .checkbox-option input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .checkbox-option label {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      cursor: pointer;
+    }
+
+    /* Sticky Action Bar */
+    .action-bar {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      border-top: var(--border-default);
+      padding: var(--space-6);
+      margin: 0 calc(-1 * var(--space-6)) -1 * var(--space-6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      z-index: 50;
+    }
+
+    .form-container .action-bar {
+      margin: var(--space-8) calc(-1 * var(--space-8)) -1 * var(--space-8);
+      padding: var(--space-8);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 44px;
+      min-width: 44px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-primary:disabled { background: var(--color-grey-300); color: var(--color-grey-500); cursor: not-allowed; }
+    .btn-secondary { background: white; color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-secondary:hover { background: var(--color-primary); color: white; text-decoration: none; }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--color-grey-700);
+      cursor: pointer;
+      padding: var(--space-2);
+    }
+
+    .mobile-menu-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .mobile-overlay.open {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .content-area {
+        padding: var(--space-4);
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .action-bar {
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+
+      .action-bar .btn {
+        width: 100%;
+      }
+
+      .progress-labels {
+        font-size: 10px;
+      }
+
+      .ai-generate-section {
+        padding: var(--space-4);
+      }
+
+      .ai-generate-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .sidebar { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <!-- Logo (RULE G-003) -->
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+        
+        <div class="company-info">
+          <h2 class="company-name">TechCorp Vietnam JSC</h2>
+          <div>
+            <span class="role-badge" data-i18n="roleAdmin">Company Admin</span>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+        <a href="e01-dashboard.html" class="nav-item" data-i18n="navDashboard">
+          <span class="nav-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="e02-job-list.html" class="nav-item" data-i18n="navJobManagement">
+          <span class="nav-icon">💼</span>
+          Job Management
+        </a>
+        <a href="e06-pipeline-kanban.html" class="nav-item" data-i18n="navCandidatePipeline">
+          <span class="nav-icon">👥</span>
+          Candidate Pipeline
+        </a>
+        <a href="e14-team-list.html" class="nav-item" data-i18n="navTeamManagement">
+          <span class="nav-icon">👤</span>
+          Team Management
+        </a>
+        <a href="e18-account-settings.html" class="nav-item" data-i18n="navSettings">
+          <span class="nav-icon">⚙</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">NH</div>
+          <div class="user-info">
+            <p class="user-name">Nguyễn Thị Haanh</p>
+          </div>
+        </div>
+        <a href="../auth/a01-login.html" class="sign-out-link" data-i18n="signOut">Sign Out</a>
+      </div>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div style="display: flex; align-items: center; gap: var(--space-4);">
+          <!-- Mobile Menu Toggle -->
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <svg class="mobile-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          
+          <h1 class="page-title" data-i18n="pageTitle">Post New Job</h1>
+        </div>
+
+        <div class="top-bar-actions">
+          <!-- Notifications -->
+          <a href="e17-notifications.html" class="notification-bell" aria-label="Notifications">
+            🔔
+            <span class="notification-badge">3</span>
+          </a>
+
+          <!-- Language Toggle (RULE G-002) -->
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+
+          <!-- User Avatar -->
+          <div class="user-avatar-circle">NH</div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Progress Indicator -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <h2 class="progress-title" data-i18n="progressTitle">Form Progress</h2>
+            <span class="progress-percentage" id="progressPercentage" data-i18n="progressPercentage">Form 25% complete</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-segment active" data-segment="1"></div>
+            <div class="progress-segment" data-segment="2"></div>
+            <div class="progress-segment" data-segment="3"></div>
+            <div class="progress-segment" data-segment="4"></div>
+          </div>
+          <div class="progress-labels">
+            <div class="progress-label active" data-i18n="segment1">Basic Info</div>
+            <div class="progress-label" data-i18n="segment2">Job Details</div>
+            <div class="progress-label" data-i18n="segment3">Requirements</div>
+            <div class="progress-label" data-i18n="segment4">Preview</div>
+          </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+          <form id="jobForm">
+            <!-- Section 1: Basic Information -->
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="section1Title">Basic Information</h3>
+              
+              <div class="form-group">
+                <label class="form-label" for="jobTitle" data-i18n="jobTitleLabel">
+                  Job Title <span class="required-asterisk">*</span>
+                </label>
+                <input type="text" id="jobTitle" class="form-input" name="jobTitle" required>
+                <div class="form-helper" data-i18n="jobTitleHelper">This appears exactly as entered on the public listing</div>
+                <div class="form-error" id="jobTitleError" data-i18n="jobTitleError">Job title is required</div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="department" data-i18n="departmentLabel">
+                    Department <span class="required-asterisk">*</span>
+                  </label>
+                  <select id="department" class="form-select" name="department" required>
+                    <option value="" data-i18n="selectDepartment">Select Department</option>
+                    <option value="engineering" data-i18n="engineering">Engineering</option>
+                    <option value="design" data-i18n="design">Design</option>
+                    <option value="product" data-i18n="product">Product</option>
+                    <option value="marketing" data-i18n="marketing">Marketing</option>
+                    <option value="sales" data-i18n="sales">Sales</option>
+                    <option value="hr" data-i18n="hr">HR</option>
+                    <option value="finance" data-i18n="finance">Finance</option>
+                    <option value="data" data-i18n="data">Data</option>
+                  </select>
+                  <div class="form-error" id="departmentError" data-i18n="departmentError">Department is required</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="jobType" data-i18n="jobTypeLabel">
+                    Job Type <span class="required-asterisk">*</span>
+                  </label>
+                  <select id="jobType" class="form-select" name="jobType" required>
+                    <option value="" data-i18n="selectJobType">Select Job Type</option>
+                    <option value="full-time" data-i18n="fullTime">Full-time</option>
+                    <option value="part-time" data-i18n="partTime">Part-time</option>
+                    <option value="remote" data-i18n="remote">Remote</option>
+                    <option value="contract" data-i18n="contract">Contract</option>
+                    <option value="internship" data-i18n="internship">Internship</option>
+                  </select>
+                  <div class="form-error" id="jobTypeError" data-i18n="jobTypeError">Job type is required</div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="location" data-i18n="locationLabel">
+                    Location <span class="required-asterisk">*</span>
+                  </label>
+                  <select id="location" class="form-select" name="location" required>
+                    <option value="" data-i18n="selectLocation">Select Location</option>
+                    <option value="hanoi" data-i18n="hanoi">Hà Nội</option>
+                    <option value="hcmc" data-i18n="hcmc">TP. Hồ Chí Minh</option>
+                    <option value="danang" data-i18n="danang">Đà Nẵng</option>
+                    <option value="haiphong" data-i18n="haiphong">Hải Phòng</option>
+                    <option value="cantho" data-i18n="cantho">Cần Thơ</option>
+                    <option value="binhduong" data-i18n="binhduong">Bình Dương</option>
+                    <option value="dongnai" data-i18n="dongnai">Đồng Nai</option>
+                    <option value="remote" data-i18n="remote">Remote</option>
+                  </select>
+                  <div class="form-error" id="locationError" data-i18n="locationError">Location is required</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="vacancies" data-i18n="vacanciesLabel">
+                    Number of Vacancies <span class="required-asterisk">*</span>
+                  </label>
+                  <input type="number" id="vacancies" class="form-input" name="vacancies" min="1" value="1" required>
+                  <div class="form-error" id="vacanciesError" data-i18n="vacanciesError">Number of vacancies is required</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="deadline" data-i18n="deadlineLabel">
+                  Application Deadline <span class="required-asterisk">*</span>
+                </label>
+                <input type="date" id="deadline" class="form-input" name="deadline" required>
+                <div class="form-error" id="deadlineError" data-i18n="deadlineError">Application deadline is required</div>
+              </div>
+            </div>
+
+            <!-- Section 2: Compensation -->
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="section2Title">Compensation</h3>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="salaryRangeLabel">Salary Range (VND)</label>
+                <div class="form-row">
+                  <input type="text" id="salaryMin" class="form-input" name="salaryMin" placeholder="Min">
+                  <input type="text" id="salaryMax" class="form-input" name="salaryMax" placeholder="Max">
+                </div>
+                <div class="checkbox-options">
+                  <div class="checkbox-option">
+                    <input type="checkbox" id="negotiable" name="negotiable">
+                    <label for="negotiable" data-i18n="negotiableLabel">Negotiable (hides exact range on public listing)</label>
+                  </div>
+                </div>
+                <div class="form-helper" data-i18n="salaryHelper">Displayed as 'Thương lượng' if negotiable is checked</div>
+              </div>
+            </div>
+
+            <!-- Section 3: Job Description -->
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="section3Title">Job Description</h3>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="skillsLabel">Required Skills</label>
+                <div class="skills-container" id="skillsContainer">
+                  <span class="skill-tag">Node.js<span class="skill-remove">×</span></span>
+                  <span class="skill-tag">PostgreSQL<span class="skill-remove">×</span></span>
+                  <span class="skill-tag">FastAPI<span class="skill-remove">×</span></span>
+                  <span class="skill-tag">Docker<span class="skill-remove">×</span></span>
+                  <input type="text" class="skill-input" id="skillInput" placeholder="+ Add skill">
+                </div>
+                <div class="form-helper" data-i18n="skillsHelper">Press Enter or comma to add a skill tag</div>
+              </div>
+
+              <!-- AI Generate Section -->
+              <div class="ai-generate-section">
+                <div class="ai-generate-header">
+                  <span class="ai-icon">🤖</span>
+                  <h4 class="ai-generate-title" data-i18n="aiGenerateTitle">Let AI write your job description</h4>
+                </div>
+                <p class="ai-generate-description" data-i18n="aiGenerateDescription">Fill in Job Title + Skills above first</p>
+                <button type="button" class="ai-generate-button" id="aiGenerateBtn">
+                  ✦ <span data-i18n="aiGenerateButton">Generate JD with AI</span>
+                </button>
+                <p class="ai-generate-note" data-i18n="aiGenerateNote">Uses 1 of your 5 AI requests this session</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="jobDescription" data-i18n="jobDescriptionLabel">
+                  Job Description <span class="required-asterisk">*</span>
+                </label>
+                <div class="rich-text-editor">
+                  <div class="editor-toolbar">
+                    <button type="button" class="editor-button" data-command="bold"><strong>B</strong></button>
+                    <button type="button" class="editor-button" data-command="italic"><em>I</em></button>
+                    <button type="button" class="editor-button" data-command="insertUnorderedList">•</button>
+                    <button type="button" class="editor-button" data-command="insertOrderedList">1.</button>
+                  </div>
+                  <textarea id="jobDescription" class="editor-textarea" name="jobDescription" required 
+                            data-i18n-placeholder="jobDescriptionPlaceholder"
+                            placeholder="Describe the role, responsibilities, and day-to-day tasks...
+Or click 'Generate JD with AI' above to get a draft instantly."></textarea>
+                  <div class="editor-footer">
+                    <span id="charCount">0 / 5000</span>
+                  </div>
+                </div>
+                <div class="form-error" id="jobDescriptionError" data-i18n="jobDescriptionError">Job description is required</div>
+              </div>
+            </div>
+
+            <!-- Section 4: Requirements -->
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="section4Title">Requirements</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="experience" data-i18n="experienceLabel">
+                    Experience Level <span class="required-asterisk">*</span>
+                  </label>
+                  <select id="experience" class="form-select" name="experience" required>
+                    <option value="" data-i18n="selectExperience">Select Experience</option>
+                    <option value="0-1" data-i18n="exp0to1">0-1 years</option>
+                    <option value="1-3" data-i18n="exp1to3">1-3 years</option>
+                    <option value="3-5" data-i18n="exp3to5">3-5 years</option>
+                    <option value="5-10" data-i18n="exp5to10">5-10 years</option>
+                    <option value="10+" data-i18n="exp10plus">10+ years</option>
+                  </select>
+                  <div class="form-error" id="experienceError" data-i18n="experienceError">Experience level is required</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="education" data-i18n="educationLabel">
+                    Education Level <span class="required-asterisk">*</span>
+                  </label>
+                  <select id="education" class="form-select" name="education" required>
+                    <option value="" data-i18n="selectEducation">Select Education</option>
+                    <option value="high-school" data-i18n="highSchool">High School</option>
+                    <option value="associate" data-i18n="associate">Associate Degree</option>
+                    <option value="bachelor" data-i18n="bachelor">Bachelor's degree</option>
+                    <option value="master" data-i18n="master">Master's degree</option>
+                    <option value="phd" data-i18n="phd">PhD</option>
+                  </select>
+                  <div class="form-error" id="educationError" data-i18n="educationError">Education level is required</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 5: Selection Criteria -->
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="section5Title">Selection Criteria</h3>
+              
+              <div class="form-group">
+                <label class="form-label" for="attitudeType" data-i18n="attitudeTypeLabel">Attitude Type</label>
+                <select id="attitudeType" class="form-select" name="attitudeType">
+                  <option value="" data-i18n="selectAttitude">Select Attitude</option>
+                  <option value="professional" data-i18n="professional">Professional & detail-oriented</option>
+                  <option value="creative" data-i18n="creative">Creative & innovative</option>
+                  <option value="analytical" data-i18n="analytical">Analytical & methodical</option>
+                  <option value="leadership" data-i18n="leadership">Leadership & strategic</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="socialType" data-i18n="socialTypeLabel">Social Type</label>
+                <select id="socialType" class="form-select" name="socialType">
+                  <option value="" data-i18n="selectSocial">Select Social Type</option>
+                  <option value="team-player" data-i18n="teamPlayer">Team player</option>
+                  <option value="independent" data-i18n="independent">Independent worker</option>
+                  <option value="leader" data-i18n="leader">Natural leader</option>
+                  <option value="collaborative" data-i18n="collaborative">Collaborative</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="personalityType" data-i18n="personalityTypeLabel">Personality Type</label>
+                <select id="personalityType" class="form-select" name="personalityType">
+                  <option value="" data-i18n="selectPersonality">Select Personality</option>
+                  <option value="analytical" data-i18n="analytical">Analytical</option>
+                  <option value="creative" data-i18n="creative">Creative</option>
+                  <option value="extroverted" data-i18n="extroverted">Extroverted</option>
+                  <option value="introverted" data-i18n="introverted">Introverted</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="overtimeLabel">Overtime Willingness</label>
+                <div class="radio-group">
+                  <div class="radio-item">
+                    <input type="radio" id="overtime-yes" name="overtime" value="yes">
+                    <label for="overtime-yes" class="radio-label" data-i18n="overtimeYes">Yes, when needed</label>
+                  </div>
+                  <div class="radio-item">
+                    <input type="radio" id="overtime-flexible" name="overtime" value="flexible">
+                    <label for="overtime-flexible" class="radio-label" data-i18n="overtimeFlexible">Flexible</label>
+                  </div>
+                  <div class="radio-item">
+                    <input type="radio" id="overtime-no" name="overtime" value="no">
+                    <label for="overtime-no" class="radio-label" data-i18n="overtimeNo">No overtime</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="projectWork" data-i18n="projectWorkLabel">Project Work Requirements</label>
+                <select id="projectWork" class="form-select" name="projectWork">
+                  <option value="" data-i18n="selectProjectWork">Select Project Work</option>
+                  <option value="standard" data-i18n="standard">Standard project involvement</option>
+                  <option value="heavy" data-i18n="heavy">Heavy project work</option>
+                  <option value="minimal" data-i18n="minimal">Minimal project work</option>
+                  <option value="none" data-i18n="none">No project work</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Section 6: Additional Options -->
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="section6Title">Additional Options</h3>
+              
+              <div class="checkbox-options">
+                <div class="checkbox-option">
+                  <input type="checkbox" id="socialSharing" name="socialSharing">
+                  <label for="socialSharing" data-i18n="socialSharingLabel">Enable social sharing links (LinkedIn, Facebook)</label>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" id="featuredJob" name="featuredJob">
+                  <label for="featuredJob" data-i18n="featuredJobLabel">Feature this job (highlighted in search results)</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-bar">
+              <div></div>
+              <div style="display: flex; gap: var(--space-3);">
+                <button type="button" class="btn btn-secondary" id="saveDraftBtn" data-i18n="saveDraft">Save as Draft</button>
+                <button type="button" class="btn btn-secondary" id="previewBtn" data-i18n="preview">Preview</button>
+                <button type="submit" class="btn btn-primary" id="publishBtn" data-i18n="publishJob">Publish Job →</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 e03: Create Job
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="e02-job-list.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← e02: Job List</a>
+    <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="e05-ai-jd-generator.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e05: AI Generator</a>
+    <a href="e04-edit-job.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e04: Edit Job</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        pageTitle: 'Post New Job',
+        progressTitle: 'Form Progress',
+        progressPercentage: 'Form 25% complete',
+        segment1: 'Basic Info',
+        segment2: 'Job Details',
+        segment3: 'Requirements',
+        segment4: 'Preview',
+        section1Title: 'Basic Information',
+        jobTitleLabel: 'Job Title',
+        jobTitleHelper: 'This appears exactly as entered on the public listing',
+        jobTitleError: 'Job title is required',
+        departmentLabel: 'Department',
+        selectDepartment: 'Select Department',
+        departmentError: 'Department is required',
+        engineering: 'Engineering',
+        design: 'Design',
+        product: 'Product',
+        marketing: 'Marketing',
+        sales: 'Sales',
+        hr: 'HR',
+        finance: 'Finance',
+        data: 'Data',
+        jobTypeLabel: 'Job Type',
+        selectJobType: 'Select Job Type',
+        jobTypeError: 'Job type is required',
+        fullTime: 'Full-time',
+        partTime: 'Part-time',
+        remote: 'Remote',
+        contract: 'Contract',
+        internship: 'Internship',
+        locationLabel: 'Location',
+        selectLocation: 'Select Location',
+        locationError: 'Location is required',
+        hanoi: 'Hà Nội',
+        hcmc: 'TP. Hồ Chí Minh',
+        danang: 'Đà Nẵng',
+        haiphong: 'Hải Phòng',
+        cantho: 'Cần Thơ',
+        binhduong: 'Bình Dương',
+        dongnai: 'Đồng Nai',
+        vacanciesLabel: 'Number of Vacancies',
+        vacanciesError: 'Number of vacancies is required',
+        deadlineLabel: 'Application Deadline',
+        deadlineError: 'Application deadline is required',
+        section2Title: 'Compensation',
+        salaryRangeLabel: 'Salary Range (VND)',
+        negotiableLabel: 'Negotiable (hides exact range on public listing)',
+        salaryHelper: "Displayed as 'Thương lượng' if negotiable is checked",
+        section3Title: 'Job Description',
+        skillsLabel: 'Required Skills',
+        skillsHelper: 'Press Enter or comma to add a skill tag',
+        aiGenerateTitle: 'Let AI write your job description',
+        aiGenerateDescription: 'Fill in Job Title + Skills above first',
+        aiGenerateButton: 'Generate JD with AI',
+        aiGenerateNote: 'Uses 1 of your 5 AI requests this session',
+        jobDescriptionLabel: 'Job Description',
+        jobDescriptionError: 'Job description is required',
+        jobDescriptionPlaceholder: 'Describe the role, responsibilities, and day-to-day tasks...\nOr click \'Generate JD with AI\' above to get a draft instantly.',
+        section4Title: 'Requirements',
+        experienceLabel: 'Experience Level',
+        experienceError: 'Experience level is required',
+        selectExperience: 'Select Experience',
+        exp0to1: '0-1 years',
+        exp1to3: '1-3 years',
+        exp3to5: '3-5 years',
+        exp5to10: '5-10 years',
+        exp10plus: '10+ years',
+        educationLabel: 'Education Level',
+        educationError: 'Education level is required',
+        selectEducation: 'Select Education',
+        highSchool: 'High School',
+        associate: 'Associate Degree',
+        bachelor: "Bachelor's degree",
+        master: "Master's degree",
+        phd: 'PhD',
+        section5Title: 'Selection Criteria',
+        attitudeTypeLabel: 'Attitude Type',
+        selectAttitude: 'Select Attitude',
+        professional: 'Professional & detail-oriented',
+        creative: 'Creative & innovative',
+        analytical: 'Analytical & methodical',
+        leadership: 'Leadership & strategic',
+        socialTypeLabel: 'Social Type',
+        selectSocial: 'Select Social Type',
+        teamPlayer: 'Team player',
+        independent: 'Independent worker',
+        leader: 'Natural leader',
+        collaborative: 'Collaborative',
+        personalityTypeLabel: 'Personality Type',
+        selectPersonality: 'Select Personality',
+        overtimeLabel: 'Overtime Willingness',
+        overtimeYes: 'Yes, when needed',
+        overtimeFlexible: 'Flexible',
+        overtimeNo: 'No overtime',
+        projectWorkLabel: 'Project Work Requirements',
+        selectProjectWork: 'Select Project Work',
+        standard: 'Standard project involvement',
+        heavy: 'Heavy project work',
+        minimal: 'Minimal project work',
+        none: 'No project work',
+        section6Title: 'Additional Options',
+        socialSharingLabel: 'Enable social sharing links (LinkedIn, Facebook)',
+        featuredJobLabel: 'Feature this job (highlighted in search results)',
+        saveDraft: 'Save as Draft',
+        preview: 'Preview',
+        publishJob: 'Publish Job →'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        pageTitle: 'Post New Job',
+        progressTitle: 'Form Progress',
+        progressPercentage: 'Form 25% complete',
+        segment1: 'Basic Info',
+        segment2: 'Job Details',
+        segment3: 'Requirements',
+        segment4: 'Preview',
+        section1Title: 'Basic Information',
+        jobTitleLabel: 'Job Title',
+        jobTitleHelper: 'This appears exactly as entered on the public listing',
+        jobTitleError: 'Job title is required',
+        departmentLabel: 'Department',
+        selectDepartment: 'Select Department',
+        departmentError: 'Department is required',
+        engineering: 'Engineering',
+        design: 'Design',
+        product: 'Product',
+        marketing: 'Marketing',
+        sales: 'Sales',
+        hr: 'HR',
+        finance: 'Finance',
+        data: 'Data',
+        jobTypeLabel: 'Job Type',
+        selectJobType: 'Select Job Type',
+        jobTypeError: 'Job type is required',
+        fullTime: 'Full-time',
+        partTime: 'Part-time',
+        remote: 'Remote',
+        contract: 'Contract',
+        internship: 'Internship',
+        locationLabel: 'Location',
+        selectLocation: 'Select Location',
+        locationError: 'Location is required',
+        hanoi: 'Hanoi',
+        hcmc: 'Ho Chi Minh City',
+        danang: 'Da Nang',
+        haiphong: 'Hai Phong',
+        cantho: 'Can Tho',
+        binhduong: 'Binh Duong',
+        dongnai: 'Dong Nai',
+        vacanciesLabel: 'Number of Vacancies',
+        vacanciesError: 'Number of vacancies is required',
+        deadlineLabel: 'Application Deadline',
+        deadlineError: 'Application deadline is required',
+        section2Title: 'Compensation',
+        salaryRangeLabel: 'Salary Range (VND)',
+        negotiableLabel: 'Negotiable (hides exact range on public listing)',
+        salaryHelper: "Displayed as 'Thương lượng' if negotiable is checked",
+        section3Title: 'Job Description',
+        skillsLabel: 'Required Skills',
+        skillsHelper: 'Press Enter or comma to add a skill tag',
+        aiGenerateTitle: 'Let AI write your job description',
+        aiGenerateDescription: 'Fill in Job Title + Skills above first',
+        aiGenerateButton: 'Generate JD with AI',
+        aiGenerateNote: 'Uses 1 of your 5 AI requests this session',
+        jobDescriptionLabel: 'Job Description',
+        jobDescriptionError: 'Job description is required',
+        jobDescriptionPlaceholder: 'Describe the role, responsibilities, and day-to-day tasks...\nOr click \'Generate JD with AI\' above to get a draft instantly.',
+        section4Title: 'Requirements',
+        experienceLabel: 'Experience Level',
+        experienceError: 'Experience level is required',
+        selectExperience: 'Select Experience',
+        exp0to1: '0-1 years',
+        exp1to3: '1-3 years',
+        exp3to5: '3-5 years',
+        exp5to10: '5-10 years',
+        exp10plus: '10+ years',
+        educationLabel: 'Education Level',
+        educationError: 'Education level is required',
+        selectEducation: 'Select Education',
+        highSchool: 'High School',
+        associate: 'Associate Degree',
+        bachelor: "Bachelor's degree",
+        master: "Master's degree",
+        phd: 'PhD',
+        section5Title: 'Selection Criteria',
+        attitudeTypeLabel: 'Attitude Type',
+        selectAttitude: 'Select Attitude',
+        professional: 'Professional & detail-oriented',
+        creative: 'Creative & innovative',
+        analytical: 'Analytical & methodical',
+        leadership: 'Leadership & strategic',
+        socialTypeLabel: 'Social Type',
+        selectSocial: 'Select Social Type',
+        teamPlayer: 'Team player',
+        independent: 'Independent worker',
+        leader: 'Natural leader',
+        collaborative: 'Collaborative',
+        personalityTypeLabel: 'Personality Type',
+        selectPersonality: 'Select Personality',
+        overtimeLabel: 'Overtime Willingness',
+        overtimeYes: 'Yes, when needed',
+        overtimeFlexible: 'Flexible',
+        overtimeNo: 'No overtime',
+        projectWorkLabel: 'Project Work Requirements',
+        selectProjectWork: 'Select Project Work',
+        standard: 'Standard project involvement',
+        heavy: 'Heavy project work',
+        minimal: 'Minimal project work',
+        none: 'No project work',
+        section6Title: 'Additional Options',
+        socialSharingLabel: 'Enable social sharing links (LinkedIn, Facebook)',
+        featuredJobLabel: 'Feature this job (highlighted in search results)',
+        saveDraft: 'Save as Draft',
+        preview: 'Preview',
+        publishJob: 'Publish Job →'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Post New Job | TechCorp Vietnam JSC' : 'LàmViệc360 — Post New Job | TechCorp Vietnam JSC';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE SIDEBAR ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    function openMobileSidebar() {
+      sidebar.classList.add('open');
+      mobileOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      mobileOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    mobileMenuToggle.addEventListener('click', openMobileSidebar);
+    mobileOverlay.addEventListener('click', closeMobileSidebar);
+
+    // Close sidebar when clicking nav links on mobile
+    document.querySelectorAll('.nav-item').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 767) {
+          closeMobileSidebar();
+        }
+      });
+    });
+
+    // ========== FORM VALIDATION ==========
+    const form = document.getElementById('jobForm');
+    const requiredFields = ['jobTitle', 'department', 'jobType', 'location', 'vacancies', 'deadline', 'jobDescription', 'experience', 'education'];
+    const publishBtn = document.getElementById('publishBtn');
+
+    function validateField(fieldId) {
+      const field = document.getElementById(fieldId);
+      const error = document.getElementById(fieldId + 'Error');
+      
+      if (!field.value.trim()) {
+        field.classList.add('error');
+        if (error) error.classList.add('show');
+        return false;
+      } else {
+        field.classList.remove('error');
+        if (error) error.classList.remove('show');
+        return true;
+      }
+    }
+
+    function validateForm() {
+      let isValid = true;
+      requiredFields.forEach(fieldId => {
+        if (!validateField(fieldId)) {
+          isValid = false;
+        }
+      });
+      
+      publishBtn.disabled = !isValid;
+      return isValid;
+    }
+
+    // Add validation listeners
+    requiredFields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      field.addEventListener('blur', () => validateField(fieldId));
+      field.addEventListener('input', () => {
+        validateField(fieldId);
+        updateProgress();
+      });
+    });
+
+    // ========== PROGRESS INDICATOR (EMP-FR-015) ==========
+    function updateProgress() {
+      const filledFields = requiredFields.filter(fieldId => {
+        const field = document.getElementById(fieldId);
+        return field.value.trim() !== '';
+      }).length;
+      
+      const progress = Math.round((filledFields / requiredFields.length) * 100);
+      const progressPercentage = document.getElementById('progressPercentage');
+      progressPercentage.textContent = `Form ${progress}% complete`;
+      
+      // Update progress bar segments
+      const segments = document.querySelectorAll('.progress-segment');
+      const filledSegments = Math.ceil(progress / 25);
+      
+      segments.forEach((segment, index) => {
+        if (index < filledSegments) {
+          segment.classList.add('completed');
+          segment.classList.remove('active');
+        } else if (index === filledSegments - 1 && progress % 25 !== 0) {
+          segment.classList.add('active');
+          segment.classList.remove('completed');
+        } else {
+          segment.classList.remove('active', 'completed');
+        }
+      });
+      
+      // Update progress labels
+      const labels = document.querySelectorAll('.progress-label');
+      labels.forEach((label, index) => {
+        if (index < filledSegments) {
+          label.classList.add('active');
+        } else {
+          label.classList.remove('active');
+        }
+      });
+    }
+
+    // ========== SKILLS TAGS ==========
+    const skillsContainer = document.getElementById('skillsContainer');
+    const skillInput = document.getElementById('skillInput');
+    let skills = ['Node.js', 'PostgreSQL', 'FastAPI', 'Docker'];
+
+    function renderSkills() {
+      const skillTags = skills.map(skill => 
+        `<span class="skill-tag">${skill}<span class="skill-remove">×</span></span>`
+      ).join('');
+      
+      skillsContainer.innerHTML = skillTags + '<input type="text" class="skill-input" id="skillInput" placeholder="+ Add skill">';
+      
+      // Re-attach event listeners
+      document.querySelectorAll('.skill-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const skillTag = e.target.parentElement;
+          const skill = skillTag.textContent.replace('×', '').trim();
+          skills = skills.filter(s => s !== skill);
+          renderSkills();
+        });
+      });
+      
+      // Re-attach input listener
+      const newSkillInput = document.getElementById('skillInput');
+      newSkillInput.addEventListener('keydown', handleSkillInput);
+      newSkillInput.focus();
+    }
+
+    function handleSkillInput(e) {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        const skill = e.target.value.trim();
+        if (skill && !skills.includes(skill)) {
+          skills.push(skill);
+          renderSkills();
+        }
+      }
+    }
+
+    skillInput.addEventListener('keydown', handleSkillInput);
+
+    // ========== RICH TEXT EDITOR ==========
+    const editorButtons = document.querySelectorAll('.editor-button');
+    const jobDescription = document.getElementById('jobDescription');
+    const charCount = document.getElementById('charCount');
+
+    editorButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const command = button.getAttribute('data-command');
+        document.execCommand(command, false, null);
+        jobDescription.focus();
+        
+        // Update active state
+        editorButtons.forEach(btn => btn.classList.remove('active'));
+        if (command === 'bold' || command === 'italic') {
+          button.classList.add('active');
+        }
+      });
+    });
+
+    jobDescription.addEventListener('input', () => {
+      const length = jobDescription.value.length;
+      charCount.textContent = `${length} / 5000`;
+      
+      if (length > 5000) {
+        jobDescription.value = jobDescription.value.substring(0, 5000);
+        charCount.textContent = '5000 / 5000';
+      }
+      
+      updateProgress();
+    });
+
+    // ========== AI GENERATE JD (EMP-FR-010) ==========
+    const aiGenerateBtn = document.getElementById('aiGenerateBtn');
+    let aiRequestsUsed = 0;
+    const maxAiRequests = 5;
+
+    aiGenerateBtn.addEventListener('click', async () => {
+      if (aiRequestsUsed >= maxAiRequests) {
+        alert('You have used all your AI requests for this session.');
+        return;
+      }
+      
+      const jobTitle = document.getElementById('jobTitle').value.trim();
+      if (!jobTitle) {
+        alert('Please enter a job title first.');
+        return;
+      }
+      
+      aiGenerateBtn.disabled = true;
+      aiGenerateBtn.innerHTML = '⏳ Generating...';
+      
+      // Simulate AI generation
+      setTimeout(() => {
+        const generatedJD = `We are looking for a talented ${jobTitle} to join our dynamic team. 
+
+**Key Responsibilities:**
+• Design, develop, and maintain scalable software solutions
+• Collaborate with cross-functional teams to deliver high-quality products
+• Write clean, efficient, and well-documented code
+• Participate in code reviews and technical discussions
+• Stay up-to-date with the latest industry trends and technologies
+
+**Requirements:**
+• Strong experience with ${skills.join(', ')}
+• Excellent problem-solving and analytical skills
+• Ability to work independently and as part of a team
+• Strong communication and interpersonal skills
+• Bachelor's degree in Computer Science or related field
+
+**What We Offer:**
+• Competitive salary and benefits package
+• Flexible work arrangements
+• Professional development opportunities
+• Collaborative and innovative work environment
+• Chance to make a real impact on our products
+
+This is an exciting opportunity to work with cutting-edge technologies and contribute to meaningful projects that impact thousands of users.`;
+        
+        jobDescription.value = generatedJD;
+        const length = generatedJD.length;
+        charCount.textContent = `${length} / 5000`;
+        
+        aiRequestsUsed++;
+        aiGenerateBtn.innerHTML = `✦ <span data-i18n="aiGenerateButton">Generate JD with AI</span>`;
+        aiGenerateBtn.innerHTML += ` (${maxAiRequests - aiRequestsUsed} remaining)`;
+        aiGenerateBtn.disabled = false;
+        
+        updateProgress();
+        
+        // Add AI generated indicator
+        jobDescription.style.background = 'var(--color-info-bg)';
+        setTimeout(() => {
+          jobDescription.style.background = 'white';
+        }, 3000);
+        
+      }, 2000);
+    });
+
+    // ========== FORM SUBMISSION ==========
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      
+      // Collect form data
+      const formData = new FormData(form);
+      const jobData = Object.fromEntries(formData.entries());
+      
+      console.log('Job data:', jobData);
+      
+      // In real app, would submit to backend
+      alert('Job published successfully!');
+      
+      // Redirect to job list
+      window.location.href = 'e02-job-list.html';
+    });
+
+    // ========== SAVE AS DRAFT (EMP-FR-011) ==========
+    document.getElementById('saveDraftBtn').addEventListener('click', () => {
+      const formData = new FormData(form);
+      const jobData = Object.fromEntries(formData.entries());
+      
+      console.log('Draft saved:', jobData);
+      
+      // In real app, would save as draft
+      alert('Draft saved successfully!');
+      
+      // Redirect to job list
+      window.location.href = 'e02-job-list.html';
+    });
+
+    // ========== PREVIEW ==========
+    document.getElementById('previewBtn').addEventListener('click', () => {
+      const formData = new FormData(form);
+      const jobData = Object.fromEntries(formData.entries());
+      
+      console.log('Preview data:', jobData);
+      
+      // In real app, would open preview modal or page
+      alert('Preview functionality would open here.');
+    });
+
+    // ========== NEGOTIABLE SALARY TOGGLE ==========
+    const negotiableCheckbox = document.getElementById('negotiable');
+    const salaryMin = document.getElementById('salaryMin');
+    const salaryMax = document.getElementById('salaryMax');
+
+    negotiableCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        salaryMin.disabled = true;
+        salaryMax.disabled = true;
+        salaryMin.value = '';
+        salaryMax.value = '';
+      } else {
+        salaryMin.disabled = false;
+        salaryMax.disabled = false;
+      }
+    });
+
+    // ========== RESPONSIVE HANDLING ==========
+    function handleResize() {
+      if (window.innerWidth > 767) {
+        closeMobileSidebar();
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    // Initialize progress on load
+    updateProgress();
+  </script>
+</body>
+</html>

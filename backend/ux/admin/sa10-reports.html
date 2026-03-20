@@ -1,0 +1,1513 @@
+<!doctype html>
+<!--
+  SCREEN: sa10 Reports & Analytics
+  PRD REFS: SAP-FR-004, SAP-FR-005
+  FLOW: sa01-dashboard.html → THIS → Various admin screens
+  PERSONA: Super Admin
+  STAGE: Phase 1 MVP
+  NOTE: Platform analytics and reporting dashboard
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Reports & Analytics | Super Admin</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-100);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 212px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: var(--color-admin-bg);
+      color: var(--color-white);
+      padding: var(--space-6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-logo {
+      height: 28px;
+      width: auto;
+      margin-bottom: var(--space-2);
+    }
+
+    .sidebar-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-admin-light);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-8) 0;
+    }
+
+    .sidebar-nav-item {
+      margin-bottom: var(--space-1);
+    }
+
+    .sidebar-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav-link:hover {
+      background: rgba(124, 58, 237, 0.2);
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-nav-link.active {
+      background: var(--color-admin-accent);
+      color: white;
+    }
+
+    .sidebar-nav-icon {
+      font-size: var(--text-base);
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .sidebar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .sidebar-user-role {
+      font-size: var(--text-xs);
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+
+    .sidebar-signout {
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .sidebar-signout:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 200px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-grey-100);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--color-danger);
+      color: white;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .top-bar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .top-bar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-8);
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+    }
+
+    .page-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .date-range-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .date-select {
+      padding: var(--space-2) var(--space-4);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: white;
+    }
+
+    .date-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Metrics Cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    .metric-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-value {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .metric-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .metric-change {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .metric-change.positive {
+      color: var(--color-success);
+    }
+
+    .metric-change.neutral {
+      color: var(--color-grey-500);
+    }
+
+    /* Sections */
+    .section {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .section-header {
+      margin-bottom: var(--space-4);
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    /* Chart Placeholders */
+    .chart-placeholder {
+      background: var(--color-grey-50);
+      border: 2px dashed var(--color-grey-300);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      text-align: center;
+      color: var(--color-grey-500);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-4);
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--space-4);
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: var(--space-3);
+      text-align: left;
+      border-bottom: var(--border-default);
+      font-size: var(--text-sm);
+    }
+
+    .data-table th {
+      font-weight: 600;
+      color: var(--color-grey-700);
+      background: var(--color-grey-50);
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Bar Charts */
+    .bar-chart {
+      margin-bottom: var(--space-4);
+    }
+
+    .bar-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .bar-label {
+      width: 120px;
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      flex-shrink: 0;
+    }
+
+    .bar-container {
+      flex: 1;
+      background: var(--color-grey-100);
+      border-radius: var(--radius-sm);
+      height: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: var(--radius-sm);
+      transition: width 0.3s ease;
+    }
+
+    .bar-value {
+      margin-left: var(--space-2);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      min-width: 40px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-3);
+      background: var(--color-grey-50);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+    }
+
+    .stat-label {
+      color: var(--color-grey-600);
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: var(--color-grey-900);
+    }
+
+    /* Compliance Note */
+    .compliance-note {
+      background: var(--color-success-bg);
+      border: 1px solid var(--color-success);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-top: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-success);
+      line-height: 1.5;
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+    }
+
+    .mobile-menu-toggle:hover {
+      background: var(--color-grey-100);
+    }
+
+    /* Mobile Overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .mobile-overlay.show {
+      display: block;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .top-bar {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .content-area {
+        padding: var(--space-4);
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+      }
+
+      .date-range-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+      }
+
+      .metric-card {
+        padding: var(--space-4);
+      }
+
+      .metric-value {
+        font-size: var(--text-2xl);
+      }
+
+      .bar-label {
+        width: 100px;
+        font-size: var(--text-xs);
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Logo -->
+      <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+      <div class="sidebar-label" data-i18n="adminPanel">Super Admin Panel</div>
+      
+      <div class="sidebar-divider"></div>
+
+      <!-- Navigation -->
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="sa01-dashboard.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📊</span>
+              <span data-i18n="navDashboard">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa02-companies.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🏢</span>
+              <span data-i18n="navCompanies">Companies</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa04-users.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">👤</span>
+              <span data-i18n="navUsers">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa06-ads.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📢</span>
+              <span data-i18n="navAds">Advertisements</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa07-templates.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📋</span>
+              <span data-i18n="navTemplates">Rejection Templates</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa08-retention.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🗑</span>
+              <span data-i18n="navRetention">Data Retention</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa09-audit-log.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🔍</span>
+              <span data-i18n="navAuditLog">Audit Log</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa10-reports.html" class="sidebar-nav-link active">
+              <span class="sidebar-nav-icon">📈</span>
+              <span data-i18n="navReports">Reports</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa11-settings.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">⚙</span>
+              <span data-i18n="navSettings">System Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">SA</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" data-i18n="superAdmin">Super Admin</div>
+            <div class="sidebar-user-role" data-i18n="adminRole">Administrator</div>
+          </div>
+        </div>
+        <button class="sidebar-signout" data-i18n="signOut">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+        <h1 class="top-bar-title" data-i18n="pageTitle">Reports & Analytics</h1>
+        
+        <div class="top-bar-actions">
+          <button class="notification-bell">
+            🔔
+            <span class="notification-badge">5</span>
+          </button>
+          
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+          
+          <div class="top-bar-user">
+            <span data-i18n="superAdmin">Super Admin</span>
+            <div class="top-bar-avatar">SA</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title" data-i18n="pageHeader">Platform Reports</h1>
+          <div class="date-range-controls">
+            <select class="date-select" id="dateRange">
+              <option value="7-days" data-i18n="last30Days">Last 30 days ▾</option>
+              <option value="7-days" data-i18n="last7Days">Last 7 days</option>
+              <option value="30-days" data-i18n="last30Days">Last 30 days</option>
+              <option value="90-days" data-i18n="last90Days">Last 90 days</option>
+              <option value="12-months" data-i18n="last12Months">Last 12 months</option>
+              <option value="custom" data-i18n="custom">Custom</option>
+            </select>
+            <button class="btn btn-ghost" data-i18n="exportReport">Export Report</button>
+          </div>
+        </div>
+
+        <!-- Top-line Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value">127</div>
+            <div class="metric-label" data-i18n="totalCompanies">Total Companies</div>
+            <div class="metric-change positive" data-i18n="companiesGrowth">+8 this month</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-value">3,412</div>
+            <div class="metric-label" data-i18n="activeJobSeekers">Active Job Seekers</div>
+            <div class="metric-change positive" data-i18n="jobSeekersGrowth">+234 this month</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-value">284</div>
+            <div class="metric-label" data-i18n="jobsPosted">Jobs Posted</div>
+            <div class="metric-change positive" data-i18n="jobsGrowth">+47 this month</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-value">12,847</div>
+            <div class="metric-label" data-i18n="applications">Applications</div>
+            <div class="metric-change positive" data-i18n="applicationsGrowth">+2,341 this month</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-value">3.2%</div>
+            <div class="metric-label" data-i18n="hireRate">Hire Rate</div>
+            <div class="metric-change neutral" data-i18n="industryAvg">(industry avg: 2.8%)</div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-value">34,567</div>
+            <div class="metric-label" data-i18n="aiRequests">AI Requests</div>
+            <div class="metric-change neutral" data-i18n="withinPolicy">(within policy)</div>
+          </div>
+        </div>
+
+        <!-- Section 1: User Growth Chart -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="userGrowthChart">User Growth — Last 30 Days</h2>
+          </div>
+          
+          <div class="chart-placeholder" data-i18n="lineChartPlaceholder">
+            [ Line Chart: Job Seekers vs Employers · 30 Days ]
+          </div>
+          
+          <div style="font-size: var(--text-sm); color: var(--color-grey-600); margin-bottom: var(--space-4);">
+            <div data-i18n="chartDescription">X-axis: dates (daily)</div>
+            <div data-i18n="yAxis">Y-axis: cumulative users</div>
+            <div data-i18n="dataset1">Dataset 1: Job Seekers (blue line)</div>
+            <div data-i18n="dataset2">Dataset 2: Employers (purple line)</div>
+          </div>
+          
+          <div style="font-size: var(--text-sm); color: var(--color-grey-500);">
+            <div data-i18n="milestone1">"100 job seekers milestone" marker</div>
+            <div data-i18n="milestone2">"50 companies milestone" marker</div>
+          </div>
+        </div>
+
+        <!-- Section 2: Job Posting Trends -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="jobPostingTrends">Job Posting Activity</h2>
+          </div>
+          
+          <div class="chart-placeholder" data-i18n="barChartPlaceholder">
+            [ Bar Chart: Jobs Posted vs Applications Received · Weekly ]
+          </div>
+          
+          <div style="font-size: var(--text-sm); color: var(--color-grey-600); margin-bottom: var(--space-4);">
+            <div data-i18n="groupedBars">Grouped bars: Published Jobs (blue) / Applications (purple)</div>
+            <div data-i18n="last8Weeks">Last 8 weeks shown</div>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-i18n="week">Week</th>
+                  <th data-i18n="jobsPosted">Jobs Posted</th>
+                  <th data-i18n="applications">Applications</th>
+                  <th data-i18n="avgAppsJob">Avg Apps/Job</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-i18n="week10">Wk 10 (10 Mar)</td>
+                  <td data-i18n="jobs47">47</td>
+                  <td data-i18n="apps1234">1,234</td>
+                  <td data-i18n="avg263">26.3</td>
+                </tr>
+                <tr>
+                  <td data-i18n="week9">Wk 9 (3 Mar)</td>
+                  <td data-i18n="jobs39">39</td>
+                  <td data-i18n="apps987">987</td>
+                  <td data-i18n="avg253">25.3</td>
+                </tr>
+                <tr>
+                  <td data-i18n="week8">Wk 8 (24 Feb)</td>
+                  <td data-i18n="jobs52">52</td>
+                  <td data-i18n="apps1456">1,456</td>
+                  <td data-i18n="avg280">28.0</td>
+                </tr>
+                <tr>
+                  <td data-i18n="week7">Wk 7 (17 Feb)</td>
+                  <td data-i18n="jobs31">31</td>
+                  <td data-i18n="apps743">743</td>
+                  <td data-i18n="avg239">23.9</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 3: Top Industries -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="topIndustries">Jobs by Industry</h2>
+          </div>
+          
+          <div class="chart-placeholder" data-i18n="industryBarChart">
+            [ Bar Chart: Applications by Industry ]
+          </div>
+          
+          <div class="bar-chart">
+            <div class="bar-item">
+              <div class="bar-label" data-i18n="itTech">IT / Tech:</div>
+              <div class="bar-container">
+                <div class="bar-fill" style="width: 34%;"></div>
+              </div>
+              <div class="bar-value">34%</div>
+            </div>
+            
+            <div class="bar-item">
+              <div class="bar-label" data-i18n="finance">Finance:</div>
+              <div class="bar-container">
+                <div class="bar-fill" style="width: 22%;"></div>
+              </div>
+              <div class="bar-value">22%</div>
+            </div>
+            
+            <div class="bar-item">
+              <div class="bar-label" data-i18n="marketing">Marketing:</div>
+              <div class="bar-container">
+                <div class="bar-fill" style="width: 16%;"></div>
+              </div>
+              <div class="bar-value">16%</div>
+            </div>
+            
+            <div class="bar-item">
+              <div class="bar-label" data-i18n="manufacturing">Manufacturing:</div>
+              <div class="bar-container">
+                <div class="bar-fill" style="width: 12%;"></div>
+              </div>
+              <div class="bar-value">12%</div>
+            </div>
+            
+            <div class="bar-item">
+              <div class="bar-label" data-i18n="healthcare">Healthcare:</div>
+              <div class="bar-container">
+                <div class="bar-fill" style="width: 9%;"></div>
+              </div>
+              <div class="bar-value">9%</div>
+            </div>
+            
+            <div class="bar-item">
+              <div class="bar-label" data-i18n="other">Other:</div>
+              <div class="bar-container">
+                <div class="bar-fill" style="width: 7%;"></div>
+              </div>
+              <div class="bar-value">7%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Geographic Distribution -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="geographicDistribution">Jobs by Province</h2>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-i18n="province">Province</th>
+                  <th data-i18n="companies">Companies</th>
+                  <th data-i18n="activeJobs">Active Jobs</th>
+                  <th data-i18n="jobSeekers">Job Seekers</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-i18n="hanoi">Hà Nội</td>
+                  <td data-i18n="companies54">54</td>
+                  <td data-i18n="activeJobs124">124</td>
+                  <td data-i18n="jobSeekers1456">1,456</td>
+                </tr>
+                <tr>
+                  <td data-i18n="hcmc">TP. Hồ Chí Minh</td>
+                  <td data-i18n="companies48">48</td>
+                  <td data-i18n="activeJobs118">118</td>
+                  <td data-i18n="jobSeekers1312">1,312</td>
+                </tr>
+                <tr>
+                  <td data-i18n="danang">Đà Nẵng</td>
+                  <td data-i18n="companies12">12</td>
+                  <td data-i18n="activeJobs24">24</td>
+                  <td data-i18n="jobSeekers345">345</td>
+                </tr>
+                <tr>
+                  <td data-i18n="haiphong">Hải Phòng</td>
+                  <td data-i18n="companies8">8</td>
+                  <td data-i18n="activeJobs12">12</td>
+                  <td data-i18n="jobSeekers234">234</td>
+                </tr>
+                <tr>
+                  <td data-i18n="binhduong">Bình Dương</td>
+                  <td data-i18n="companies5">5</td>
+                  <td data-i18n="activeJobs6">6</td>
+                  <td data-i18n="jobSeekers65">65</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 5: AI Usage Stats -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="aiUsageStats">AI Feature Usage (BR-003 compliance)</h2>
+          </div>
+          
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="aiJDGenerations">AI JD Generations:</span>
+              <span class="stat-value">1,247 total</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="confirmedByHR">94% confirmed by HR</span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="aiScreeningRuns">AI Screening runs:</span>
+              <span class="stat-value">234 total</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="hrConfirmed">100% HR-confirmed</span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="aiInterviewPrep">AI Interview Prep:</span>
+              <span class="stat-value">456 sessions</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="sessionLimitHits">Session limit hits (AC-019):</span>
+              <span class="stat-value">12 (0.04% of sessions)</span>
+            </div>
+          </div>
+          
+          <div class="compliance-note">
+            ✓ <span data-i18n="complianceNote">All AI usage within policy limits. No auto-rejections detected. (BR-003, BR-013)</span>
+          </div>
+        </div>
+
+        <!-- Section 6: Data Retention Summary -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="dataRetentionSummary">Data Privacy & Retention</h2>
+          </div>
+          
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="recordsUnderManagement">Records under management:</span>
+              <span class="stat-value">89,234</span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="deletionJobsRun">Deletion jobs run this month:</span>
+              <span class="stat-value">4</span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="recordsDeleted">Records deleted this month:</span>
+              <span class="stat-value">89</span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="pendingDeletion">Pending deletion (next run):</span>
+              <span class="stat-value">23</span>
+            </div>
+            
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="complianceStatus">Compliance status:</span>
+              <span class="stat-value" style="color: var(--color-success);">✓ Decree 13/2023 Compliant</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 sa10: Reports & Analytics
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="sa01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← sa01: Dashboard</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Reports & Analytics',
+        pageHeader: 'Platform Reports',
+        last30Days: 'Last 30 days ▾',
+        last7Days: 'Last 7 days',
+        last90Days: 'Last 90 days',
+        last12Months: 'Last 12 months',
+        custom: 'Custom',
+        exportReport: 'Export Report',
+        totalCompanies: 'Total Companies',
+        activeJobSeekers: 'Active Job Seekers',
+        jobsPosted: 'Jobs Posted',
+        applications: 'Applications',
+        hireRate: 'Hire Rate',
+        aiRequests: 'AI Requests',
+        companiesGrowth: '+8 this month',
+        jobSeekersGrowth: '+234 this month',
+        jobsGrowth: '+47 this month',
+        applicationsGrowth: '+2,341 this month',
+        industryAvg: '(industry avg: 2.8%)',
+        withinPolicy: '(within policy)',
+        userGrowthChart: 'User Growth — Last 30 Days',
+        lineChartPlaceholder: '[ Line Chart: Job Seekers vs Employers · 30 Days ]',
+        chartDescription: 'X-axis: dates (daily)',
+        yAxis: 'Y-axis: cumulative users',
+        dataset1: 'Dataset 1: Job Seekers (blue line)',
+        dataset2: 'Dataset 2: Employers (purple line)',
+        milestone1: '"100 job seekers milestone" marker',
+        milestone2: '"50 companies milestone" marker',
+        jobPostingTrends: 'Job Posting Activity',
+        barChartPlaceholder: '[ Bar Chart: Jobs Posted vs Applications Received · Weekly ]',
+        groupedBars: 'Grouped bars: Published Jobs (blue) / Applications (purple)',
+        last8Weeks: 'Last 8 weeks shown',
+        week: 'Week',
+        jobsPosted: 'Jobs Posted',
+        applications: 'Applications',
+        avgAppsJob: 'Avg Apps/Job',
+        week10: 'Wk 10 (10 Mar)',
+        jobs47: '47',
+        apps1234: '1,234',
+        avg263: '26.3',
+        week9: 'Wk 9 (3 Mar)',
+        jobs39: '39',
+        apps987: '987',
+        avg253: '25.3',
+        week8: 'Wk 8 (24 Feb)',
+        jobs52: '52',
+        apps1456: '1,456',
+        avg280: '28.0',
+        week7: 'Wk 7 (17 Feb)',
+        jobs31: '31',
+        apps743: '743',
+        avg239: '23.9',
+        topIndustries: 'Jobs by Industry',
+        industryBarChart: '[ Bar Chart: Applications by Industry ]',
+        itTech: 'IT / Tech:',
+        finance: 'Finance:',
+        marketing: 'Marketing:',
+        manufacturing: 'Manufacturing:',
+        healthcare: 'Healthcare:',
+        other: 'Other:',
+        geographicDistribution: 'Jobs by Province',
+        province: 'Province',
+        companies: 'Companies',
+        activeJobs: 'Active Jobs',
+        jobSeekers: 'Job Seekers',
+        hanoi: 'Hà Nội',
+        companies54: '54',
+        activeJobs124: '124',
+        jobSeekers1456: '1,456',
+        hcmc: 'TP. Hồ Chí Minh',
+        companies48: '48',
+        activeJobs118: '118',
+        jobSeekers1312: '1,312',
+        danang: 'Đà Nẵng',
+        companies12: '12',
+        activeJobs24: '24',
+        jobSeekers345: '345',
+        haiphong: 'Hải Phòng',
+        companies8: '8',
+        activeJobs12: '12',
+        jobSeekers234: '234',
+        binhduong: 'Bình Dương',
+        companies5: '5',
+        activeJobs6: '6',
+        jobSeekers65: '65',
+        aiUsageStats: 'AI Feature Usage (BR-003 compliance)',
+        aiJDGenerations: 'AI JD Generations:',
+        confirmedByHR: '94% confirmed by HR',
+        aiScreeningRuns: 'AI Screening runs:',
+        hrConfirmed: '100% HR-confirmed',
+        aiInterviewPrep: 'AI Interview Prep:',
+        sessionLimitHits: 'Session limit hits (AC-019):',
+        complianceNote: 'All AI usage within policy limits. No auto-rejections detected. (BR-003, BR-013)',
+        dataRetentionSummary: 'Data Privacy & Retention',
+        recordsUnderManagement: 'Records under management:',
+        deletionJobsRun: 'Deletion jobs run this month:',
+        recordsDeleted: 'Records deleted this month:',
+        pendingDeletion: 'Pending deletion (next run):',
+        complianceStatus: 'Compliance status:'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Reports & Analytics',
+        pageHeader: 'Platform Reports',
+        last30Days: 'Last 30 days ▾',
+        last7Days: 'Last 7 days',
+        last90Days: 'Last 90 days',
+        last12Months: 'Last 12 months',
+        custom: 'Custom',
+        exportReport: 'Export Report',
+        totalCompanies: 'Total Companies',
+        activeJobSeekers: 'Active Job Seekers',
+        jobsPosted: 'Jobs Posted',
+        applications: 'Applications',
+        hireRate: 'Hire Rate',
+        aiRequests: 'AI Requests',
+        companiesGrowth: '+8 this month',
+        jobSeekersGrowth: '+234 this month',
+        jobsGrowth: '+47 this month',
+        applicationsGrowth: '+2,341 this month',
+        industryAvg: '(industry avg: 2.8%)',
+        withinPolicy: '(within policy)',
+        userGrowthChart: 'User Growth — Last 30 Days',
+        lineChartPlaceholder: '[ Line Chart: Job Seekers vs Employers · 30 Days ]',
+        chartDescription: 'X-axis: dates (daily)',
+        yAxis: 'Y-axis: cumulative users',
+        dataset1: 'Dataset 1: Job Seekers (blue line)',
+        dataset2: 'Dataset 2: Employers (purple line)',
+        milestone1: '"100 job seekers milestone" marker',
+        milestone2: '"50 companies milestone" marker',
+        jobPostingTrends: 'Job Posting Activity',
+        barChartPlaceholder: '[ Bar Chart: Jobs Posted vs Applications Received · Weekly ]',
+        groupedBars: 'Grouped bars: Published Jobs (blue) / Applications (purple)',
+        last8Weeks: 'Last 8 weeks shown',
+        week: 'Week',
+        jobsPosted: 'Jobs Posted',
+        applications: 'Applications',
+        avgAppsJob: 'Avg Apps/Job',
+        week10: 'Wk 10 (10 Mar)',
+        jobs47: '47',
+        apps1234: '1,234',
+        avg263: '26.3',
+        week9: 'Wk 9 (3 Mar)',
+        jobs39: '39',
+        apps987: '987',
+        avg253: '25.3',
+        week8: 'Wk 8 (24 Feb)',
+        jobs52: '52',
+        apps1456: '1,456',
+        avg280: '28.0',
+        week7: 'Wk 7 (17 Feb)',
+        jobs31: '31',
+        apps743: '743',
+        avg239: '23.9',
+        topIndustries: 'Jobs by Industry',
+        industryBarChart: '[ Bar Chart: Applications by Industry ]',
+        itTech: 'IT / Tech:',
+        finance: 'Finance:',
+        marketing: 'Marketing:',
+        manufacturing: 'Manufacturing:',
+        healthcare: 'Healthcare:',
+        other: 'Other:',
+        geographicDistribution: 'Jobs by Province',
+        province: 'Province',
+        companies: 'Companies',
+        activeJobs: 'Active Jobs',
+        jobSeekers: 'Job Seekers',
+        hanoi: 'Hà Nội',
+        companies54: '54',
+        activeJobs124: '124',
+        jobSeekers1456: '1,456',
+        hcmc: 'TP. Hồ Chí Minh',
+        companies48: '48',
+        activeJobs118: '118',
+        jobSeekers1312: '1,312',
+        danang: 'Đà Nẵng',
+        companies12: '12',
+        activeJobs24: '24',
+        jobSeekers345: '345',
+        haiphong: 'Hải Phòng',
+        companies8: '8',
+        activeJobs12: '12',
+        jobSeekers234: '234',
+        binhduong: 'Bình Dương',
+        companies5: '5',
+        activeJobs6: '6',
+        jobSeekers65: '65',
+        aiUsageStats: 'AI Feature Usage (BR-003 compliance)',
+        aiJDGenerations: 'AI JD Generations:',
+        confirmedByHR: '94% confirmed by HR',
+        aiScreeningRuns: 'AI Screening runs:',
+        hrConfirmed: '100% HR-confirmed',
+        aiInterviewPrep: 'AI Interview Prep:',
+        sessionLimitHits: 'Session limit hits (AC-019):',
+        complianceNote: 'All AI usage within policy limits. No auto-rejections detected. (BR-003, BR-013)',
+        dataRetentionSummary: 'Data Privacy & Retention',
+        recordsUnderManagement: 'Records under management:',
+        deletionJobsRun: 'Deletion jobs run this month:',
+        recordsDeleted: 'Records deleted this month:',
+        pendingDeletion: 'Pending deletion (next run):',
+        complianceStatus: 'Compliance status:'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Reports & Analytics | Super Admin' : 'LàmViệc360 — Reports & Analytics | Super Admin';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE MENU ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+      mobileOverlay.classList.toggle('show');
+    });
+
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('show');
+      mobileOverlay.classList.remove('show');
+    });
+
+    // ========== DATE RANGE CHANGE ==========
+    const dateRangeSelect = document.getElementById('dateRange');
+    dateRangeSelect.addEventListener('change', () => {
+      const range = dateRangeSelect.value;
+      console.log('Date range changed to:', range);
+      // In real app, this would refresh all charts and data
+    });
+
+    // ========== EXPORT REPORT ==========
+    const exportBtn = document.querySelector('[data-i18n="exportReport"]');
+    exportBtn.addEventListener('click', () => {
+      const dateRange = dateRangeSelect.value;
+      console.log('Exporting report for range:', dateRange);
+      alert('Report exported successfully!');
+      // In real app, this would generate and download the report
+    });
+
+    // ========== ANIMATE BAR CHARTS ==========
+    const animateBars = () => {
+      const bars = document.querySelectorAll('.bar-fill');
+      bars.forEach((bar, index) => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, index * 100);
+      });
+    };
+
+    // Animate bars on page load
+    setTimeout(animateBars, 500);
+
+    // ========== SIGN OUT ==========
+    document.querySelector('.sidebar-signout').addEventListener('click', () => {
+      if (confirm('Are you sure you want to sign out?')) {
+        console.log('Signing out...');
+        // In real app, this would clear session and redirect
+        alert('Signed out successfully');
+      }
+    });
+  </script>
+</body>
+</html>

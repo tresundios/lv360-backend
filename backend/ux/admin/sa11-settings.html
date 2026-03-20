@@ -1,0 +1,2256 @@
+<!doctype html>
+<!--
+  SCREEN: sa11 System Settings
+  PRD REFS: SAP-FR-007, SAP-FR-008, BR-010, NFR-003, NFR-006, AUTH-FR-006, AC-019
+  FLOW: sa01-dashboard.html → THIS → Various admin screens
+  PERSONA: Super Admin
+  STAGE: Phase 1 MVP
+  NOTE: Platform-wide system configuration
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — System Settings | Super Admin</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-100);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 212px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: var(--color-admin-bg);
+      color: var(--color-white);
+      padding: var(--space-6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-logo {
+      height: 28px;
+      width: auto;
+      margin-bottom: var(--space-2);
+    }
+
+    .sidebar-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-admin-light);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-8) 0;
+    }
+
+    .sidebar-nav-item {
+      margin-bottom: var(--space-1);
+    }
+
+    .sidebar-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav-link:hover {
+      background: rgba(124, 58, 237, 0.2);
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-nav-link.active {
+      background: var(--color-admin-accent);
+      color: white;
+    }
+
+    .sidebar-nav-icon {
+      font-size: var(--text-base);
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .sidebar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .sidebar-user-role {
+      font-size: var(--text-xs);
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+
+    .sidebar-signout {
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .sidebar-signout:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 200px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-grey-100);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--color-danger);
+      color: white;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .top-bar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .top-bar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-8);
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Tabs */
+    .tabs-container {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-8);
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: var(--border-default);
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      background: none;
+      border: none;
+      padding: var(--space-4) var(--space-6);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-600);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-button:hover {
+      color: var(--color-grey-900);
+    }
+
+    .tab-button.active {
+      color: var(--color-primary);
+    }
+
+    .tab-button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--color-primary);
+    }
+
+    .tabs-content {
+      padding: var(--space-6);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Form Elements */
+    .form-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-select {
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      min-width: 120px;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-family: var(--font-sans);
+      resize: vertical;
+      min-height: 80px;
+      background: white;
+    }
+
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-help {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-top: var(--space-2);
+      line-height: 1.4;
+    }
+
+    /* Toggle Switch */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 24px;
+      background: var(--color-grey-300);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--color-primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: var(--radius-full);
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+
+    .toggle-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+    .btn-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #991B1B;
+      text-decoration: none;
+    }
+    .btn-danger-outline {
+      background: transparent;
+      color: var(--color-danger);
+      border: 1px solid var(--color-danger);
+    }
+    .btn-danger-outline:hover {
+      background: var(--color-danger);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-sm {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-sm:active { transform: scale(0.98); }
+
+    /* Status Indicators */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .status-indicator.success {
+      color: var(--color-success);
+    }
+
+    .status-indicator.warning {
+      color: var(--color-warning);
+    }
+
+    .status-indicator.error {
+      color: var(--color-danger);
+    }
+
+    /* Lists */
+    .editable-list {
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: var(--border-default);
+      font-size: var(--text-sm);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .list-item.disabled {
+      background: var(--color-grey-50);
+      color: var(--color-grey-500);
+    }
+
+    .list-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .list-input {
+      flex: 1;
+      padding: var(--space-2);
+      border: var(--border-default);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      background: white;
+      margin-right: var(--space-3);
+    }
+
+    /* Info Box */
+    .info-box {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-top: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-info);
+      line-height: 1.5;
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+    }
+
+    .mobile-menu-toggle:hover {
+      background: var(--color-grey-100);
+    }
+
+    /* Mobile Overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .mobile-overlay.show {
+      display: block;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .top-bar {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .content-area {
+        padding: var(--space-4);
+        max-width: none;
+      }
+
+      .tabs-header {
+        flex-direction: column;
+        border-bottom: none;
+      }
+
+      .tab-button {
+        border-bottom: var(--border-default);
+        width: 100%;
+        text-align: left;
+      }
+
+      .tab-button.active::after {
+        display: none;
+      }
+
+      .tab-button.active {
+        background: var(--color-primary-light);
+        color: var(--color-primary);
+      }
+
+      .form-group {
+        margin-bottom: var(--space-6);
+      }
+
+      .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+
+      .list-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .btn-sm:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Logo -->
+      <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+      <div class="sidebar-label" data-i18n="adminPanel">Super Admin Panel</div>
+      
+      <div class="sidebar-divider"></div>
+
+      <!-- Navigation -->
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="sa01-dashboard.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📊</span>
+              <span data-i18n="navDashboard">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa02-companies.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🏢</span>
+              <span data-i18n="navCompanies">Companies</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa04-users.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">👤</span>
+              <span data-i18n="navUsers">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa06-ads.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📢</span>
+              <span data-i18n="navAds">Advertisements</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa07-templates.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📋</span>
+              <span data-i18n="navTemplates">Rejection Templates</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa08-retention.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🗑</span>
+              <span data-i18n="navRetention">Data Retention</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa09-audit-log.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🔍</span>
+              <span data-i18n="navAuditLog">Audit Log</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa10-reports.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📈</span>
+              <span data-i18n="navReports">Reports</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa11-settings.html" class="sidebar-nav-link active">
+              <span class="sidebar-nav-icon">⚙</span>
+              <span data-i18n="navSettings">System Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">SA</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" data-i18n="superAdmin">Super Admin</div>
+            <div class="sidebar-user-role" data-i18n="adminRole">Administrator</div>
+          </div>
+        </div>
+        <button class="sidebar-signout" data-i18n="signOut">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+        <h1 class="top-bar-title" data-i18n="pageTitle">System Settings</h1>
+        
+        <div class="top-bar-actions">
+          <button class="notification-bell">
+            🔔
+            <span class="notification-badge">5</span>
+          </button>
+          
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+          
+          <div class="top-bar-user">
+            <span data-i18n="superAdmin">Super Admin</span>
+            <div class="top-bar-avatar">SA</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Settings Tabs -->
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <button class="tab-button active" data-tab="general" data-i18n="tabGeneral">General</button>
+            <button class="tab-button" data-tab="auth" data-i18n="tabAuthentication">Authentication</button>
+            <button class="tab-button" data-tab="ai" data-i18n="tabAIConfig">AI Config</button>
+            <button class="tab-button" data-tab="notifications" data-i18n="tabNotifications">Notifications</button>
+            <button class="tab-button" data-tab="dropdowns" data-i18n="tabDropdownLists">Dropdown Lists</button>
+            <button class="tab-button" data-tab="maintenance" data-i18n="tabMaintenance">Maintenance</button>
+          </div>
+          
+          <div class="tabs-content">
+            <!-- Tab 1: General -->
+            <div class="tab-panel active" id="general">
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="platformInfo">Platform Information</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="platformName">Platform name:</label>
+                  <input type="text" class="form-input" value="LàmViệc360" data-i18n-placeholder="platformNamePlaceholder">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="supportEmail">Support email:</label>
+                  <input type="email" class="form-input" value="support@lamviec360.vn" data-i18n-placeholder="supportEmailPlaceholder">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="termsURL">Terms URL:</label>
+                  <input type="text" class="form-input" value="/terms" data-i18n-placeholder="termsURLPlaceholder">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="privacyURL">Privacy URL:</label>
+                  <input type="text" class="form-input" value="/privacy" data-i18n-placeholder="privacyURLPlaceholder">
+                </div>
+                
+                <button class="btn btn-primary" data-i18n="saveGeneral">Save General</button>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="platformStatus">Platform Status</h2>
+                
+                <div class="toggle-group">
+                  <div class="status-indicator success">●</div>
+                  <span data-i18n="currentStatus">Current status: Operational</span>
+                </div>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="maintenanceMode">Maintenance mode:</label>
+                  <div class="toggle-switch" id="maintenanceToggle"></div>
+                  <span class="toggle-label" data-i18n="toggleOff">OFF</span>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="maintenanceMessage">Maintenance mode message:</label>
+                  <textarea class="form-textarea" data-i18n-placeholder="maintenanceMessagePlaceholder">Platform is under maintenance. Please try again later.</textarea>
+                  <div class="form-help" data-i18n="maintenanceWarning">Enabling maintenance mode immediately locks all user access.</div>
+                </div>
+                
+                <button class="btn btn-danger-outline" id="enableMaintenanceBtn" data-i18n="enableMaintenance">Enable Maintenance</button>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="companyApproval">Company Approval</h2>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="autoApprove">Auto-approve companies:</label>
+                  <div class="toggle-switch" id="autoApproveToggle"></div>
+                  <span class="toggle-label" data-i18n="toggleOff">OFF</span>
+                </div>
+                
+                <div class="form-help" data-i18n="manualReview">Currently: Manual review required (recommended)</div>
+              </div>
+            </div>
+            
+            <!-- Tab 2: Authentication -->
+            <div class="tab-panel" id="auth">
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="sessionSettings">Session Settings (AUTH-FR-006)</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="standardSession">Standard session expiry:</label>
+                  <select class="form-select" id="standardSession">
+                    <option value="30" data-i18n="30minutes">30 minutes</option>
+                    <option value="60" selected data-i18n="60minutes">60 minutes</option>
+                    <option value="120" data-i18n="120minutes">120 minutes</option>
+                    <option value="240" data-i18n="240minutes">240 minutes</option>
+                    <option value="480" data-i18n="480minutes">480 minutes</option>
+                  </select>
+                  <div class="form-help" data-i18n="sessionOptions">Options: 30 / 60 / 120 / 240 / 480 minutes</div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="rememberMeSession">Remember me session:</label>
+                  <select class="form-select" id="rememberMeSession">
+                    <option value="7" data-i18n="7days">7 days</option>
+                    <option value="14" data-i18n="14days">14 days</option>
+                    <option value="30" selected data-i18n="30days">30 days</option>
+                  </select>
+                  <div class="form-help" data-i18n="rememberMeOptions">Options: 7 / 14 / 30 days</div>
+                </div>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="companyAdmin2FA">Company Admin 2FA:</label>
+                  <div class="status-indicator success">●</div>
+                  <span data-i18n="required">Required</span>
+                  <div class="form-help" data-i18n="cannotDisable">(cannot disable)</div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="otpSettings">OTP Settings (AUTH-FR-003)</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="otpExpiry">OTP expiry:</label>
+                  <select class="form-select" id="otpExpiry">
+                    <option value="5" data-i18n="5minutes">5 minutes</option>
+                    <option value="10" selected data-i18n="10minutes">10 minutes</option>
+                    <option value="15" data-i18n="15minutes">15 minutes</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="maxResend">Max resend attempts:</label>
+                  <select class="form-select" id="maxResend">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                  <div class="form-help" data-i18n="resendRange">(1–5)</div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="maxFailed">Max failed attempts:</label>
+                  <select class="form-select" id="maxFailed">
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5" selected>5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                  <div class="form-help" data-i18n="failedRange">(3–10)</div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="otpDelivery">OTP delivery:</label>
+                  <div style="display: flex; gap: var(--space-4); margin-top: var(--space-2);">
+                    <label style="display: flex; align-items: center; gap: var(--space-2);">
+                      <input type="radio" name="otpDelivery" value="sms" checked>
+                      <span data-i18n="sms">SMS</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: var(--space-2);">
+                      <input type="radio" name="otpDelivery" value="email">
+                      <span data-i18n="email">Email</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: var(--space-2);">
+                      <input type="radio" name="otpDelivery" value="both">
+                      <span data-i18n="both">Both</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="teamInviteSettings">Team Invite Settings (BR-007)</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="inviteLinkExpiry">Invite link expiry:</label>
+                  <select class="form-select" id="inviteLinkExpiry">
+                    <option value="24" data-i18n="24hours">24 hours</option>
+                    <option value="48" data-i18n="48hours">48 hours</option>
+                    <option value="72" selected data-i18n="72hours">72 hours</option>
+                    <option value="168" data-i18n="168hours">168 hours</option>
+                  </select>
+                  <div class="form-help" data-i18n="expiryOptions">Options: 24 / 48 / 72 / 168 hours</div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="passwordPolicy">Password Policy</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="minLength">Minimum length:</label>
+                  <select class="form-select" id="minLength">
+                    <option value="6">6</option>
+                    <option value="8" selected>8</option>
+                    <option value="10">10</option>
+                    <option value="12">12</option>
+                  </select>
+                </div>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="requireUppercase">Require uppercase:</label>
+                  <div class="toggle-switch active" id="requireUppercase"></div>
+                  <span class="toggle-label" data-i18n="on">ON</span>
+                </div>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="requireNumber">Require number:</label>
+                  <div class="toggle-switch active" id="requireNumber"></div>
+                  <span class="toggle-label" data-i18n="on">ON</span>
+                </div>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="requireSpecial">Require special char:</label>
+                  <div class="toggle-switch active" id="requireSpecial"></div>
+                  <span class="toggle-label" data-i18n="on">ON</span>
+                </div>
+              </div>
+              
+              <button class="btn btn-primary" data-i18n="saveAuthSettings">Save Authentication Settings</button>
+            </div>
+            
+            <!-- Tab 3: AI Config -->
+            <div class="tab-panel" id="ai">
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="aiSessionLimits">AI Session Limits (AC-019, BR-003)</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="maxAIRequests">Max AI requests per session:</label>
+                  <select class="form-select" id="maxAIRequests">
+                    <option value="3">3</option>
+                    <option value="5" selected>5</option>
+                    <option value="7">7</option>
+                    <option value="10">10</option>
+                  </select>
+                  <div class="form-help" data-i18n="afterLimit">After limit: user warned, session continues</div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="aiAbuseThreshold">AI abuse threshold:</label>
+                  <select class="form-select" id="aiAbuseThreshold">
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                  </select>
+                  <div class="form-help">
+                    <span data-i18n="abuseEvents">abuse events → session terminated</span><br>
+                    <span data-i18n="afterThreshold">After threshold: JWT session invalidated (AUTH-FR-006)</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="aiPerformance">AI Performance (NFR-003)</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="jdTimeout">JD generation timeout:</label>
+                  <select class="form-select" id="jdTimeout">
+                    <option value="5">5 seconds</option>
+                    <option value="10" selected>10 seconds</option>
+                    <option value="15">15 seconds</option>
+                    <option value="20">20 seconds</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="maxRetries">Max retries per session:</label>
+                  <select class="form-select" id="maxRetries">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="cacheDuration">Session cache duration:</label>
+                  <select class="form-select" id="cacheDuration">
+                    <option value="15">15 minutes</option>
+                    <option value="30" selected>30 minutes</option>
+                    <option value="60">60 minutes</option>
+                    <option value="120">120 minutes</option>
+                  </select>
+                  <div class="form-help" data-i18n="cachePreserved">Cached draft preserved across page loads (NFR-003b)</div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="aiProvider">AI Provider</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="provider">Provider:</label>
+                  <div style="display: flex; align-items: center; gap: var(--space-2);">
+                    <span data-i18n="googleGemini">Google Gemini API</span>
+                    <div class="status-indicator success">●</div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="apiStatus">API status:</label>
+                  <div class="status-indicator success">✓</div>
+                  <span data-i18n="connected">Connected</span>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="requestsToday">Requests today:</label>
+                  <span data-i18n="requestsCount">1,247 / unlimited</span>
+                </div>
+                
+                <button class="btn btn-secondary" data-i18n="testConnection">Test Connection</button>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="aiTransparency">AI Transparency</h2>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="showAIBadge">Show AI badge on all AI content:</label>
+                  <div class="toggle-switch active" id="showAIBadge"></div>
+                  <span class="toggle-label" data-i18n="on">ON</span>
+                  <div class="form-help" data-i18n="cannotDisable">(cannot disable)</div>
+                </div>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="requireHRConfirmation">Require HR confirmation before saving:</label>
+                  <div class="toggle-switch active" id="requireHRConfirmation"></div>
+                  <span class="toggle-label" data-i18n="on">ON</span>
+                  <div class="form-help" data-i18n="cannotDisable">(cannot disable)</div>
+                </div>
+                
+                <div class="toggle-group">
+                  <label class="form-label" data-i18n="showBiasDisclaimer">Show bias disclaimer on screening:</label>
+                  <div class="toggle-switch active" id="showBiasDisclaimer"></div>
+                  <span class="toggle-label" data-i18n="on">ON</span>
+                  <div class="form-help" data-i18n="cannotDisable">(cannot disable)</div>
+                </div>
+                
+                <div class="info-box" data-i18n="aiNote">
+                  Note: "These settings cannot be disabled per BR-003 and BR-013"
+                </div>
+              </div>
+              
+              <button class="btn btn-primary" data-i18n="saveAISettings">Save AI Settings</button>
+            </div>
+            
+            <!-- Tab 4: Notifications -->
+            <div class="tab-panel" id="notifications">
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="emailService">Email Service (NTF-FR-004)</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="provider">Provider:</label>
+                  <div style="display: flex; align-items: center; gap: var(--space-2);">
+                    <span data-i18n="sendgrid">SendGrid</span>
+                    <div class="status-indicator success">●</div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="fromName">From name:</label>
+                  <input type="text" class="form-input" value="LàmViệc360" data-i18n-placeholder="fromNamePlaceholder">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="fromEmail">From email:</label>
+                  <input type="email" class="form-input" value="noreply@lamviec360.vn" data-i18n-placeholder="fromEmailPlaceholder">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="status">Status:</label>
+                  <div class="status-indicator success">✓</div>
+                  <span data-i18n="connected">Connected</span>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="emailsSent">Emails sent today:</label>
+                  <span data-i18n="emailsCount">847</span>
+                </div>
+                
+                <button class="btn btn-secondary" data-i18n="testEmail">Test Email</button>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="defaultDelays">Default notification delays</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="rejectionDelay">Rejection email default delay:</label>
+                  <select class="form-select" id="rejectionDelay">
+                    <option value="immediate" selected data-i18n="immediate">Immediate</option>
+                    <option value="1hour" data-i18n="1hour">1 hour</option>
+                    <option value="24hours" data-i18n="24hours">24 hours</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="applicationConfirmation">Application confirmation:</label>
+                  <select class="form-select" id="applicationConfirmation">
+                    <option value="immediate" selected data-i18n="immediate">Immediate</option>
+                    <option value="1hour" data-i18n="1hour">1 hour</option>
+                    <option value="24hours" data-i18n="24hours">24 hours</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="stageChangeNotification">Stage change notification:</label>
+                  <select class="form-select" id="stageChangeNotification">
+                    <option value="immediate" selected data-i18n="immediate">Immediate</option>
+                    <option value="1hour" data-i18n="1hour">1 hour</option>
+                    <option value="24hours" data-i18n="24hours">24 hours</option>
+                  </select>
+                </div>
+              </div>
+              
+              <button class="btn btn-primary" data-i18n="saveNotificationSettings">Save Notification Settings</button>
+            </div>
+            
+            <!-- Tab 5: Dropdown Lists -->
+            <div class="tab-panel" id="dropdowns">
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="dropdownLists">Configure all dropdown list options used across the platform. (BR-010)</h2>
+                
+                <h3 style="font-size: var(--text-lg); font-weight: 600; margin: var(--space-4) 0 var(--space-2) 0;" data-i18n="industries">Industries (editable list):</h3>
+                
+                <div class="editable-list">
+                  <div class="list-item">
+                    <span data-i18n="itSaaS">IT / SaaS</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="financeFintech">Finance / Fintech</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="marketing">Marketing</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="manufacturing">Manufacturing</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="healthcare">Healthcare</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="education">Education</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="ecommerce">E-commerce</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="logistics">Logistics</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="realEstate">Real Estate</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item disabled">
+                    <span data-i18n="other">Other</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" disabled data-i18n="deleteDisabled">Delete — disabled, required</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <input type="text" class="list-input" placeholder="New industry..." data-i18n-placeholder="newIndustryPlaceholder">
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-primary" data-i18n="addIndustry">+ Add Industry</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h3 style="font-size: var(--text-lg); font-weight: 600; margin: var(--space-4) 0 var(--space-2) 0;" data-i18n="companySizes">Company Sizes (editable list):</h3>
+                
+                <div class="editable-list">
+                  <div class="list-item">
+                    <span data-i18n="size1to10">1–10</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="size11to50">11–50</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="size51to200">51–200</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="size201to500">201–500</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="size500plus">500+</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <input type="text" class="list-input" placeholder="New size range..." data-i18n-placeholder="newSizePlaceholder">
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-primary" data-i18n="addSizeRange">+ Add Size Range</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h3 style="font-size: var(--text-lg); font-weight: 600; margin: var(--space-4) 0 var(--space-2) 0;" data-i18n="jobTypes">Job Types:</h3>
+                
+                <div class="editable-list">
+                  <div class="list-item">
+                    <span data-i18n="fullTime">Full-time</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="partTime">Part-time</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="remote">Remote</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="contract">Contract</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="internship">Internship</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <input type="text" class="list-input" placeholder="New job type..." data-i18n-placeholder="newJobTypePlaceholder">
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-primary" data-i18n="addJobType">+ Add Job Type</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h3 style="font-size: var(--text-lg); font-weight: 600; margin: var(--space-4) 0 var(--space-2) 0;" data-i18n="educationLevels">Education Levels:</h3>
+                
+                <div class="editable-list">
+                  <div class="list-item">
+                    <span data-i18n="highSchool">High School</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="vocational">Vocational</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="associate">Associate</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="bachelors">Bachelor's</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="masters">Master's</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="phd">PhD</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <span data-i18n="other">Other</span>
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-ghost" data-i18n="delete">Delete</button>
+                    </div>
+                  </div>
+                  <div class="list-item">
+                    <input type="text" class="list-input" placeholder="New education level..." data-i18n-placeholder="newEducationPlaceholder">
+                    <div class="list-actions">
+                      <button class="btn-sm btn-sm-primary" data-i18n="addLevel">+ Add Level</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <button class="btn btn-primary" data-i18n="saveDropdownLists">Save Dropdown Lists</button>
+            </div>
+            
+            <!-- Tab 6: Maintenance -->
+            <div class="tab-panel" id="maintenance">
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="database">Database</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="status">Status:</label>
+                  <div class="status-indicator success">✓</div>
+                  <span data-i18n="connected">Connected</span>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="size">Size:</label>
+                  <span data-i18n="dbSize">2.4 GB / 100 GB</span>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="lastBackup">Last backup:</label>
+                  <span data-i18n="backupTime">14 Mar 2026 03:00 UTC+7</span>
+                </div>
+                
+                <button class="btn btn-secondary" data-i18n="runBackup">Run Backup Now</button>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="cache">Cache</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="cacheStatus">Status:</label>
+                  <div class="status-indicator success">✓</div>
+                  <span data-i18n="active">Active</span>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="cacheSize">Cache size:</label>
+                  <span data-i18n="cacheSizeMB">145 MB</span>
+                </div>
+                
+                <button class="btn btn-secondary" data-i18n="clearCache">Clear Cache</button>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="dataRetention">Data Retention (link)</h2>
+                
+                <div class="form-group">
+                  <a href="sa08-retention.html" class="btn btn-ghost" data-i18n="goToRetention">Go to Data Retention Settings →</a>
+                  <div class="form-help">→ sa08-retention.html</div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h2 class="section-title" data-i18n="systemLogs">System Logs</h2>
+                
+                <div class="form-group">
+                  <label class="form-label" data-i18n="errorRate">Error rate today:</label>
+                  <div class="status-indicator success">●</div>
+                  <span data-i18n="errorRateValue">0.02% (healthy)</span>
+                </div>
+                
+                <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+                  <button class="btn btn-secondary" data-i18n="downloadErrorLog">Download Error Log</button>
+                  <a href="sa09-audit-log.html" class="btn btn-ghost" data-i18n="viewAuditLog">View Audit Log →</a>
+                  <div class="form-help">→ sa09-audit-log.html</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 sa11: System Settings
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="sa01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← sa01: Dashboard</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'System Settings',
+        tabGeneral: 'General',
+        tabAuthentication: 'Authentication',
+        tabAIConfig: 'AI Config',
+        tabNotifications: 'Notifications',
+        tabDropdownLists: 'Dropdown Lists',
+        tabMaintenance: 'Maintenance',
+        platformInfo: 'Platform Information',
+        platformName: 'Platform name:',
+        platformNamePlaceholder: 'Enter platform name',
+        supportEmail: 'Support email:',
+        supportEmailPlaceholder: 'Enter support email',
+        termsURL: 'Terms URL:',
+        termsURLPlaceholder: 'Enter terms URL',
+        privacyURL: 'Privacy URL:',
+        privacyURLPlaceholder: 'Enter privacy URL',
+        saveGeneral: 'Save General',
+        platformStatus: 'Platform Status',
+        currentStatus: 'Current status: Operational',
+        maintenanceMode: 'Maintenance mode:',
+        toggleOff: 'OFF',
+        toggleOn: 'ON',
+        maintenanceMessage: 'Maintenance mode message:',
+        maintenanceMessagePlaceholder: 'Platform is under maintenance. Please try again later.',
+        maintenanceWarning: 'Enabling maintenance mode immediately locks all user access.',
+        enableMaintenance: 'Enable Maintenance',
+        companyApproval: 'Company Approval',
+        autoApprove: 'Auto-approve companies:',
+        manualReview: 'Currently: Manual review required (recommended)',
+        sessionSettings: 'Session Settings (AUTH-FR-006)',
+        standardSession: 'Standard session expiry:',
+        minutes30: '30 minutes',
+        minutes60: '60 minutes',
+        minutes120: '120 minutes',
+        minutes240: '240 minutes',
+        minutes480: '480 minutes',
+        sessionOptions: 'Options: 30 / 60 / 120 / 240 / 480 minutes',
+        rememberMeSession: 'Remember me session:',
+        days7: '7 days',
+        days14: '14 days',
+        days30: '30 days',
+        rememberMeOptions: 'Options: 7 / 14 / 30 days',
+        companyAdmin2FA: 'Company Admin 2FA:',
+        required: 'Required',
+        cannotDisable: '(cannot disable)',
+        otpSettings: 'OTP Settings (AUTH-FR-003)',
+        otpExpiry: 'OTP expiry:',
+        minutes5: '5 minutes',
+        minutes10: '10 minutes',
+        minutes15: '15 minutes',
+        maxResend: 'Max resend attempts:',
+        resendRange: '(1–5)',
+        maxFailed: 'Max failed attempts:',
+        failedRange: '(3–10)',
+        otpDelivery: 'OTP delivery:',
+        sms: 'SMS',
+        email: 'Email',
+        both: 'Both',
+        teamInviteSettings: 'Team Invite Settings (BR-007)',
+        inviteLinkExpiry: 'Invite link expiry:',
+        hours24: '24 hours',
+        hours48: '48 hours',
+        hours72: '72 hours',
+        hours168: '168 hours',
+        expiryOptions: 'Options: 24 / 48 / 72 / 168 hours',
+        passwordPolicy: 'Password Policy',
+        minLength: 'Minimum length:',
+        requireUppercase: 'Require uppercase:',
+        requireNumber: 'Require number:',
+        requireSpecial: 'Require special char:',
+        saveAuthSettings: 'Save Authentication Settings',
+        aiSessionLimits: 'AI Session Limits (AC-019, BR-003)',
+        maxAIRequests: 'Max AI requests per session:',
+        afterLimit: 'After limit: user warned, session continues',
+        aiAbuseThreshold: 'AI abuse threshold:',
+        abuseEvents: 'abuse events → session terminated',
+        afterThreshold: 'After threshold: JWT session invalidated (AUTH-FR-006)',
+        aiPerformance: 'AI Performance (NFR-003)',
+        jdTimeout: 'JD generation timeout:',
+        maxRetries: 'Max retries per session:',
+        cacheDuration: 'Session cache duration:',
+        cachePreserved: 'Cached draft preserved across page loads (NFR-003b)',
+        aiProvider: 'AI Provider',
+        provider: 'Provider:',
+        googleGemini: 'Google Gemini API',
+        apiStatus: 'API status:',
+        connected: 'Connected',
+        requestsToday: 'Requests today:',
+        requestsCount: '1,247 / unlimited',
+        testConnection: 'Test Connection',
+        aiTransparency: 'AI Transparency',
+        showAIBadge: 'Show AI badge on all AI content:',
+        requireHRConfirmation: 'Require HR confirmation before saving:',
+        showBiasDisclaimer: 'Show bias disclaimer on screening:',
+        aiNote: 'Note: "These settings cannot be disabled per BR-003 and BR-013"',
+        saveAISettings: 'Save AI Settings',
+        emailService: 'Email Service (NTF-FR-004)',
+        sendgrid: 'SendGrid',
+        fromName: 'From name:',
+        fromNamePlaceholder: 'Enter from name',
+        fromEmail: 'From email:',
+        fromEmailPlaceholder: 'Enter from email',
+        emailsSent: 'Emails sent today:',
+        emailsCount: '847',
+        testEmail: 'Test Email',
+        defaultDelays: 'Default notification delays',
+        rejectionDelay: 'Rejection email default delay:',
+        immediate: 'Immediate',
+        hour1: '1 hour',
+        hours24: '24 hours',
+        applicationConfirmation: 'Application confirmation:',
+        stageChangeNotification: 'Stage change notification:',
+        saveNotificationSettings: 'Save Notification Settings',
+        dropdownLists: 'Configure all dropdown list options used across the platform. (BR-010)',
+        industries: 'Industries (editable list):',
+        itSaaS: 'IT / SaaS',
+        financeFintech: 'Finance / Fintech',
+        marketing: 'Marketing',
+        manufacturing: 'Manufacturing',
+        healthcare: 'Healthcare',
+        education: 'Education',
+        ecommerce: 'E-commerce',
+        logistics: 'Logistics',
+        realEstate: 'Real Estate',
+        other: 'Other',
+        edit: 'Edit',
+        delete: 'Delete',
+        deleteDisabled: 'Delete — disabled, required',
+        newIndustryPlaceholder: 'New industry...',
+        addIndustry: '+ Add Industry',
+        companySizes: 'Company Sizes (editable list):',
+        size1to10: '1–10',
+        size11to50: '11–50',
+        size51to200: '51–200',
+        size201to500: '201–500',
+        size500plus: '500+',
+        newSizePlaceholder: 'New size range...',
+        addSizeRange: '+ Add Size Range',
+        jobTypes: 'Job Types:',
+        fullTime: 'Full-time',
+        partTime: 'Part-time',
+        remote: 'Remote',
+        contract: 'Contract',
+        internship: 'Internship',
+        newJobTypePlaceholder: 'New job type...',
+        addJobType: '+ Add Job Type',
+        educationLevels: 'Education Levels:',
+        highSchool: 'High School',
+        vocational: 'Vocational',
+        associate: 'Associate',
+        bachelors: 'Bachelor\'s',
+        masters: 'Master\'s',
+        phd: 'PhD',
+        newEducationPlaceholder: 'New education level...',
+        addLevel: '+ Add Level',
+        saveDropdownLists: 'Save Dropdown Lists',
+        database: 'Database',
+        size: 'Size:',
+        dbSize: '2.4 GB / 100 GB',
+        lastBackup: 'Last backup:',
+        backupTime: '14 Mar 2026 03:00 UTC+7',
+        runBackup: 'Run Backup Now',
+        cache: 'Cache',
+        cacheStatus: 'Status:',
+        active: 'Active',
+        cacheSize: 'Cache size:',
+        cacheSizeMB: '145 MB',
+        clearCache: 'Clear Cache',
+        dataRetention: 'Data Retention (link)',
+        goToRetention: 'Go to Data Retention Settings →',
+        systemLogs: 'System Logs',
+        errorRate: 'Error rate today:',
+        errorRateValue: '0.02% (healthy)',
+        downloadErrorLog: 'Download Error Log',
+        viewAuditLog: 'View Audit Log →'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'System Settings',
+        tabGeneral: 'General',
+        tabAuthentication: 'Authentication',
+        tabAIConfig: 'AI Config',
+        tabNotifications: 'Notifications',
+        tabDropdownLists: 'Dropdown Lists',
+        tabMaintenance: 'Maintenance',
+        platformInfo: 'Platform Information',
+        platformName: 'Platform name:',
+        platformNamePlaceholder: 'Enter platform name',
+        supportEmail: 'Support email:',
+        supportEmailPlaceholder: 'Enter support email',
+        termsURL: 'Terms URL:',
+        termsURLPlaceholder: 'Enter terms URL',
+        privacyURL: 'Privacy URL:',
+        privacyURLPlaceholder: 'Enter privacy URL',
+        saveGeneral: 'Save General',
+        platformStatus: 'Platform Status',
+        currentStatus: 'Current status: Operational',
+        maintenanceMode: 'Maintenance mode:',
+        toggleOff: 'OFF',
+        toggleOn: 'ON',
+        maintenanceMessage: 'Maintenance mode message:',
+        maintenanceMessagePlaceholder: 'Platform is under maintenance. Please try again later.',
+        maintenanceWarning: 'Enabling maintenance mode immediately locks all user access.',
+        enableMaintenance: 'Enable Maintenance',
+        companyApproval: 'Company Approval',
+        autoApprove: 'Auto-approve companies:',
+        manualReview: 'Currently: Manual review required (recommended)',
+        sessionSettings: 'Session Settings (AUTH-FR-006)',
+        standardSession: 'Standard session expiry:',
+        minutes30: '30 minutes',
+        minutes60: '60 minutes',
+        minutes120: '120 minutes',
+        minutes240: '240 minutes',
+        minutes480: '480 minutes',
+        sessionOptions: 'Options: 30 / 60 / 120 / 240 / 480 minutes',
+        rememberMeSession: 'Remember me session:',
+        days7: '7 days',
+        days14: '14 days',
+        days30: '30 days',
+        rememberMeOptions: 'Options: 7 / 14 / 30 days',
+        companyAdmin2FA: 'Company Admin 2FA:',
+        required: 'Required',
+        cannotDisable: '(cannot disable)',
+        otpSettings: 'OTP Settings (AUTH-FR-003)',
+        otpExpiry: 'OTP expiry:',
+        minutes5: '5 minutes',
+        minutes10: '10 minutes',
+        minutes15: '15 minutes',
+        maxResend: 'Max resend attempts:',
+        resendRange: '(1–5)',
+        maxFailed: 'Max failed attempts:',
+        failedRange: '(3–10)',
+        otpDelivery: 'OTP delivery:',
+        sms: 'SMS',
+        email: 'Email',
+        both: 'Both',
+        teamInviteSettings: 'Team Invite Settings (BR-007)',
+        inviteLinkExpiry: 'Invite link expiry:',
+        hours24: '24 hours',
+        hours48: '48 hours',
+        hours72: '72 hours',
+        hours168: '168 hours',
+        expiryOptions: 'Options: 24 / 48 / 72 / 168 hours',
+        passwordPolicy: 'Password Policy',
+        minLength: 'Minimum length:',
+        requireUppercase: 'Require uppercase:',
+        requireNumber: 'Require number:',
+        requireSpecial: 'Require special char:',
+        saveAuthSettings: 'Save Authentication Settings',
+        aiSessionLimits: 'AI Session Limits (AC-019, BR-003)',
+        maxAIRequests: 'Max AI requests per session:',
+        afterLimit: 'After limit: user warned, session continues',
+        aiAbuseThreshold: 'AI abuse threshold:',
+        abuseEvents: 'abuse events → session terminated',
+        afterThreshold: 'After threshold: JWT session invalidated (AUTH-FR-006)',
+        aiPerformance: 'AI Performance (NFR-003)',
+        jdTimeout: 'JD generation timeout:',
+        maxRetries: 'Max retries per session:',
+        cacheDuration: 'Session cache duration:',
+        cachePreserved: 'Cached draft preserved across page loads (NFR-003b)',
+        aiProvider: 'AI Provider',
+        provider: 'Provider:',
+        googleGemini: 'Google Gemini API',
+        apiStatus: 'API status:',
+        connected: 'Connected',
+        requestsToday: 'Requests today:',
+        requestsCount: '1,247 / unlimited',
+        testConnection: 'Test Connection',
+        aiTransparency: 'AI Transparency',
+        showAIBadge: 'Show AI badge on all AI content:',
+        requireHRConfirmation: 'Require HR confirmation before saving:',
+        showBiasDisclaimer: 'Show bias disclaimer on screening:',
+        aiNote: 'Note: "These settings cannot be disabled per BR-003 and BR-013"',
+        saveAISettings: 'Save AI Settings',
+        emailService: 'Email Service (NTF-FR-004)',
+        sendgrid: 'SendGrid',
+        fromName: 'From name:',
+        fromNamePlaceholder: 'Enter from name',
+        fromEmail: 'From email:',
+        fromEmailPlaceholder: 'Enter from email',
+        emailsSent: 'Emails sent today:',
+        emailsCount: '847',
+        testEmail: 'Test Email',
+        defaultDelays: 'Default notification delays',
+        rejectionDelay: 'Rejection email default delay:',
+        immediate: 'Immediate',
+        hour1: '1 hour',
+        hours24: '24 hours',
+        applicationConfirmation: 'Application confirmation:',
+        stageChangeNotification: 'Stage change notification:',
+        saveNotificationSettings: 'Save Notification Settings',
+        dropdownLists: 'Configure all dropdown list options used across the platform. (BR-010)',
+        industries: 'Industries (editable list):',
+        itSaaS: 'IT / SaaS',
+        financeFintech: 'Finance / Fintech',
+        marketing: 'Marketing',
+        manufacturing: 'Manufacturing',
+        healthcare: 'Healthcare',
+        education: 'Education',
+        ecommerce: 'E-commerce',
+        logistics: 'Logistics',
+        realEstate: 'Real Estate',
+        other: 'Other',
+        edit: 'Edit',
+        delete: 'Delete',
+        deleteDisabled: 'Delete — disabled, required',
+        newIndustryPlaceholder: 'New industry...',
+        addIndustry: '+ Add Industry',
+        companySizes: 'Company Sizes (editable list):',
+        size1to10: '1–10',
+        size11to50: '11–50',
+        size51to200: '51–200',
+        size201to500: '201–500',
+        size500plus: '500+',
+        newSizePlaceholder: 'New size range...',
+        addSizeRange: '+ Add Size Range',
+        jobTypes: 'Job Types:',
+        fullTime: 'Full-time',
+        partTime: 'Part-time',
+        remote: 'Remote',
+        contract: 'Contract',
+        internship: 'Internship',
+        newJobTypePlaceholder: 'New job type...',
+        addJobType: '+ Add Job Type',
+        educationLevels: 'Education Levels:',
+        highSchool: 'High School',
+        vocational: 'Vocational',
+        associate: 'Associate',
+        bachelors: 'Bachelor\'s',
+        masters: 'Master\'s',
+        phd: 'PhD',
+        newEducationPlaceholder: 'New education level...',
+        addLevel: '+ Add Level',
+        saveDropdownLists: 'Save Dropdown Lists',
+        database: 'Database',
+        size: 'Size:',
+        dbSize: '2.4 GB / 100 GB',
+        lastBackup: 'Last backup:',
+        backupTime: '14 Mar 2026 03:00 UTC+7',
+        runBackup: 'Run Backup Now',
+        cache: 'Cache',
+        cacheStatus: 'Status:',
+        active: 'Active',
+        cacheSize: 'Cache size:',
+        cacheSizeMB: '145 MB',
+        clearCache: 'Clear Cache',
+        dataRetention: 'Data Retention (link)',
+        goToRetention: 'Go to Data Retention Settings →',
+        systemLogs: 'System Logs',
+        errorRate: 'Error rate today:',
+        errorRateValue: '0.02% (healthy)',
+        downloadErrorLog: 'Download Error Log',
+        viewAuditLog: 'View Audit Log →'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — System Settings | Super Admin' : 'LàmViệc360 — System Settings | Super Admin';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE MENU ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+      mobileOverlay.classList.toggle('show');
+    });
+
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('show');
+      mobileOverlay.classList.remove('show');
+    });
+
+    // ========== TAB FUNCTIONALITY ==========
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTab = button.getAttribute('data-tab');
+        
+        // Update button states
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Update panel visibility
+        tabPanels.forEach(panel => {
+          panel.classList.remove('active');
+          if (panel.id === targetTab) {
+            panel.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // ========== TOGGLE SWITCHES ==========
+    const toggleSwitches = document.querySelectorAll('.toggle-switch');
+    
+    toggleSwitches.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+        const label = toggle.nextElementSibling;
+        if (label && label.classList.contains('toggle-label')) {
+          label.textContent = toggle.classList.contains('active') ? t('toggleOn') : t('toggleOff');
+        }
+      });
+    });
+
+    // ========== SAVE BUTTONS ==========
+    document.querySelectorAll('[data-i18n^="save"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-i18n').replace('save', '').toLowerCase();
+        console.log(`Saving ${action} settings...`);
+        alert(`${action.charAt(0).toUpperCase() + action.slice(1)} settings saved successfully!`);
+        // In real app, this would make an API call
+      });
+    });
+
+    // ========== MAINTENANCE MODE ==========
+    const maintenanceToggle = document.getElementById('maintenanceToggle');
+    const enableMaintenanceBtn = document.getElementById('enableMaintenanceBtn');
+    
+    if (enableMaintenanceBtn) {
+      enableMaintenanceBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to enable maintenance mode? This will immediately lock all user access to the platform.')) {
+          maintenanceToggle.classList.add('active');
+          const label = maintenanceToggle.nextElementSibling;
+          if (label && label.classList.contains('toggle-label')) {
+            label.textContent = t('toggleOn');
+          }
+          alert('Maintenance mode enabled. All user access has been locked.');
+          // In real app, this would make an API call
+        }
+      });
+    }
+
+    // ========== TEST CONNECTION ==========
+    document.querySelector('[data-i18n="testConnection"]').addEventListener('click', () => {
+      console.log('Testing AI provider connection...');
+      alert('Connection test successful! AI provider is responding normally.');
+      // In real app, this would test the actual API connection
+    });
+
+    document.querySelector('[data-i18n="testEmail"]').addEventListener('click', () => {
+      console.log('Sending test email...');
+      alert('Test email sent successfully! Check your inbox.');
+      // In real app, this would send a test email
+    });
+
+    // ========== MAINTENANCE ACTIONS ==========
+    document.querySelector('[data-i18n="runBackup"]').addEventListener('click', () => {
+      console.log('Running database backup...');
+      alert('Database backup started. This may take several minutes to complete.');
+      // In real app, this would trigger a backup job
+    });
+
+    document.querySelector('[data-i18n="clearCache"]').addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear the cache? This may temporarily slow down the platform.')) {
+        console.log('Clearing cache...');
+        alert('Cache cleared successfully. Platform performance may be temporarily affected.');
+        // In real app, this would clear the cache
+      }
+    });
+
+    document.querySelector('[data-i18n="downloadErrorLog"]').addEventListener('click', () => {
+      console.log('Downloading error log...');
+      alert('Error log downloaded successfully.');
+      // In real app, this would generate and download the error log
+    });
+
+    // ========== EDITABLE LISTS ==========
+    document.querySelectorAll('.editable-list .btn-sm').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = btn.getAttribute('data-i18n');
+        const listItem = btn.closest('.list-item');
+        const itemText = listItem.querySelector('span:not([data-i18n])')?.textContent;
+        
+        if (action === 'edit') {
+          const newText = prompt('Edit item:', itemText);
+          if (newText && newText !== itemText) {
+            listItem.querySelector('span:not([data-i18n])').textContent = newText;
+            console.log('Item edited:', newText);
+          }
+        } else if (action === 'delete' && !btn.disabled) {
+          if (confirm(`Delete "${itemText}"?`)) {
+            listItem.remove();
+            console.log('Item deleted:', itemText);
+          }
+        } else if (action.includes('Add')) {
+          const input = listItem.querySelector('.list-input');
+          const value = input.value.trim();
+          if (value) {
+            console.log('New item added:', value);
+            input.value = '';
+            // In real app, this would add the new item to the list
+          }
+        }
+      });
+    });
+
+    // ========== SIGN OUT ==========
+    document.querySelector('.sidebar-signout').addEventListener('click', () => {
+      if (confirm('Are you sure you want to sign out?')) {
+        console.log('Signing out...');
+        // In real app, this would clear session and redirect
+        alert('Signed out successfully');
+      }
+    });
+  </script>
+</body>
+</html>

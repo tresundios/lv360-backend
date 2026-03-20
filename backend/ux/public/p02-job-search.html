@@ -1,0 +1,1785 @@
+<!doctype html>
+<!--
+  SCREEN: p02 Job Search
+  PRD REFS: JSP-FR-001, JSP-FR-002, JSP-FR-006, JSP-FR-010, BR-008, BR-009
+  FLOW: p01-homepage.html → THIS → p03-job-detail.html
+  PERSONA: Job Seekers (public)
+  STAGE: Phase 1 MVP
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Tìm kiếm việc làm</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-50);
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--color-white);
+      border-bottom: var(--border-default);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    /* Logo styles (RULE G-003) */
+    .logo-img {
+      height: 36px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+    @media (max-width: 767px) {
+      .logo-img { height: 28px; }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .nav-link {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      text-decoration: none;
+    }
+    .nav-link:hover { color: var(--color-primary); text-decoration: none; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 44px;
+      min-width: 44px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-ghost { background: transparent; color: var(--color-grey-700); border: 1px solid var(--color-grey-300); }
+    .btn-ghost:hover { background: rgba(15, 23, 42, 0.02); text-decoration: none; }
+    .btn-secondary { background: white; color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-secondary:hover { background: var(--color-primary); color: white; text-decoration: none; }
+    .btn-apply { 
+      /* Reset all browser defaults first */
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      font: inherit;
+      text-align: inherit;
+      color: inherit;
+      
+      /* Apply button styles */
+      padding: 8px 16px; 
+      font-size: var(--text-sm); 
+      min-height: 36px; 
+      min-width: 44px;
+      border-radius: var(--radius-md);
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    /* Search Bar */
+    .search-header {
+      background: white;
+      padding: var(--space-6) 0;
+      border-bottom: var(--border-default);
+    }
+
+    .search-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+    }
+
+    .search-bar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: var(--space-2);
+      background: white;
+      border: 2px solid var(--color-grey-300);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2);
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      font-size: var(--text-base);
+      padding: var(--space-3) var(--space-4);
+      background: transparent;
+      flex: 1;
+    }
+
+    .search-input::placeholder {
+      color: var(--color-grey-500);
+    }
+
+    .search-dropdown {
+      border: none;
+      outline: none;
+      font-size: var(--text-base);
+      padding: var(--space-3) var(--space-4);
+      background: transparent;
+      border-left: 1px solid var(--color-grey-300);
+      color: var(--color-grey-700);
+      cursor: pointer;
+      min-width: 140px;
+      flex-shrink: 0;
+    }
+
+    .search-btn {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .search-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* Main Layout */
+    .main-container {
+      max-width: 1280px;
+      margin: var(--space-6) auto;
+      padding: 0 var(--space-6);
+      display: grid;
+      grid-template-columns: 260px 1fr 300px;
+      gap: var(--space-8);
+      min-height: calc(100vh - 200px);
+    }
+
+    /* Filter Panel */
+    .filter-panel {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+    }
+
+    .filter-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-6) 0;
+      color: var(--color-grey-900);
+    }
+
+    .filter-section {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-6);
+      border-bottom: 1px solid var(--color-grey-200);
+    }
+
+    .filter-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .filter-section-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0 0 var(--space-3) 0;
+      color: var(--color-grey-700);
+    }
+
+    .filter-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Salary Range Slider */
+    .salary-slider {
+      margin: var(--space-4) 0;
+    }
+
+    .slider-track {
+      height: 6px;
+      background: var(--color-grey-300);
+      border-radius: var(--radius-full);
+      position: relative;
+      margin: var(--space-6) 0;
+    }
+
+    .slider-range {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: var(--radius-full);
+      position: absolute;
+      left: 25%;
+      right: 25%;
+    }
+
+    .slider-handle {
+      width: 20px;
+      height: 20px;
+      background: white;
+      border: 3px solid var(--color-primary);
+      border-radius: var(--radius-full);
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+    }
+
+    .slider-handle:active {
+      cursor: grabbing;
+    }
+
+    .slider-handle.min {
+      left: 25%;
+    }
+
+    .slider-handle.max {
+      left: 75%;
+    }
+
+    .salary-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      margin-top: var(--space-2);
+    }
+
+    .salary-current {
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--color-primary);
+      font-weight: 600;
+      margin-top: var(--space-2);
+    }
+
+    /* Checkboxes and Radio */
+    .checkbox-group, .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .checkbox-item, .radio-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      cursor: pointer;
+    }
+
+    .checkbox-item input, .radio-item input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+    }
+
+    .checkbox-item label, .radio-item label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      cursor: pointer;
+    }
+
+    /* Results Area */
+    .results-area {
+      min-height: 100%;
+    }
+
+    .results-header {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .results-count {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+    }
+
+    .sort-dropdown {
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: white;
+      cursor: pointer;
+    }
+
+    /* Job Cards */
+    .job-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-4);
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .job-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .job-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .company-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-grey-100);
+      display: grid;
+      place-items: center;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      color: var(--color-grey-500);
+      flex-shrink: 0;
+    }
+
+    .job-info {
+      flex: 1;
+    }
+
+    .company-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-1);
+    }
+
+    .company-name {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .verified-badge {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .job-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-3) 0;
+      line-height: 1.3;
+    }
+
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-3);
+    }
+
+    .job-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .job-type {
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .skills-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+
+    .skill-tag {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      padding: 4px 8px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+
+    .job-actions {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      margin-top: var(--space-4);
+    }
+
+    .save-btn {
+      /* Reset all browser defaults first */
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      font: inherit;
+      text-align: inherit;
+      color: inherit;
+      
+      /* Exact same as .btn-secondary + .btn-apply */
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+      padding: 8px 16px; 
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-width: 44px;
+      user-select: none;
+      text-decoration: none;
+      white-space: nowrap;
+      box-sizing: border-box;
+      line-height: 1;
+      vertical-align: middle;
+      
+      /* Override for Save button styling */
+      background: transparent;
+      color: var(--color-grey-700);
+      border: 1px solid transparent;
+    }
+
+    .save-btn:hover {
+      /* Same hover behavior as btn-secondary */
+      background: var(--color-primary);
+      color: white;
+      border: 1px solid var(--color-primary);
+    }
+
+    .save-btn.saved {
+      background: var(--color-primary);
+      color: white;
+      border: 1px solid var(--color-primary);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin: var(--space-8) 0;
+    }
+
+    .page-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .page-link:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .page-link.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    /* Similar Jobs */
+    .similar-jobs {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin: var(--space-8) 0;
+    }
+
+    .similar-jobs-header {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-6) 0;
+      color: var(--color-grey-900);
+    }
+
+    .similar-jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .similar-job-card {
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .similar-job-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .similar-job-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .similar-job-company {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .similar-job-meta {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+    }
+
+    /* Advertisement Sidebar */
+    .ad-sidebar {
+      width: 300px;
+      height: 600px;
+      background: var(--color-grey-100);
+      border: 2px dashed var(--color-grey-300);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-grey-500);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      position: sticky;
+      top: 100px;
+    }
+
+    /* Mobile Filter Button */
+    .mobile-filter-btn {
+      display: none;
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: var(--space-4);
+    }
+
+    /* Mobile Filter Sheet */
+    .filter-sheet {
+      position: fixed;
+      bottom: -100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      transition: bottom 0.3s ease;
+      z-index: 1000;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .filter-sheet.open {
+      bottom: 0;
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--color-grey-300);
+      border-radius: var(--radius-full);
+      margin: var(--space-3) auto;
+    }
+
+    .sheet-header {
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--color-grey-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sheet-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .sheet-close {
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      color: var(--color-grey-500);
+    }
+
+    .sheet-content {
+      padding: var(--space-6);
+    }
+
+    .sheet-footer {
+      padding: var(--space-4) var(--space-6);
+      border-top: 1px solid var(--color-grey-200);
+      position: sticky;
+      bottom: 0;
+      background: white;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .nav-links { display: none; }
+      
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+        padding: 0 var(--space-4);
+        margin: var(--space-4) 0;
+      }
+
+      .filter-panel { display: none; }
+      .mobile-filter-btn { display: block; }
+      .ad-sidebar { display: none; }
+
+      .search-bar {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+      }
+      
+      .search-dropdown {
+        border-left: none;
+        border-top: 1px solid var(--color-grey-300);
+      }
+
+      .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+
+      .job-actions {
+        flex-direction: column;
+        gap: var(--space-2);
+        align-items: stretch;
+      }
+
+      .save-btn, .btn-apply {
+        justify-content: center;
+        min-height: 40px;
+      }
+
+      .similar-jobs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Responsive: Tablet */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .main-container {
+        grid-template-columns: 220px 1fr;
+      }
+      
+      .ad-sidebar { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .job-card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Logo (RULE G-003) -->
+      <a href="p01-homepage.html" class="logo-link" aria-label="LàmViệc360 homepage">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo-img">
+      </a>
+
+      <!-- Navigation -->
+      <nav class="nav-links" role="navigation" aria-label="Main navigation">
+        <a href="p02-job-search.html" class="nav-link" data-i18n="navFindJobs">Find Jobs</a>
+        <a href="#employers" class="nav-link" data-i18n="navForEmployers">For Employers</a>
+        <a href="p02-job-search.html" class="nav-link" data-i18n="navBrowseCompanies">Browse Companies</a>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Language Toggle (RULE G-002) -->
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        </div>
+
+        <a href="../auth/a01-login.html" class="btn btn-ghost" data-i18n="navSignIn">Sign In</a>
+        <a href="../auth/a02-register-role.html" class="btn btn-primary" data-i18n="navSignUp">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search Header -->
+  <div class="search-header">
+    <div class="search-container">
+      <form class="search-bar" role="search" aria-label="Job search">
+        <input type="text" class="search-input" value="Software Engineer"
+               data-i18n-placeholder="searchPlaceholder"
+               placeholder="🔍 Job title, keyword, company..."
+               aria-label="Search jobs">
+        <select class="search-dropdown" aria-label="Select location">
+          <option value="hanoi" data-i18n="hanoi">Hà Nội</option>
+          <option value="hcmc" data-i18n="hcmc">TP. Hồ Chí Minh</option>
+          <option value="danang" data-i18n="danang">Đà Nẵng</option>
+          <option value="haiphong" data-i18n="haiphong">Hải Phòng</option>
+          <option value="cantho" data-i18n="cantho">Cần Thơ</option>
+          <option value="binhduong" data-i18n="binhduong">Bình Dương</option>
+          <option value="dongnai" data-i18n="dongnai">Đồng Nai</option>
+          <option value="all" data-i18n="allProvinces">All Provinces</option>
+        </select>
+        <button type="submit" class="search-btn" data-i18n="searchButton">Search</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main id="main-content" class="main-container">
+    <!-- Filter Panel -->
+    <aside class="filter-panel" aria-label="Job filters">
+      <h2 class="filter-title" data-i18n="filterTitle">Lọc kết quả</h2>
+
+      <!-- Keyword -->
+      <div class="filter-section">
+        <h3 class="filter-section-title" data-i18n="filterKeyword">Keyword</h3>
+        <input type="text" class="filter-input" value="Software Engineer" 
+               data-i18n-placeholder="keywordPlaceholder"
+               placeholder="Enter keywords...">
+      </div>
+
+      <!-- Location -->
+      <div class="filter-section">
+        <h3 class="filter-section-title" data-i18n="filterLocation">Location</h3>
+        <select class="filter-select" aria-label="Select location">
+          <option value="" data-i18n="allProvinces">All Provinces</option>
+          <option value="hanoi" data-i18n="hanoi">Hà Nội</option>
+          <option value="hcmc" data-i18n="hcmc">TP. Hồ Chí Minh</option>
+          <option value="danang" data-i18n="danang">Đà Nẵng</option>
+          <option value="haiphong" data-i18n="haiphong">Hải Phòng</option>
+          <option value="cantho" data-i18n="cantho">Cần Thơ</option>
+          <option value="binhduong" data-i18n="binhduong">Bình Dương</option>
+          <option value="dongnai" data-i18n="dongnai">Đồng Nai</option>
+        </select>
+      </div>
+
+      <!-- Industry -->
+      <div class="filter-section">
+        <h3 class="filter-section-title" data-i18n="filterIndustry">Industry</h3>
+        <select class="filter-select" aria-label="Select industry">
+          <option value="" data-i18n="allIndustries">All Industries</option>
+          <option value="it" data-i18n="industryIT">IT/Tech</option>
+          <option value="finance" data-i18n="industryFinance">Finance</option>
+          <option value="marketing" data-i18n="industryMarketing">Marketing</option>
+          <option value="design" data-i18n="industryDesign">Design</option>
+          <option value="sales" data-i18n="industrySales">Sales</option>
+          <option value="engineering" data-i18n="industryEngineering">Engineering</option>
+          <option value="hr" data-i18n="industryHR">HR</option>
+          <option value="other" data-i18n="industryOther">Other</option>
+        </select>
+      </div>
+
+      <!-- Salary Range -->
+      <div class="filter-section">
+        <h3 class="filter-section-title" data-i18n="filterSalary">Salary Range</h3>
+        <div class="salary-slider">
+          <div class="slider-track">
+            <div class="slider-range"></div>
+            <div class="slider-handle min"></div>
+            <div class="slider-handle max"></div>
+          </div>
+          <div class="salary-labels">
+            <span>5tr</span>
+            <span>100tr+</span>
+          </div>
+          <div class="salary-current">15.000.000 – 50.000.000 VND</div>
+        </div>
+      </div>
+
+      <!-- Job Type -->
+      <div class="filter-section">
+        <h3 class="filter-section-title" data-i18n="filterJobType">Job Type</h3>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" checked>
+            <span data-i18n="jobTypeFullTime">Full-time</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox">
+            <span data-i18n="jobTypePartTime">Part-time</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox">
+            <span data-i18n="jobTypeRemote">Remote</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox">
+            <span data-i18n="jobTypeContract">Contract</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Experience -->
+      <div class="filter-section">
+        <h3 class="filter-section-title" data-i18n="filterExperience">Experience</h3>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox">
+            <span data-i18n="expFresher">Fresher</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" checked>
+            <span data-i18n="exp1to2">1–2 yrs</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox">
+            <span data-i18n="exp3to5">3–5 yrs</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox">
+            <span data-i18n="exp5plus">5+ yrs</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Posted -->
+      <div class="filter-section">
+        <h3 class="filter-section-title" data-i18n="filterPosted">Posted</h3>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="posted" checked>
+            <span data-i18n="postedAny">Any time</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="posted">
+            <span data-i18n="postedToday">Today</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="posted">
+            <span data-i18n="postedWeek">This week</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="posted">
+            <span data-i18n="postedMonth">This month</span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" data-i18n="applyFilters">Apply Filters</button>
+      <a href="#" class="btn btn-ghost btn-full" style="margin-top: var(--space-2);" data-i18n="clearAll">Clear all</a>
+    </aside>
+
+    <!-- Results Area -->
+    <div class="results-area">
+      <!-- Mobile Filter Button -->
+      <button class="mobile-filter-btn" id="mobile-filter-btn">
+        🔽 <span data-i18n="mobileFilter">Lọc</span> <span style="background: var(--color-danger); color: white; padding: 2px 6px; border-radius: var(--radius-full); font-size: var(--text-xs);">3</span>
+      </button>
+
+      <!-- Results Header -->
+      <div class="results-header">
+        <div class="results-count" data-i18n="resultsCount">47 việc làm được tìm thấy</div>
+        <select class="sort-dropdown" aria-label="Sort results">
+          <option value="newest" data-i18n="sortNewest">Mới nhất</option>
+          <option value="relevant" data-i18n="sortRelevant">Phù hợp nhất</option>
+        </select>
+      </div>
+
+      <!-- Job Cards -->
+      <div class="job-list">
+        <!-- Job Card 1 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="Senior Frontend Developer at TechCorp Vietnam JSC">
+          <div class="job-header">
+            <div class="company-logo">TCV</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">TechCorp Vietnam JSC</p>
+                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+              </div>
+              <h3 class="job-title">Senior Frontend Developer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 Hà Nội</span>
+            <span class="job-meta-item">🏷 Full-time</span>
+            <span class="job-meta-item">📅 2 days ago</span>
+            <span class="job-meta-item">💰 25.000.000 – 40.000.000 VND/tháng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">TypeScript</span>
+            <span class="skill-tag">Next.js</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn" aria-label="Save job">
+              <span>♡</span> <span data-i18n="saveJob">Save</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+
+        <!-- Job Card 2 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="Backend Engineer at DataVN Ltd">
+          <div class="job-header">
+            <div class="company-logo">DVN</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">DataVN Ltd</p>
+              </div>
+              <h3 class="job-title">Backend Engineer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
+            <span class="job-meta-item">🏷 Full-time</span>
+            <span class="job-meta-item">📅 3 days ago</span>
+            <span class="job-meta-item">💰 Thương lượng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">PostgreSQL</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn" aria-label="Save job">
+              <span>♡</span> <span data-i18n="saveJob">Save</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+
+        <!-- Job Card 3 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="Full Stack Developer at FinApp Vietnam">
+          <div class="job-header">
+            <div class="company-logo">FAV</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">FinApp Vietnam</p>
+                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+              </div>
+              <h3 class="job-title">Full Stack Developer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 Đà Nẵng</span>
+            <span class="job-meta-item">🏷 Remote</span>
+            <span class="job-meta-item">📅 1 week ago</span>
+            <span class="job-meta-item">💰 30.000.000 – 45.000.000 VND/tháng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">Vue.js</span>
+            <span class="skill-tag">Django</span>
+            <span class="skill-tag">AWS</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn saved" aria-label="Remove saved job">
+              <span>♥</span> <span data-i18n="savedJob">Saved</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+
+        <!-- Job Card 4 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="React Developer at StartupVN">
+          <div class="job-header">
+            <div class="company-logo">SVN</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">StartupVN</p>
+              </div>
+              <h3 class="job-title">React Developer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 Hà Nội</span>
+            <span class="job-meta-item">🏷 Full-time</span>
+            <span class="job-meta-item">📅 4 days ago</span>
+            <span class="job-meta-item">💰 20.000.000 – 35.000.000 VND/tháng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">Redux</span>
+            <span class="skill-tag">MongoDB</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn" aria-label="Save job">
+              <span>♡</span> <span data-i18n="saveJob">Save</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+
+        <!-- Job Card 5 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="Mobile Developer at MegaCorp Vietnam">
+          <div class="job-header">
+            <div class="company-logo">MCV</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">MegaCorp Vietnam</p>
+                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+              </div>
+              <h3 class="job-title">Mobile Developer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
+            <span class="job-meta-item">🏷 Full-time</span>
+            <span class="job-meta-item">📅 5 days ago</span>
+            <span class="job-meta-item">💰 22.000.000 – 38.000.000 VND/tháng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">React Native</span>
+            <span class="skill-tag">Flutter</span>
+            <span class="skill-tag">iOS</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn" aria-label="Save job">
+              <span>♡</span> <span data-i18n="saveJob">Save</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+
+        <!-- Job Card 6 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="DevOps Engineer at TechVN Group">
+          <div class="job-header">
+            <div class="company-logo">TVG</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">TechVN Group</p>
+              </div>
+              <h3 class="job-title">DevOps Engineer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 Hà Nội</span>
+            <span class="job-meta-item">🏷 Full-time</span>
+            <span class="job-meta-item">📅 6 days ago</span>
+            <span class="job-meta-item">💰 28.000.000 – 42.000.000 VND/tháng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">Docker</span>
+            <span class="skill-tag">Kubernetes</span>
+            <span class="skill-tag">CI/CD</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn" aria-label="Save job">
+              <span>♡</span> <span data-i18n="saveJob">Save</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+
+        <!-- Job Card 7 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="QA Engineer at DataSoft Vietnam">
+          <div class="job-header">
+            <div class="company-logo">DSV</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">DataSoft Vietnam</p>
+              </div>
+              <h3 class="job-title">QA Engineer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 Hải Phòng</span>
+            <span class="job-meta-item">🏷 Full-time</span>
+            <span class="job-meta-item">📅 1 week ago</span>
+            <span class="job-meta-item">💰 18.000.000 – 30.000.000 VND/tháng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">Selenium</span>
+            <span class="skill-tag">Jest</span>
+            <span class="skill-tag">Agile</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn" aria-label="Save job">
+              <span>♡</span> <span data-i18n="saveJob">Save</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+
+        <!-- Job Card 8 -->
+        <a href="p03-job-detail.html" class="job-card" aria-label="UI/UX Designer at CreativeVN">
+          <div class="job-header">
+            <div class="company-logo">CVN</div>
+            <div class="job-info">
+              <div class="company-row">
+                <p class="company-name">CreativeVN</p>
+                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+              </div>
+              <h3 class="job-title">UI/UX Designer</h3>
+            </div>
+          </div>
+          <div class="job-meta">
+            <span class="job-meta-item">📍 Cần Thơ</span>
+            <span class="job-meta-item">🏷 Part-time</span>
+            <span class="job-meta-item">📅 2 weeks ago</span>
+            <span class="job-meta-item">💰 Thương lượng</span>
+          </div>
+          <div class="skills-tags">
+            <span class="skill-tag">Figma</span>
+            <span class="skill-tag">Adobe XD</span>
+            <span class="skill-tag">Prototyping</span>
+          </div>
+          <div class="job-actions">
+            <button class="save-btn" aria-label="Save job">
+              <span>♡</span> <span data-i18n="saveJob">Save</span>
+            </button>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+          </div>
+        </a>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" role="navigation" aria-label="Pagination">
+        <a href="#" class="page-link" aria-label="Previous page">←</a>
+        <a href="#" class="page-link active" aria-label="Page 1">1</a>
+        <a href="#" class="page-link" aria-label="Page 2">2</a>
+        <a href="#" class="page-link" aria-label="Page 3">3</a>
+        <a href="#" class="page-link" aria-label="Page 4">4</a>
+        <a href="#" class="page-link" aria-label="Page 5">5</a>
+        <a href="#" class="page-link" aria-label="Next page">→</a>
+      </div>
+
+      <!-- Similar Jobs (JSP-FR-010) -->
+      <div class="similar-jobs">
+        <h2 class="similar-jobs-header" data-i18n="similarJobsTitle">Việc làm tương tự bạn có thể thích</h2>
+        <div class="similar-jobs-grid">
+          <a href="p03-job-detail.html" class="similar-job-card">
+            <h3 class="similar-job-title">Frontend Developer</h3>
+            <p class="similar-job-company">TechCorp Vietnam JSC</p>
+            <p class="similar-job-meta">📍 Hà Nội · 💰 20-35M · 📅 3 days ago</p>
+          </a>
+          <a href="p03-job-detail.html" class="similar-job-card">
+            <h3 class="similar-job-title">React Developer</h3>
+            <p class="similar-job-company">StartupVN</p>
+            <p class="similar-job-meta">📍 Hà Nội · 💰 18-30M · 📅 5 days ago</p>
+          </a>
+          <a href="p03-job-detail.html" class="similar-job-card">
+            <h3 class="similar-job-title">UI Developer</h3>
+            <p class="similar-job-company">CreativeVN</p>
+            <p class="similar-job-meta">📍 Remote · 💰 25-40M · 📅 1 week ago</p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advertisement Sidebar (Desktop Only) -->
+    <aside class="ad-sidebar" aria-label="Advertisement">
+      [ AD SLOT D — Sidebar Banner ]
+    </aside>
+  </main>
+
+  <!-- Mobile Filter Sheet -->
+  <div class="filter-sheet" id="filter-sheet" aria-label="Filter options">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h3 class="sheet-title" data-i18n="filterTitle">Lọc kết quả</h3>
+      <button class="sheet-close" aria-label="Close filters">×</button>
+    </div>
+    <div class="sheet-content">
+      <!-- Copy filter content here for mobile -->
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-primary btn-full" data-i18n="applyFilters">Apply Filters</button>
+    </div>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 p02: Job Search
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="p01-homepage.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← p01: Homepage</a>
+    <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="p03-job-detail.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ p03: Job Detail</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        navFindJobs: 'Find Jobs',
+        navForEmployers: 'For Employers',
+        navBrowseCompanies: 'Browse Companies',
+        navSignIn: 'Sign In',
+        navSignUp: 'Sign Up',
+        searchPlaceholder: '🔍 Job title, keyword, company...',
+        searchButton: 'Search',
+        hanoi: 'Hà Nội',
+        hcmc: 'TP. Hồ Chí Minh',
+        danang: 'Đà Nẵng',
+        haiphong: 'Hải Phòng',
+        cantho: 'Cần Thơ',
+        binhduong: 'Bình Dương',
+        dongnai: 'Đồng Nai',
+        allProvinces: 'All Provinces',
+        filterTitle: 'Lọc kết quả',
+        filterKeyword: 'Keyword',
+        keywordPlaceholder: 'Enter keywords...',
+        filterLocation: 'Location',
+        filterIndustry: 'Industry',
+        allIndustries: 'All Industries',
+        industryIT: 'IT/Tech',
+        industryFinance: 'Finance',
+        industryMarketing: 'Marketing',
+        industryDesign: 'Design',
+        industrySales: 'Sales',
+        industryEngineering: 'Engineering',
+        industryHR: 'HR',
+        industryOther: 'Other',
+        filterSalary: 'Salary Range',
+        filterJobType: 'Job Type',
+        jobTypeFullTime: 'Full-time',
+        jobTypePartTime: 'Part-time',
+        jobTypeRemote: 'Remote',
+        jobTypeContract: 'Contract',
+        filterExperience: 'Experience',
+        expFresher: 'Fresher',
+        exp1to2: '1–2 yrs',
+        exp3to5: '3–5 yrs',
+        exp5plus: '5+ yrs',
+        filterPosted: 'Posted',
+        postedAny: 'Any time',
+        postedToday: 'Today',
+        postedWeek: 'This week',
+        postedMonth: 'This month',
+        applyFilters: 'Apply Filters',
+        clearAll: 'Clear all',
+        mobileFilter: 'Lọc',
+        resultsCount: '47 việc làm được tìm thấy',
+        sortNewest: 'Mới nhất',
+        sortRelevant: 'Phù hợp nhất',
+        verifiedBadge: '✓ Verified',
+        saveJob: 'Save',
+        savedJob: 'Saved',
+        applyNow: 'Apply Now',
+        similarJobsTitle: 'Việc làm tương tự bạn có thể thích'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        navFindJobs: 'Find Jobs',
+        navForEmployers: 'For Employers',
+        navBrowseCompanies: 'Browse Companies',
+        navSignIn: 'Sign In',
+        navSignUp: 'Sign Up',
+        searchPlaceholder: '🔍 Job title, keyword, company...',
+        searchButton: 'Search',
+        hanoi: 'Hanoi',
+        hcmc: 'Ho Chi Minh City',
+        danang: 'Da Nang',
+        haiphong: 'Hai Phong',
+        cantho: 'Can Tho',
+        binhduong: 'Binh Duong',
+        dongnai: 'Dong Nai',
+        allProvinces: 'All Provinces',
+        filterTitle: 'Filter Results',
+        filterKeyword: 'Keyword',
+        keywordPlaceholder: 'Enter keywords...',
+        filterLocation: 'Location',
+        filterIndustry: 'Industry',
+        allIndustries: 'All Industries',
+        industryIT: 'IT/Tech',
+        industryFinance: 'Finance',
+        industryMarketing: 'Marketing',
+        industryDesign: 'Design',
+        industrySales: 'Sales',
+        industryEngineering: 'Engineering',
+        industryHR: 'HR',
+        industryOther: 'Other',
+        filterSalary: 'Salary Range',
+        filterJobType: 'Job Type',
+        jobTypeFullTime: 'Full-time',
+        jobTypePartTime: 'Part-time',
+        jobTypeRemote: 'Remote',
+        jobTypeContract: 'Contract',
+        filterExperience: 'Experience',
+        expFresher: 'Fresher',
+        exp1to2: '1–2 yrs',
+        exp3to5: '3–5 yrs',
+        exp5plus: '5+ yrs',
+        filterPosted: 'Posted',
+        postedAny: 'Any time',
+        postedToday: 'Today',
+        postedWeek: 'This week',
+        postedMonth: 'This month',
+        applyFilters: 'Apply Filters',
+        clearAll: 'Clear all',
+        mobileFilter: 'Filter',
+        resultsCount: '47 jobs found',
+        sortNewest: 'Newest',
+        sortRelevant: 'Most Relevant',
+        verifiedBadge: '✓ Verified',
+        saveJob: 'Save',
+        savedJob: 'Saved',
+        applyNow: 'Apply Now',
+        similarJobsTitle: 'Similar jobs you might like'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Tìm kiếm việc làm' : 'LàmViệc360 — Job Search';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== SEARCH FUNCTIONALITY ==========
+    document.querySelector('.search-bar').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const searchInput = document.querySelector('.search-input').value;
+      const location = document.querySelector('.search-dropdown').value;
+      
+      // In real app, would update results with query parameters
+      console.log('Search:', searchInput, 'Location:', location);
+    });
+
+    // ========== MOBILE FILTER SHEET ==========
+    const mobileFilterBtn = document.getElementById('mobile-filter-btn');
+    const filterSheet = document.getElementById('filter-sheet');
+    const sheetClose = document.querySelector('.sheet-close');
+
+    mobileFilterBtn.addEventListener('click', () => {
+      filterSheet.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    sheetClose.addEventListener('click', () => {
+      filterSheet.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+
+    // Close sheet when clicking outside
+    filterSheet.addEventListener('click', (e) => {
+      if (e.target === filterSheet) {
+        filterSheet.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // ========== SAVE FUNCTIONALITY (JSP-FR-006) ==========
+    document.querySelectorAll('.save-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Check if user is logged in (demo: not logged in)
+        const isLoggedIn = false; // In real app, check session
+        
+        if (!isLoggedIn) {
+          // Redirect to login page
+          window.location.href = '../auth/a01-login.html';
+          return;
+        }
+        
+        // Toggle saved state
+        btn.classList.toggle('saved');
+        const isSaved = btn.classList.contains('saved');
+        btn.innerHTML = isSaved ? '<span>♥</span> <span>' + t('savedJob') + '</span>' : '<span>♡</span> <span>' + t('saveJob') + '</span>';
+        
+        // In real app, would save/remove from backend
+        console.log(isSaved ? 'Job saved' : 'Job removed from saved');
+      });
+    });
+
+    // ========== FILTER FUNCTIONALITY ==========
+    document.querySelectorAll('.filter-input, .filter-select').forEach(input => {
+      input.addEventListener('change', () => {
+        // In real app, would update search results
+        console.log('Filter changed');
+      });
+    });
+
+    document.querySelectorAll('.checkbox-item input, .radio-item input').forEach(input => {
+      input.addEventListener('change', () => {
+        // In real app, would update search results
+        console.log('Filter changed');
+      });
+    });
+
+    // ========== PAGINATION ==========
+    document.querySelectorAll('.page-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Remove active class from all links
+        document.querySelectorAll('.page-link').forEach(l => l.classList.remove('active'));
+        
+        // Add active class to clicked link (if it's a number)
+        if (!isNaN(link.textContent.trim())) {
+          link.classList.add('active');
+        }
+        
+        // In real app, would load new page of results
+        console.log('Navigate to page:', link.textContent.trim());
+      });
+    });
+
+    // ========== SALARY SLIDER ==========
+    const sliderHandles = document.querySelectorAll('.slider-handle');
+    let isDragging = false;
+    let currentHandle = null;
+
+    sliderHandles.forEach(handle => {
+      handle.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        currentHandle = handle;
+        e.preventDefault();
+      });
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging || !currentHandle) return;
+      
+      const track = document.querySelector('.slider-track');
+      const rect = track.getBoundingClientRect();
+      const percent = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+      
+      currentHandle.style.left = percent + '%';
+      
+      // Update slider range
+      const minHandle = document.querySelector('.slider-handle.min');
+      const maxHandle = document.querySelector('.slider-handle.max');
+      const sliderRange = document.querySelector('.slider-range');
+      
+      if (currentHandle === minHandle) {
+        sliderRange.style.left = percent + '%';
+      } else {
+        sliderRange.style.right = (100 - percent) + '%';
+      }
+      
+      // Update salary display
+      updateSalaryDisplay();
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      currentHandle = null;
+    });
+
+    function updateSalaryDisplay() {
+      const minHandle = document.querySelector('.slider-handle.min');
+      const maxHandle = document.querySelector('.slider-handle.max');
+      const minPercent = parseFloat(minHandle.style.left);
+      const maxPercent = parseFloat(maxHandle.style.left);
+      
+      const minSalary = Math.round(5 + (minPercent / 100) * 95); // 5tr to 100tr
+      const maxSalary = Math.round(5 + (maxPercent / 100) * 95);
+      
+      const salaryCurrent = document.querySelector('.salary-current');
+      salaryCurrent.textContent = `${minSalary}.000.000 – ${maxSalary}.000.000 VND`;
+    }
+
+    // Initialize salary display
+    updateSalaryDisplay();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1525 @@
+<!doctype html>
+<!--
+  SCREEN: sa08 Data Retention
+  PRD REFS: SAP-FR-007, BR-012, NFR-018
+  FLOW: sa01-dashboard.html → THIS → Various admin screens
+  PERSONA: Super Admin
+  STAGE: Phase 1 MVP
+  NOTE: Data retention policy management
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Data Retention | Super Admin</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-100);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 212px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: var(--color-admin-bg);
+      color: var(--color-white);
+      padding: var(--space-6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-logo {
+      height: 28px;
+      width: auto;
+      margin-bottom: var(--space-2);
+    }
+
+    .sidebar-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-admin-light);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-8) 0;
+    }
+
+    .sidebar-nav-item {
+      margin-bottom: var(--space-1);
+    }
+
+    .sidebar-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav-link:hover {
+      background: rgba(124, 58, 237, 0.2);
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-nav-link.active {
+      background: var(--color-admin-accent);
+      color: white;
+    }
+
+    .sidebar-nav-icon {
+      font-size: var(--text-base);
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .sidebar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .sidebar-user-role {
+      font-size: var(--text-xs);
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+
+    .sidebar-signout {
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .sidebar-signout:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 200px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-grey-100);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--color-danger);
+      color: white;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .top-bar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .top-bar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-8);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Page Header */
+    .page-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .page-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .page-subtitle {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Notice Banners */
+    .notice-banner {
+      padding: var(--space-4);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-6);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+
+    .notice-banner.info {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      color: var(--color-info);
+    }
+
+    .notice-banner.warning {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning);
+      color: var(--color-warning);
+    }
+
+    .notice-icon {
+      font-size: var(--text-lg);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .notice-content {
+      font-size: var(--text-sm);
+      line-height: 1.5;
+    }
+
+    /* Sections */
+    .section {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .section-header {
+      margin-bottom: var(--space-4);
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .settings-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--space-4);
+    }
+
+    .settings-table th,
+    .settings-table td {
+      padding: var(--space-4);
+      text-align: left;
+      border-bottom: var(--border-default);
+      font-size: var(--text-sm);
+    }
+
+    .settings-table th {
+      font-weight: 600;
+      color: var(--color-grey-700);
+      background: var(--color-grey-50);
+    }
+
+    .settings-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: var(--space-3);
+      text-align: left;
+      border-bottom: var(--border-default);
+      font-size: var(--text-sm);
+    }
+
+    .history-table th {
+      font-weight: 600;
+      color: var(--color-grey-700);
+      background: var(--color-grey-50);
+    }
+
+    .history-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .form-select {
+      padding: var(--space-2) var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: white;
+      min-width: 120px;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #991B1B;
+      text-decoration: none;
+    }
+    .btn-danger-outline {
+      background: transparent;
+      color: var(--color-danger);
+      border: 1px solid var(--color-danger);
+    }
+    .btn-danger-outline:hover {
+      background: var(--color-danger);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Status Indicators */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .status-indicator.success {
+      color: var(--color-success);
+    }
+
+    .status-indicator.pending {
+      color: var(--color-warning);
+    }
+
+    /* Search */
+    .search-group {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .search-input {
+      flex: 1;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: white;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Result Card */
+    .result-card {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      display: none;
+    }
+
+    .result-card.show {
+      display: block;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .result-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-900);
+    }
+
+    .result-details {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-3);
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+    }
+
+    .mobile-menu-toggle:hover {
+      background: var(--color-grey-100);
+    }
+
+    /* Mobile Overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .mobile-overlay.show {
+      display: block;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .top-bar {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .content-area {
+        padding: var(--space-4);
+        max-width: none;
+      }
+
+      .table-container {
+        font-size: var(--text-xs);
+      }
+
+      .settings-table th,
+      .settings-table td {
+        padding: var(--space-2);
+      }
+
+      .history-table th,
+      .history-table td {
+        padding: var(--space-2);
+      }
+
+      .search-group {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Logo -->
+      <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+      <div class="sidebar-label" data-i18n="adminPanel">Super Admin Panel</div>
+      
+      <div class="sidebar-divider"></div>
+
+      <!-- Navigation -->
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="sa01-dashboard.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📊</span>
+              <span data-i18n="navDashboard">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa02-companies.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🏢</span>
+              <span data-i18n="navCompanies">Companies</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa04-users.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">👤</span>
+              <span data-i18n="navUsers">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa06-ads.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📢</span>
+              <span data-i18n="navAds">Advertisements</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa07-templates.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📋</span>
+              <span data-i18n="navTemplates">Rejection Templates</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa08-retention.html" class="sidebar-nav-link active">
+              <span class="sidebar-nav-icon">🗑</span>
+              <span data-i18n="navRetention">Data Retention</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa09-audit-log.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🔍</span>
+              <span data-i18n="navAuditLog">Audit Log</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa10-reports.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📈</span>
+              <span data-i18n="navReports">Reports</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa11-settings.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">⚙</span>
+              <span data-i18n="navSettings">System Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">SA</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" data-i18n="superAdmin">Super Admin</div>
+            <div class="sidebar-user-role" data-i18n="adminRole">Administrator</div>
+          </div>
+        </div>
+        <button class="sidebar-signout" data-i18n="signOut">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+        <h1 class="top-bar-title" data-i18n="pageTitle">Data Retention</h1>
+        
+        <div class="top-bar-actions">
+          <button class="notification-bell">
+            🔔
+            <span class="notification-badge">5</span>
+          </button>
+          
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+          
+          <div class="top-bar-user">
+            <span data-i18n="superAdmin">Super Admin</span>
+            <div class="top-bar-avatar">SA</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title" data-i18n="pageHeader">Data Retention Management</h1>
+          <p class="page-subtitle" data-i18n="pageSubtitle">
+            Manage how long candidate personal data is stored in compliance with Decree 13/2023. (BR-012, NFR-018)
+          </p>
+        </div>
+
+        <!-- Compliance Notice -->
+        <div class="notice-banner info">
+          <div class="notice-icon">🔒</div>
+          <div class="notice-content" data-i18n="complianceNotice">
+            <strong>Vietnam Decree 13/2023 Compliance</strong><br>
+            Candidate personal data must not be retained longer than necessary for recruitment purposes. Configure retention periods per plan tier below.
+          </div>
+        </div>
+
+        <!-- Platform Default Settings -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="defaultSettings">Default Retention Periods by Plan</h2>
+          </div>
+          
+          <div class="table-container">
+            <table class="settings-table">
+              <thead>
+                <tr>
+                  <th data-i18n="plan">Plan</th>
+                  <th data-i18n="defaultRetention">Default Retention</th>
+                  <th data-i18n="autoDelete">Auto-Delete</th>
+                  <th data-i18n="configurableByCompany">Configurable By Company</th>
+                  <th data-i18n="actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-i18n="freemium">Freemium</td>
+                  <td>
+                    <select class="form-select" id="freemiumRetention">
+                      <option value="6" data-i18n="sixMonths">6 months</option>
+                      <option value="12" selected data-i18n="twelveMonths">12 months</option>
+                      <option value="18" data-i18n="eighteenMonths">18 months</option>
+                      <option value="24" data-i18n="twentyFourMonths">24 months</option>
+                    </select>
+                  </td>
+                  <td>
+                    <div class="checkbox-group">
+                      <input type="checkbox" id="freemiumAutoDelete" checked>
+                      <label for="freemiumAutoDelete" data-i18n="enabled">Enabled</label>
+                    </div>
+                  </td>
+                  <td data-i18n="noFixed">No (fixed)</td>
+                  <td>
+                    <button class="btn btn-primary" data-plan="freemium" data-i18n="save">Save</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="professional">Professional</td>
+                  <td>
+                    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                      <select class="form-select" id="proDefault">
+                        <option value="6" data-i18n="sixMonths">6 months</option>
+                        <option value="12" selected data-i18n="twelveMonths">12 months</option>
+                        <option value="18" data-i18n="eighteenMonths">18 months</option>
+                        <option value="24" data-i18n="twentyFourMonths">24 months</option>
+                      </select>
+                      <span data-i18n="default">Default:</span>
+                    </div>
+                    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-2);">
+                      <select class="form-select" id="proMin">
+                        <option value="6" selected data-i18n="sixMonths">6 months</option>
+                        <option value="12" data-i18n="twelveMonths">12 months</option>
+                        <option value="18" data-i18n="eighteenMonths">18 months</option>
+                        <option value="24" data-i18n="twentyFourMonths">24 months</option>
+                      </select>
+                      <span data-i18n="minAllowed">Min allowed:</span>
+                    </div>
+                    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-2);">
+                      <select class="form-select" id="proMax">
+                        <option value="6" data-i18n="sixMonths">6 months</option>
+                        <option value="12" data-i18n="twelveMonths">12 months</option>
+                        <option value="18" data-i18n="eighteenMonths">18 months</option>
+                        <option value="24" selected data-i18n="twentyFourMonths">24 months</option>
+                      </select>
+                      <span data-i18n="maxAllowed">Max allowed:</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="checkbox-group">
+                      <input type="checkbox" id="proAutoDelete" checked>
+                      <label for="proAutoDelete" data-i18n="enabled">Enabled</label>
+                    </div>
+                  </td>
+                  <td data-i18n="yes">Yes</td>
+                  <td>
+                    <button class="btn btn-primary" data-plan="professional" data-i18n="save">Save</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="enterprise">Enterprise</td>
+                  <td>
+                    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                      <select class="form-select" id="enterpriseDefault">
+                        <option value="1" data-i18n="oneMonth">1 month</option>
+                        <option value="6" data-i18n="sixMonths">6 months</option>
+                        <option value="12" data-i18n="twelveMonths">12 months</option>
+                        <option value="18" data-i18n="eighteenMonths">18 months</option>
+                        <option value="24" selected data-i18n="twentyFourMonths">24 months</option>
+                        <option value="36" data-i18n="thirtySixMonths">36 months</option>
+                        <option value="48" data-i18n="fortyEightMonths">48 months</option>
+                        <option value="60" data-i18n="sixtyMonths">60 months</option>
+                      </select>
+                      <span data-i18n="default">Default:</span>
+                    </div>
+                    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-2);">
+                      <select class="form-select" id="enterpriseMin">
+                        <option value="1" selected data-i18n="oneMonth">1 month</option>
+                        <option value="6" data-i18n="sixMonths">6 months</option>
+                        <option value="12" data-i18n="twelveMonths">12 months</option>
+                        <option value="18" data-i18n="eighteenMonths">18 months</option>
+                        <option value="24" data-i18n="twentyFourMonths">24 months</option>
+                        <option value="36" data-i18n="thirtySixMonths">36 months</option>
+                        <option value="48" data-i18n="fortyEightMonths">48 months</option>
+                        <option value="60" data-i18n="sixtyMonths">60 months</option>
+                      </select>
+                      <span data-i18n="minAllowed">Min allowed:</span>
+                    </div>
+                    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-2);">
+                      <select class="form-select" id="enterpriseMax">
+                        <option value="1" data-i18n="oneMonth">1 month</option>
+                        <option value="6" data-i18n="sixMonths">6 months</option>
+                        <option value="12" data-i18n="twelveMonths">12 months</option>
+                        <option value="18" data-i18n="eighteenMonths">18 months</option>
+                        <option value="24" data-i18n="twentyFourMonths">24 months</option>
+                        <option value="36" data-i18n="thirtySixMonths">36 months</option>
+                        <option value="48" data-i18n="fortyEightMonths">48 months</option>
+                        <option value="60" selected data-i18n="sixtyMonths">60 months</option>
+                      </select>
+                      <span data-i18n="maxAllowed">Max allowed:</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="checkbox-group">
+                      <input type="checkbox" id="enterpriseAutoDelete" checked>
+                      <label for="enterpriseAutoDelete" data-i18n="enabled">Enabled</label>
+                    </div>
+                  </td>
+                  <td data-i18n="yes">Yes</td>
+                  <td>
+                    <button class="btn btn-primary" data-plan="enterprise" data-i18n="save">Save</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Deletion Job Schedule -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="deletionSchedule">Automated Deletion Jobs</h2>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" data-i18n="currentSchedule">Current schedule:</label>
+            <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+              <span data-i18n="frequency">Frequency:</span>
+              <select class="form-select" id="scheduleFrequency">
+                <option value="daily" data-i18n="daily">Daily</option>
+                <option value="weekly" selected data-i18n="weekly">Weekly</option>
+                <option value="monthly" data-i18n="monthly">Monthly</option>
+              </select>
+              <span data-i18n="everySunday">every Sunday at 02:00 UTC+7</span>
+              <button class="btn btn-primary" data-i18n="saveSchedule">Save Schedule</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" data-i18n="lastRunStatus">Last run status:</label>
+            <div style="background: var(--color-success-bg); padding: var(--space-3); border-radius: var(--radius-md); font-size: var(--text-sm);">
+              <div class="status-indicator success">✓</div>
+              <span data-i18n="lastRun">Last run: Sunday 10 Mar 2026 at 02:00</span>
+              <div style="margin-top: var(--space-2);">
+                <div data-i18n="recordsProcessed">Records processed: 1,247</div>
+                <div data-i18n="recordsDeleted">Records deleted: 23</div>
+                <div data-i18n="recordsSkipped">Records skipped (active): 1,224</div>
+                <div data-i18n="duration">Duration: 4 minutes 32 seconds</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" data-i18n="nextRun">Next run:</label>
+            <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+              <div class="status-indicator pending">⏰</div>
+              <span data-i18n="nextScheduled">Next scheduled: Sunday 17 Mar 2026 at 02:00</span>
+              <button class="btn btn-danger-outline" id="runNowBtn" data-i18n="runNow">Run Now</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Run History Table -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="runHistory">Deletion Job History (last 5 runs)</h2>
+          </div>
+          
+          <div class="table-container">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th data-i18n="date">Date</th>
+                  <th data-i18n="recordsProcessed">Records Processed</th>
+                  <th data-i18n="deleted">Deleted</th>
+                  <th data-i18n="duration">Duration</th>
+                  <th data-i18n="status">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-i18n="dateMar10">10 Mar 2026</td>
+                  <td data-i18n="records1247">1,247</td>
+                  <td data-i18n="deleted23">23</td>
+                  <td data-i18n="duration4m32s">4m 32s</td>
+                  <td>
+                    <div class="status-indicator success">✓</div>
+                    <span data-i18n="completed">Completed</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="dateMar3">3 Mar 2026</td>
+                  <td data-i18n="records1198">1,198</td>
+                  <td data-i18n="deleted18">18</td>
+                  <td data-i18n="duration4m10s">4m 10s</td>
+                  <td>
+                    <div class="status-indicator success">✓</div>
+                    <span data-i18n="completed">Completed</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="dateFeb24">24 Feb 2026</td>
+                  <td data-i18n="records1156">1,156</td>
+                  <td data-i18n="deleted31">31</td>
+                  <td data-i18n="duration4m45s">4m 45s</td>
+                  <td>
+                    <div class="status-indicator success">✓</div>
+                    <span data-i18n="completed">Completed</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="dateFeb17">17 Feb 2026</td>
+                  <td data-i18n="records1089">1,089</td>
+                  <td data-i18n="deleted12">12</td>
+                  <td data-i18n="duration3m58s">3m 58s</td>
+                  <td>
+                    <div class="status-indicator success">✓</div>
+                    <span data-i18n="completed">Completed</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="dateFeb10">10 Feb 2026</td>
+                  <td data-i18n="records1043">1,043</td>
+                  <td data-i18n="deleted8">8</td>
+                  <td data-i18n="duration3m22s">3m 22s</td>
+                  <td>
+                    <div class="status-indicator success">✓</div>
+                    <span data-i18n="completed">Completed</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Exempt Data Note -->
+        <div class="notice-banner warning">
+          <div class="notice-icon">⚠</div>
+          <div class="notice-content" data-i18n="exemptDataNote">
+            <strong>Audit logs are exempt from automated deletion and are retained permanently. (BR-012)</strong><br><br>
+            <div data-i18n="dataSubjectToDeletion">Data subject to deletion:</div>
+            <ul style="margin: var(--space-2) 0; padding-left: var(--space-6);">
+              <li data-i18n="candidateProfiles">Candidate profiles and resumes</li>
+              <li data-i18n="applicationData">Application data and cover letters</li>
+              <li data-i18n="documentArchive">Document archive files</li>
+              <li data-i18n="pipelineHistory">Pipeline stage history (after retention period)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Manual Override -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="manualOverride">Manual Data Deletion Request</h2>
+            <p class="page-subtitle" data-i18n="manualOverrideSubtitle">
+              For individual candidate deletion requests under Decree 13/2023 right to erasure.
+            </p>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" data-i18n="search">Search:</label>
+            <div class="search-group">
+              <input type="text" class="search-input" id="candidateSearch" placeholder="🔍 Search by candidate email or user ID..." data-i18n-placeholder="searchPlaceholder">
+              <button class="btn btn-primary" id="searchBtn" data-i18n="search">Search</button>
+            </div>
+          </div>
+          
+          <div class="result-card" id="searchResult">
+            <div class="result-header">
+              <div class="result-title">Nguyễn Văn An</div>
+              <button class="btn btn-danger" data-i18n="delete">Delete</button>
+            </div>
+            <div class="result-details">
+              <div data-i18n="candidateEmail">Email: an.nguyen@email.com</div>
+              <div data-i18n="userId">User ID: CND-2024-0342</div>
+              <div data-i18n="lastActive">Last active: 15 Jan 2026</div>
+              <div data-i18n="retentionPeriod">Retention period: 12 months</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 sa08: Data Retention
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="sa01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← sa01: Dashboard</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Data Retention',
+        pageHeader: 'Data Retention Management',
+        pageSubtitle: 'Manage how long candidate personal data is stored in compliance with Decree 13/2023. (BR-012, NFR-018)',
+        complianceNotice: 'Vietnam Decree 13/2023 Compliance\nCandidate personal data must not be retained longer than necessary for recruitment purposes. Configure retention periods per plan tier below.',
+        defaultSettings: 'Default Retention Periods by Plan',
+        plan: 'Plan',
+        defaultRetention: 'Default Retention',
+        autoDelete: 'Auto-Delete',
+        configurableByCompany: 'Configurable By Company',
+        actions: 'Actions',
+        freemium: 'Freemium',
+        professional: 'Professional',
+        enterprise: 'Enterprise',
+        sixMonths: '6 months',
+        twelveMonths: '12 months',
+        eighteenMonths: '18 months',
+        twentyFourMonths: '24 months',
+        thirtySixMonths: '36 months',
+        fortyEightMonths: '48 months',
+        sixtyMonths: '60 months',
+        oneMonth: '1 month',
+        enabled: 'Enabled',
+        noFixed: 'No (fixed)',
+        yes: 'Yes',
+        default: 'Default:',
+        minAllowed: 'Min allowed:',
+        maxAllowed: 'Max allowed:',
+        save: 'Save',
+        deletionSchedule: 'Automated Deletion Jobs',
+        currentSchedule: 'Current schedule:',
+        frequency: 'Frequency:',
+        daily: 'Daily',
+        weekly: 'Weekly',
+        monthly: 'Monthly',
+        everySunday: 'every Sunday at 02:00 UTC+7',
+        saveSchedule: 'Save Schedule',
+        lastRunStatus: 'Last run status:',
+        lastRun: 'Last run: Sunday 10 Mar 2026 at 02:00',
+        recordsProcessed: 'Records processed: 1,247',
+        recordsDeleted: 'Records deleted: 23',
+        recordsSkipped: 'Records skipped (active): 1,224',
+        duration: 'Duration: 4 minutes 32 seconds',
+        nextRun: 'Next run:',
+        nextScheduled: 'Next scheduled: Sunday 17 Mar 2026 at 02:00',
+        runNow: 'Run Now',
+        runHistory: 'Deletion Job History (last 5 runs)',
+        date: 'Date',
+        deleted: 'Deleted',
+        completed: 'Completed',
+        dateMar10: '10 Mar 2026',
+        records1247: '1,247',
+        deleted23: '23',
+        duration4m32s: '4m 32s',
+        dateMar3: '3 Mar 2026',
+        records1198: '1,198',
+        deleted18: '18',
+        duration4m10s: '4m 10s',
+        dateFeb24: '24 Feb 2026',
+        records1156: '1,156',
+        deleted31: '31',
+        duration4m45s: '4m 45s',
+        dateFeb17: '17 Feb 2026',
+        records1089: '1,089',
+        deleted12: '12',
+        duration3m58s: '3m 58s',
+        dateFeb10: '10 Feb 2026',
+        records1043: '1,043',
+        deleted8: '8',
+        duration3m22s: '3m 22s',
+        exemptDataNote: 'Audit logs are exempt from automated deletion and are retained permanently. (BR-012)\n\nData subject to deletion:\n· Candidate profiles and resumes\n· Application data and cover letters\n· Document archive files\n· Pipeline stage history (after retention period)',
+        manualOverride: 'Manual Data Deletion Request',
+        manualOverrideSubtitle: 'For individual candidate deletion requests under Decree 13/2023 right to erasure.',
+        search: 'Search:',
+        searchPlaceholder: '🔍 Search by candidate email or user ID...',
+        candidateEmail: 'Email: an.nguyen@email.com',
+        userId: 'User ID: CND-2024-0342',
+        lastActive: 'Last active: 15 Jan 2026',
+        retentionPeriod: 'Retention period: 12 months',
+        delete: 'Delete'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Data Retention',
+        pageHeader: 'Data Retention Management',
+        pageSubtitle: 'Manage how long candidate personal data is stored in compliance with Decree 13/2023. (BR-012, NFR-018)',
+        complianceNotice: 'Vietnam Decree 13/2023 Compliance\nCandidate personal data must not be retained longer than necessary for recruitment purposes. Configure retention periods per plan tier below.',
+        defaultSettings: 'Default Retention Periods by Plan',
+        plan: 'Plan',
+        defaultRetention: 'Default Retention',
+        autoDelete: 'Auto-Delete',
+        configurableByCompany: 'Configurable By Company',
+        actions: 'Actions',
+        freemium: 'Freemium',
+        professional: 'Professional',
+        enterprise: 'Enterprise',
+        sixMonths: '6 months',
+        twelveMonths: '12 months',
+        eighteenMonths: '18 months',
+        twentyFourMonths: '24 months',
+        thirtySixMonths: '36 months',
+        fortyEightMonths: '48 months',
+        sixtyMonths: '60 months',
+        oneMonth: '1 month',
+        enabled: 'Enabled',
+        noFixed: 'No (fixed)',
+        yes: 'Yes',
+        default: 'Default:',
+        minAllowed: 'Min allowed:',
+        maxAllowed: 'Max allowed:',
+        save: 'Save',
+        deletionSchedule: 'Automated Deletion Jobs',
+        currentSchedule: 'Current schedule:',
+        frequency: 'Frequency:',
+        daily: 'Daily',
+        weekly: 'Weekly',
+        monthly: 'Monthly',
+        everySunday: 'every Sunday at 02:00 UTC+7',
+        saveSchedule: 'Save Schedule',
+        lastRunStatus: 'Last run status:',
+        lastRun: 'Last run: Sunday 10 Mar 2026 at 02:00',
+        recordsProcessed: 'Records processed: 1,247',
+        recordsDeleted: 'Records deleted: 23',
+        recordsSkipped: 'Records skipped (active): 1,224',
+        duration: 'Duration: 4 minutes 32 seconds',
+        nextRun: 'Next run:',
+        nextScheduled: 'Next scheduled: Sunday 17 Mar 2026 at 02:00',
+        runNow: 'Run Now',
+        runHistory: 'Deletion Job History (last 5 runs)',
+        date: 'Date',
+        deleted: 'Deleted',
+        completed: 'Completed',
+        dateMar10: '10 Mar 2026',
+        records1247: '1,247',
+        deleted23: '23',
+        duration4m32s: '4m 32s',
+        dateMar3: '3 Mar 2026',
+        records1198: '1,198',
+        deleted18: '18',
+        duration4m10s: '4m 10s',
+        dateFeb24: '24 Feb 2026',
+        records1156: '1,156',
+        deleted31: '31',
+        duration4m45s: '4m 45s',
+        dateFeb17: '17 Feb 2026',
+        records1089: '1,089',
+        deleted12: '12',
+        duration3m58s: '3m 58s',
+        dateFeb10: '10 Feb 2026',
+        records1043: '1,043',
+        deleted8: '8',
+        duration3m22s: '3m 22s',
+        exemptDataNote: 'Audit logs are exempt from automated deletion and are retained permanently. (BR-012)\n\nData subject to deletion:\n· Candidate profiles and resumes\n· Application data and cover letters\n· Document archive files\n· Pipeline stage history (after retention period)',
+        manualOverride: 'Manual Data Deletion Request',
+        manualOverrideSubtitle: 'For individual candidate deletion requests under Decree 13/2023 right to erasure.',
+        search: 'Search:',
+        searchPlaceholder: '🔍 Search by candidate email or user ID...',
+        candidateEmail: 'Email: an.nguyen@email.com',
+        userId: 'User ID: CND-2024-0342',
+        lastActive: 'Last active: 15 Jan 2026',
+        retentionPeriod: 'Retention period: 12 months',
+        delete: 'Delete'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Data Retention | Super Admin' : 'LàmViệc360 — Data Retention | Super Admin';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE MENU ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+      mobileOverlay.classList.toggle('show');
+    });
+
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('show');
+      mobileOverlay.classList.remove('show');
+    });
+
+    // ========== SAVE BUTTONS ==========
+    document.querySelectorAll('[data-plan]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const plan = btn.getAttribute('data-plan');
+        console.log('Saving settings for plan:', plan);
+        alert(`Settings for ${plan} plan saved successfully!`);
+        // In real app, this would make an API call
+      });
+    });
+
+    document.getElementById('saveScheduleBtn').addEventListener('click', () => {
+      const frequency = document.getElementById('scheduleFrequency').value;
+      console.log('Saving schedule with frequency:', frequency);
+      alert('Schedule saved successfully!');
+      // In real app, this would make an API call
+    });
+
+    // ========== RUN NOW BUTTON ==========
+    const runNowBtn = document.getElementById('runNowBtn');
+    runNowBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to run the deletion job manually? This will immediately process all eligible records for deletion.')) {
+        console.log('Running deletion job manually...');
+        alert('Deletion job started. This may take several minutes to complete.');
+        // In real app, this would trigger the job
+      }
+    });
+
+    // ========== SEARCH FUNCTIONALITY ==========
+    const searchBtn = document.getElementById('searchBtn');
+    const candidateSearch = document.getElementById('candidateSearch');
+    const searchResult = document.getElementById('searchResult');
+
+    searchBtn.addEventListener('click', () => {
+      const searchTerm = candidateSearch.value.trim();
+      if (!searchTerm) {
+        alert('Please enter a candidate email or user ID to search.');
+        return;
+      }
+      
+      // Simulate search result
+      searchResult.classList.add('show');
+      console.log('Searching for:', searchTerm);
+      // In real app, this would make an API call to search for the candidate
+    });
+
+    candidateSearch.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
+    });
+
+    // ========== DELETE BUTTON IN RESULT ==========
+    const deleteBtn = searchResult.querySelector('.btn-danger');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to delete this candidate\'s data? This action cannot be undone.')) {
+          console.log('Deleting candidate data...');
+          alert('Candidate data deleted successfully.');
+          searchResult.classList.remove('show');
+          candidateSearch.value = '';
+          // In real app, this would make an API call to delete the candidate data
+        }
+      });
+    }
+
+    // ========== SIGN OUT ==========
+    document.querySelector('.sidebar-signout').addEventListener('click', () => {
+      if (confirm('Are you sure you want to sign out?')) {
+        console.log('Signing out...');
+        // In real app, this would clear session and redirect
+        alert('Signed out successfully');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1496 @@
+<!doctype html>
+<!--
+  SCREEN: sa01 Super Admin Dashboard
+  PRD REFS: SAP-FR-001, SAP-FR-004, BR-001, BR-008
+  FLOW: Login → THIS → Various admin screens
+  PERSONA: Super Admin
+  STAGE: Phase 1 MVP
+  NOTE: Platform command centre for Super Admin
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Super Admin Dashboard</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-100);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 212px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: var(--color-admin-bg);
+      color: var(--color-white);
+      padding: var(--space-6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-logo {
+      height: 28px;
+      width: auto;
+      margin-bottom: var(--space-2);
+    }
+
+    .sidebar-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-admin-light);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-8) 0;
+    }
+
+    .sidebar-nav-item {
+      margin-bottom: var(--space-1);
+    }
+
+    .sidebar-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav-link:hover {
+      background: rgba(124, 58, 237, 0.2);
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-nav-link.active {
+      background: var(--color-admin-accent);
+      color: white;
+    }
+
+    .sidebar-nav-icon {
+      font-size: var(--text-base);
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .sidebar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .sidebar-user-role {
+      font-size: var(--text-xs);
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+
+    .sidebar-signout {
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .sidebar-signout:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 200px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-grey-100);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--color-danger);
+      color: white;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .top-bar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .top-bar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Alert Banner */
+    .alert-banner {
+      background: var(--color-warning-bg);
+      border-bottom: 1px solid var(--color-warning);
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .alert-content {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .alert-icon {
+      font-size: var(--text-lg);
+      color: var(--color-warning);
+    }
+
+    .alert-text {
+      font-size: var(--text-sm);
+      color: var(--color-warning);
+      font-weight: 600;
+    }
+
+    .alert-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .alert-link {
+      color: var(--color-warning);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .alert-link:hover {
+      text-decoration: underline;
+    }
+
+    .alert-dismiss {
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      color: var(--color-warning);
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .alert-dismiss:hover {
+      background: rgba(201, 146, 42, 0.1);
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-8);
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .kpi-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .kpi-icon {
+      font-size: var(--text-2xl);
+      color: var(--color-primary);
+    }
+
+    .kpi-value {
+      font-size: var(--text-4xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .kpi-sub {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .kpi-breakdown {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      line-height: 1.5;
+    }
+
+    /* Secondary KPI Row */
+    .secondary-kpi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    .secondary-kpi-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      text-align: center;
+    }
+
+    .secondary-kpi-value {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .secondary-kpi-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Platform Health */
+    .platform-health {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .section-header {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .health-indicators {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+    }
+
+    .health-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .health-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: var(--radius-full);
+    }
+
+    .health-dot.online {
+      background: var(--color-success);
+    }
+
+    .health-dot.offline {
+      background: var(--color-danger);
+    }
+
+    .health-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    /* Pending Approvals */
+    .pending-approvals {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .view-all-link {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .view-all-link:hover {
+      text-decoration: underline;
+    }
+
+    .approvals-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .approvals-table th,
+    .approvals-table td {
+      padding: var(--space-3);
+      text-align: left;
+      border-bottom: var(--border-default);
+      font-size: var(--text-sm);
+    }
+
+    .approvals-table th {
+      font-weight: 600;
+      color: var(--color-grey-700);
+    }
+
+    .approvals-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .approval-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-sm:active { transform: scale(0.98); }
+    .btn-sm-success {
+      background: var(--color-success);
+      color: white;
+    }
+    .btn-sm-success:hover {
+      background: #166534;
+      text-decoration: none;
+    }
+    .btn-sm-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+    .btn-sm-danger:hover {
+      background: #991B1B;
+      text-decoration: none;
+    }
+    .btn-sm-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-sm-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Activity Feed */
+    .activity-feed {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .activity-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: var(--border-default);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      font-size: var(--text-base);
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-text {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .activity-time {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      margin: 0;
+    }
+
+    /* Chart Placeholder */
+    .chart-section {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+    }
+
+    .chart-placeholder {
+      height: 200px;
+      background: var(--color-grey-100);
+      border: 2px dashed var(--color-grey-300);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-grey-500);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+    }
+
+    .mobile-menu-toggle:hover {
+      background: var(--color-grey-100);
+    }
+
+    /* Mobile Overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .mobile-overlay.show {
+      display: block;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .top-bar {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .content-area {
+        padding: var(--space-4);
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+      }
+
+      .secondary-kpi {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+      }
+
+      .health-indicators {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .approvals-table {
+        font-size: var(--text-xs);
+      }
+
+      .approval-actions {
+        flex-direction: column;
+        gap: var(--space-1);
+      }
+
+      .alert-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+
+      .alert-actions {
+        align-self: stretch;
+        justify-content: space-between;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn-sm:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Logo -->
+      <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+      <div class="sidebar-label" data-i18n="adminPanel">Super Admin Panel</div>
+      
+      <div class="sidebar-divider"></div>
+
+      <!-- Navigation -->
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="sa01-dashboard.html" class="sidebar-nav-link active">
+              <span class="sidebar-nav-icon">📊</span>
+              <span data-i18n="navDashboard">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa02-companies.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🏢</span>
+              <span data-i18n="navCompanies">Companies</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa04-users.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">👤</span>
+              <span data-i18n="navUsers">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa06-ads.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📢</span>
+              <span data-i18n="navAds">Advertisements</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa07-templates.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📋</span>
+              <span data-i18n="navTemplates">Rejection Templates</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa08-retention.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🗑</span>
+              <span data-i18n="navRetention">Data Retention</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa09-audit-log.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🔍</span>
+              <span data-i18n="navAuditLog">Audit Log</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa10-reports.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📈</span>
+              <span data-i18n="navReports">Reports</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa11-settings.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">⚙</span>
+              <span data-i18n="navSettings">System Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">SA</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" data-i18n="superAdmin">Super Admin</div>
+            <div class="sidebar-user-role" data-i18n="adminRole">Administrator</div>
+          </div>
+        </div>
+        <button class="sidebar-signout" data-i18n="signOut">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+        <h1 class="top-bar-title" data-i18n="platformDashboard">Platform Dashboard</h1>
+        
+        <div class="top-bar-actions">
+          <button class="notification-bell">
+            🔔
+            <span class="notification-badge">5</span>
+          </button>
+          
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+          
+          <div class="top-bar-user">
+            <span data-i18n="superAdmin">Super Admin</span>
+            <div class="top-bar-avatar">SA</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Alert Banner -->
+      <div class="alert-banner" id="alertBanner">
+        <div class="alert-content">
+          <span class="alert-icon">⚠</span>
+          <div class="alert-text" data-i18n="pendingApprovalsAlert">
+            3 companies are awaiting approval. Pending workspaces cannot post jobs or appear in public search until approved.
+          </div>
+        </div>
+        <div class="alert-actions">
+          <a href="sa02-companies.html?filter=pending" class="alert-link" data-i18n="reviewNow">Review Now →</a>
+          <button class="alert-dismiss" id="alertDismiss">×</button>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">🏢</span>
+            </div>
+            <div class="kpi-value" data-i18n="totalCompaniesValue">127</div>
+            <div class="kpi-sub" data-i18n="companiesThisWeek">↑ 8 this week</div>
+            <div class="kpi-breakdown" data-i18n="companiesBreakdown">
+              Active: 119 · Pending: 3 · Suspended: 5
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">👥</span>
+            </div>
+            <div class="kpi-value" data-i18n="totalUsersValue">3,841</div>
+            <div class="kpi-sub" data-i18n="usersThisWeek">↑ 234 this week</div>
+            <div class="kpi-breakdown" data-i18n="usersBreakdown">
+              Job Seekers: 3,412 · Employers: 429
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">💼</span>
+            </div>
+            <div class="kpi-value" data-i18n="activeJobsValue">284</div>
+            <div class="kpi-sub" data-i18n="jobsAcrossCompanies">Across 119 companies</div>
+            <div class="kpi-breakdown" data-i18n="jobsBreakdown">
+              Published: 284 · Draft: 67 · Closed: 143
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">📥</span>
+            </div>
+            <div class="kpi-value" data-i18n="applicationsValue">12,847</div>
+            <div class="kpi-sub" data-i18n="applicationsGrowth">↑ 23% vs last month</div>
+            <div class="kpi-breakdown" data-i18n="applicationsTotal">
+              Total: 89,234 all time
+            </div>
+          </div>
+        </div>
+
+        <!-- Secondary KPI Row -->
+        <div class="secondary-kpi">
+          <div class="secondary-kpi-card">
+            <div class="secondary-kpi-value" data-i18n="verifiedCompaniesValue">98 / 119</div>
+            <div class="secondary-kpi-label" data-i18n="verifiedCompaniesLabel">Verified Companies (82%)</div>
+          </div>
+          <div class="secondary-kpi-card">
+            <div class="secondary-kpi-value" data-i18n="aiRequestsValue">1,247</div>
+            <div class="secondary-kpi-label" data-i18n="aiRequestsLabel">AI Requests Today (within limits)</div>
+          </div>
+          <div class="secondary-kpi-card">
+            <div class="secondary-kpi-value" data-i18n="dataRetentionValue">3</div>
+            <div class="secondary-kpi-label" data-i18n="dataRetentionLabel">Data Retention Jobs Run This Week</div>
+          </div>
+        </div>
+
+        <!-- Platform Health -->
+        <div class="platform-health">
+          <h2 class="section-header" data-i18n="systemStatus">System Status</h2>
+          <div class="health-indicators">
+            <div class="health-indicator">
+              <div class="health-dot online"></div>
+              <span class="health-label" data-i18n="apiServer">API Server</span>
+            </div>
+            <div class="health-indicator">
+              <div class="health-dot online"></div>
+              <span class="health-label" data-i18n="database">Database</span>
+            </div>
+            <div class="health-indicator">
+              <div class="health-dot online"></div>
+              <span class="health-label" data-i18n="aiService">AI (Gemini)</span>
+            </div>
+            <div class="health-indicator">
+              <div class="health-dot online"></div>
+              <span class="health-label" data-i18n="emailService">Email Service</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Approvals -->
+        <div class="pending-approvals">
+          <div class="section-actions">
+            <h2 class="section-header" data-i18n="pendingApprovalsTitle">Pending Company Approvals (3)</h2>
+            <a href="sa02-companies.html?filter=pending" class="view-all-link" data-i18n="viewAll">View all →</a>
+          </div>
+          
+          <table class="approvals-table">
+            <thead>
+              <tr>
+                <th data-i18n="companyName">Company</th>
+                <th data-i18n="submitted">Submitted</th>
+                <th data-i18n="industry">Industry</th>
+                <th data-i18n="location">Location</th>
+                <th data-i18n="actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-i18n="techStart">TechStart Vietnam</td>
+                <td data-i18n="submittedMar14">14 Mar</td>
+                <td data-i18n="itTech">IT/Tech</td>
+                <td data-i18n="hanoi">Hà Nội</td>
+                <td>
+                  <div class="approval-actions">
+                    <button class="btn-sm btn-sm-success" data-i18n="approve">Approve</button>
+                    <button class="btn-sm btn-sm-danger" data-i18n="reject">Reject</button>
+                    <a href="#" class="btn-sm btn-sm-ghost" data-i18n="viewDetails">View Details →</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td data-i18n="greenEnergy">GreenEnergy JSC</td>
+                <td data-i18n="submittedMar13">13 Mar</td>
+                <td data-i18n="manufacturing">Manufacturing</td>
+                <td data-i18n="binhDuong">Bình Dương</td>
+                <td>
+                  <div class="approval-actions">
+                    <button class="btn-sm btn-sm-success" data-i18n="approve">Approve</button>
+                    <button class="btn-sm btn-sm-danger" data-i18n="reject">Reject</button>
+                    <a href="#" class="btn-sm btn-sm-ghost" data-i18n="viewDetails">View Details →</a>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td data-i18n="healthCare">HealthCare Plus</td>
+                <td data-i18n="submittedMar12">12 Mar</td>
+                <td data-i18n="healthcare">Healthcare</td>
+                <td data-i18n="tpHCM">TP. HCM</td>
+                <td>
+                  <div class="approval-actions">
+                    <button class="btn-sm btn-sm-success" data-i18n="approve">Approve</button>
+                    <button class="btn-sm btn-sm-danger" data-i18n="reject">Reject</button>
+                    <a href="#" class="btn-sm btn-sm-ghost" data-i18n="viewDetails">View Details →</a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="activity-feed">
+          <h2 class="section-header" data-i18n="recentActivity">Recent Activity</h2>
+          <ul class="activity-list">
+            <li class="activity-item">
+              <span class="activity-icon">🏢</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity1">New company registered — DigitalVN Ltd</div>
+                <div class="activity-time" data-i18n="time5min">5 min ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">👤</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity2">User suspended — spam account</div>
+                <div class="activity-time" data-i18n="time12min">12 min ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">✓</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity3">Company approved — TechCorp Vietnam JSC</div>
+                <div class="activity-time" data-i18n="time1hr">1 hr ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">📢</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity4">Ad banner created — Slot A</div>
+                <div class="activity-time" data-i18n="time2hrs">2 hrs ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">🗑</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity5">Data retention job completed</div>
+                <div class="activity-time" data-i18n="time3hrs">3 hrs ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">✕</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity6">Company rejected — Invalid reg number</div>
+                <div class="activity-time" data-i18n="time4hrs">4 hrs ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">👤</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity7">New user registered — 847 today</div>
+                <div class="activity-time" data-i18n="time4hrs2">4 hrs ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">🔍</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity8">Audit log exported — by Super Admin</div>
+                <div class="activity-time" data-i18n="time5hrs">5 hrs ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">✓</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity9">Company verified badge granted</div>
+                <div class="activity-time" data-i18n="time6hrs">6 hrs ago</div>
+              </div>
+            </li>
+            <li class="activity-item">
+              <span class="activity-icon">📈</span>
+              <div class="activity-content">
+                <div class="activity-text" data-i18n="activity10">Weekly report generated</div>
+                <div class="activity-time" data-i18n="yesterday">Yesterday</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+          <h2 class="section-header" data-i18n="userGrowth">User Growth — Last 30 Days</h2>
+          <div class="chart-placeholder" data-i18n="chartPlaceholder">[ Bar Chart — User Growth ]</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 sa01: Super Admin Dashboard
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">NAVIGATION</div>
+    <a href="sa02-companies.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ sa02: Companies</a>
+    <a href="sa04-users.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ sa04: Users</a>
+    <a href="../employer/e01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e01: Employer Dashboard</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        platformDashboard: 'Platform Dashboard',
+        pendingApprovalsAlert: '3 companies are awaiting approval. Pending workspaces cannot post jobs or appear in public search until approved.',
+        reviewNow: 'Review Now →',
+        totalCompaniesValue: '127',
+        companiesThisWeek: '↑ 8 this week',
+        companiesBreakdown: 'Active: 119 · Pending: 3 · Suspended: 5',
+        totalUsersValue: '3,841',
+        usersThisWeek: '↑ 234 this week',
+        usersBreakdown: 'Job Seekers: 3,412 · Employers: 429',
+        activeJobsValue: '284',
+        jobsAcrossCompanies: 'Across 119 companies',
+        jobsBreakdown: 'Published: 284 · Draft: 67 · Closed: 143',
+        applicationsValue: '12,847',
+        applicationsGrowth: '↑ 23% vs last month',
+        applicationsTotal: 'Total: 89,234 all time',
+        verifiedCompaniesValue: '98 / 119',
+        verifiedCompaniesLabel: 'Verified Companies (82%)',
+        aiRequestsValue: '1,247',
+        aiRequestsLabel: 'AI Requests Today (within limits)',
+        dataRetentionValue: '3',
+        dataRetentionLabel: 'Data Retention Jobs Run This Week',
+        systemStatus: 'System Status',
+        apiServer: 'API Server',
+        database: 'Database',
+        aiService: 'AI (Gemini)',
+        emailService: 'Email Service',
+        pendingApprovalsTitle: 'Pending Company Approvals (3)',
+        viewAll: 'View all →',
+        companyName: 'Company',
+        submitted: 'Submitted',
+        industry: 'Industry',
+        location: 'Location',
+        actions: 'Actions',
+        approve: 'Approve',
+        reject: 'Reject',
+        viewDetails: 'View Details →',
+        techStart: 'TechStart Vietnam',
+        greenEnergy: 'GreenEnergy JSC',
+        healthCare: 'HealthCare Plus',
+        submittedMar14: '14 Mar',
+        submittedMar13: '13 Mar',
+        submittedMar12: '12 Mar',
+        itTech: 'IT/Tech',
+        manufacturing: 'Manufacturing',
+        healthcare: 'Healthcare',
+        hanoi: 'Hà Nội',
+        binhDuong: 'Bình Dương',
+        tpHCM: 'TP. HCM',
+        recentActivity: 'Recent Activity',
+        activity1: 'New company registered — DigitalVN Ltd',
+        activity2: 'User suspended — spam account',
+        activity3: 'Company approved — TechCorp Vietnam JSC',
+        activity4: 'Ad banner created — Slot A',
+        activity5: 'Data retention job completed',
+        activity6: 'Company rejected — Invalid reg number',
+        activity7: 'New user registered — 847 today',
+        activity8: 'Audit log exported — by Super Admin',
+        activity9: 'Company verified badge granted',
+        activity10: 'Weekly report generated',
+        time5min: '5 min ago',
+        time12min: '12 min ago',
+        time1hr: '1 hr ago',
+        time2hrs: '2 hrs ago',
+        time3hrs: '3 hrs ago',
+        time4hrs: '4 hrs ago',
+        time4hrs2: '4 hrs ago',
+        time5hrs: '5 hrs ago',
+        time6hrs: '6 hrs ago',
+        yesterday: 'Yesterday',
+        userGrowth: 'User Growth — Last 30 Days',
+        chartPlaceholder: '[ Bar Chart — User Growth ]'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        platformDashboard: 'Platform Dashboard',
+        pendingApprovalsAlert: '3 companies are awaiting approval. Pending workspaces cannot post jobs or appear in public search until approved.',
+        reviewNow: 'Review Now →',
+        totalCompaniesValue: '127',
+        companiesThisWeek: '↑ 8 this week',
+        companiesBreakdown: 'Active: 119 · Pending: 3 · Suspended: 5',
+        totalUsersValue: '3,841',
+        usersThisWeek: '↑ 234 this week',
+        usersBreakdown: 'Job Seekers: 3,412 · Employers: 429',
+        activeJobsValue: '284',
+        jobsAcrossCompanies: 'Across 119 companies',
+        jobsBreakdown: 'Published: 284 · Draft: 67 · Closed: 143',
+        applicationsValue: '12,847',
+        applicationsGrowth: '↑ 23% vs last month',
+        applicationsTotal: 'Total: 89,234 all time',
+        verifiedCompaniesValue: '98 / 119',
+        verifiedCompaniesLabel: 'Verified Companies (82%)',
+        aiRequestsValue: '1,247',
+        aiRequestsLabel: 'AI Requests Today (within limits)',
+        dataRetentionValue: '3',
+        dataRetentionLabel: 'Data Retention Jobs Run This Week',
+        systemStatus: 'System Status',
+        apiServer: 'API Server',
+        database: 'Database',
+        aiService: 'AI (Gemini)',
+        emailService: 'Email Service',
+        pendingApprovalsTitle: 'Pending Company Approvals (3)',
+        viewAll: 'View all →',
+        companyName: 'Company',
+        submitted: 'Submitted',
+        industry: 'Industry',
+        location: 'Location',
+        actions: 'Actions',
+        approve: 'Approve',
+        reject: 'Reject',
+        viewDetails: 'View Details →',
+        techStart: 'TechStart Vietnam',
+        greenEnergy: 'GreenEnergy JSC',
+        healthCare: 'HealthCare Plus',
+        submittedMar14: '14 Mar',
+        submittedMar13: '13 Mar',
+        submittedMar12: '12 Mar',
+        itTech: 'IT/Tech',
+        manufacturing: 'Manufacturing',
+        healthcare: 'Healthcare',
+        hanoi: 'Hanoi',
+        binhDuong: 'Binh Duong',
+        tpHCM: 'TP. HCM',
+        recentActivity: 'Recent Activity',
+        activity1: 'New company registered — DigitalVN Ltd',
+        activity2: 'User suspended — spam account',
+        activity3: 'Company approved — TechCorp Vietnam JSC',
+        activity4: 'Ad banner created — Slot A',
+        activity5: 'Data retention completed',
+        activity6: 'Company rejected — Invalid reg number',
+        activity7: 'New user registered — 847 today',
+        activity8: 'Audit log exported — by Super Admin',
+        activity9: 'Company verified badge granted',
+        activity10: 'Weekly report generated',
+        time5min: '5 min ago',
+        time12min: '12 min ago',
+        time1hr: '1 hr ago',
+        time2hrs: '2 hrs ago',
+        time3hrs: '3 hrs ago',
+        time4hrs: '4 hrs ago',
+        time4hrs2: '4 hrs ago',
+        time5hrs: '5 hrs ago',
+        time6hrs: '6 hrs ago',
+        yesterday: 'Yesterday',
+        userGrowth: 'User Growth — Last 30 Days',
+        chartPlaceholder: '[ Bar Chart — User Growth ]'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Super Admin Dashboard' : 'LàmViệc360 — Super Admin Dashboard';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE MENU ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+      mobileOverlay.classList.toggle('show');
+    });
+
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('show');
+      mobileOverlay.classList.remove('show');
+    });
+
+    // ========== ALERT BANNER ==========
+    const alertBanner = document.getElementById('alertBanner');
+    const alertDismiss = document.getElementById('alertDismiss');
+
+    alertDismiss.addEventListener('click', () => {
+      alertBanner.style.display = 'none';
+    });
+
+    // ========== APPROVAL ACTIONS ==========
+    document.querySelectorAll('.btn-sm-success').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.closest('tr');
+        const companyName = row.querySelector('td:first-child').textContent;
+        
+        if (confirm(`Approve ${companyName}?`)) {
+          console.log('Approved:', companyName);
+          alert('Company approved successfully!');
+          // In real app, this would make an API call
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-sm-danger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.closest('tr');
+        const companyName = row.querySelector('td:first-child').textContent;
+        
+        if (confirm(`Reject ${companyName}?`)) {
+          const reason = prompt('Please provide rejection reason:');
+          if (reason) {
+            console.log('Rejected:', companyName, 'Reason:', reason);
+            alert('Company rejected. Reason recorded.');
+            // In real app, this would make an API call
+          }
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-sm-ghost').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const row = btn.closest('tr');
+        const companyName = row.querySelector('td:first-child').textContent;
+        alert(`Viewing details for ${companyName}...`);
+        // In real app, this would navigate to company details
+      });
+    });
+
+    // ========== SIGN OUT ==========
+    document.querySelector('.sidebar-signout').addEventListener('click', () => {
+      if (confirm('Are you sure you want to sign out?')) {
+        console.log('Signing out...');
+        // In real app, this would clear session and redirect
+        alert('Signed out successfully');
+      }
+    });
+  </script>
+</body>
+</html>
