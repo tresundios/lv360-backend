@@ -1,0 +1,2156 @@
+<!doctype html>
+<!--
+  SCREEN: js07 Profile Editor
+  PRD REFS: JSP-FR-004, JSP-FR-011, AUTH-FR-008
+  FLOW: js01-dashboard.html → THIS → js09-documents.html
+  PERSONA: Job Seeker
+  STAGE: Phase 1 MVP
+  NOTE: Job seeker profile editor with comprehensive sections
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — My Profile | Job Seeker</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Job Seeker (teal) */
+      --color-seeker-bg:     #F0FDF4;
+      --color-seeker-accent: #10B981;
+      --color-seeker-light:  #D1FAE5;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-seeker-bg);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 16px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .nav-logo {
+      height: 32px;
+      width: auto;
+    }
+
+    .nav-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: var(--space-6) var(--space-4) var(--space-8) var(--space-4);
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Profile Header */
+    .profile-header {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-info {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-full);
+      background: var(--color-seeker-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: white;
+      position: relative;
+    }
+
+    .change-photo-btn {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      background: var(--color-primary);
+      color: white;
+      border: 2px solid white;
+      border-radius: var(--radius-full);
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .change-photo-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .profile-details {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .profile-contact {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .profile-completion {
+      margin-top: var(--space-4);
+    }
+
+    .completion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .completion-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin: 0;
+    }
+
+    .completion-percentage {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-seeker-accent);
+    }
+
+    .progress-bar {
+      background: var(--color-grey-200);
+      border-radius: var(--radius-full);
+      height: 8px;
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--color-seeker-accent);
+      border-radius: var(--radius-full);
+      width: 65%;
+      transition: width 0.3s ease;
+    }
+
+    .missing-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .missing-item {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .missing-item:hover {
+      background: var(--color-warning);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Tabs */
+    .tabs-container {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-6);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: var(--border-default);
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      padding: var(--space-4) var(--space-6);
+      background: none;
+      border: none;
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-600);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab-button:hover {
+      color: var(--color-primary);
+    }
+
+    .tab-button.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .tabs-content {
+      padding: var(--space-6);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Form Elements */
+    .form-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .required {
+      color: var(--color-danger);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-input:read-only {
+      background: var(--color-grey-100);
+      color: var(--color-grey-500);
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-family: var(--font-sans);
+      resize: vertical;
+      min-height: 120px;
+      background: white;
+    }
+
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .form-help {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-top: var(--space-1);
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      margin-top: var(--space-1);
+    }
+
+    /* Radio Buttons */
+    .radio-group {
+      display: flex;
+      gap: var(--space-4);
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .radio-input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--color-primary);
+    }
+
+    .radio-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    /* Experience/Education Items */
+    .item-list {
+      margin-bottom: var(--space-4);
+    }
+
+    .item-card {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-2);
+    }
+
+    .item-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .item-company {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .item-duration {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin: 0;
+    }
+
+    .item-description {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      margin: var(--space-2) 0 0 0;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    /* Skills Tags */
+    .skills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+
+    .skill-tag {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .skill-remove {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-size: var(--text-base);
+      cursor: pointer;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .skill-remove:hover {
+      background: rgba(37, 99, 235, 0.1);
+    }
+
+    .skill-input-container {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+
+    .skill-input {
+      flex: 1;
+      padding: var(--space-2) var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+    }
+
+    .skill-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .add-skill-btn {
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-skill-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* Languages */
+    .language-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-grey-200);
+    }
+
+    .language-item:last-child {
+      border-bottom: none;
+    }
+
+    .language-info {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .language-name {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+    }
+
+    .language-level {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .language-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    /* Resume Upload */
+    .resume-current {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .resume-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+
+    .resume-icon {
+      font-size: var(--text-2xl);
+      color: var(--color-primary);
+    }
+
+    .resume-details {
+      flex: 1;
+    }
+
+    .resume-name {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .resume-meta {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .resume-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--color-grey-300);
+      border-radius: var(--radius-md);
+      padding: var(--space-8);
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .upload-area:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .upload-icon {
+      font-size: var(--text-3xl);
+      color: var(--color-grey-400);
+      margin-bottom: var(--space-3);
+    }
+
+    .upload-text {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .upload-hint {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+    }
+
+    /* Collapsible Tips */
+    .tips-container {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      margin-top: var(--space-4);
+      overflow: hidden;
+    }
+
+    .tips-header {
+      padding: var(--space-3) var(--space-4);
+      background: rgba(2, 132, 199, 0.1);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tips-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-info);
+      margin: 0;
+    }
+
+    .tips-toggle {
+      color: var(--color-info);
+      transition: transform 0.2s;
+    }
+
+    .tips-content {
+      padding: var(--space-4);
+      display: none;
+    }
+
+    .tips-content.show {
+      display: block;
+    }
+
+    .tips-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .tips-list li {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      padding: var(--space-1) 0;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .tips-list li::before {
+      content: "·";
+      color: var(--color-info);
+      font-weight: 700;
+    }
+
+    /* Job Preferences */
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .checkbox-input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--color-primary);
+    }
+
+    .checkbox-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    .salary-range {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .salary-input {
+      flex: 1;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+    .btn-sm {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-sm:active { transform: scale(0.98); }
+    .btn-sm-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-sm-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-sm-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-sm-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-sm-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-sm-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--color-grey-500);
+      font-size: var(--text-base);
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      color: var(--color-danger);
+      background: var(--color-danger-bg);
+    }
+
+    .add-btn {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .add-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .modal-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      color: var(--color-grey-500);
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--color-grey-700);
+      background: var(--color-grey-100);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: flex-end;
+      margin-top: var(--space-6);
+    }
+
+    /* Bottom Navigation (Mobile) */
+    .bottom-nav {
+      display: flex;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: var(--border-default);
+      padding: var(--space-2) 0;
+      z-index: 100;
+    }
+
+    .bottom-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2);
+      text-decoration: none;
+      color: var(--color-grey-600);
+      font-size: var(--text-xs);
+      transition: all 0.2s;
+    }
+
+    .bottom-nav-item:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--color-primary);
+    }
+
+    .bottom-nav-icon {
+      font-size: var(--text-lg);
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .main-content {
+        padding: var(--space-4) var(--space-4) var(--space-24) var(--space-4);
+      }
+
+      .profile-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .tabs-header {
+        overflow-x: auto;
+      }
+
+      .radio-group {
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .salary-range {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .btn-sm:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Top Navigation -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
+        <h1 class="nav-title" data-i18n="pageTitle">My Profile</h1>
+      </div>
+      
+      <div class="nav-right">
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-info">
+          <div class="profile-avatar">
+            LT
+            <button class="change-photo-btn" data-i18n="changePhoto" title="Change Photo">📷</button>
+          </div>
+          <div class="profile-details">
+            <h2 class="profile-name">Lê Thị Thuy</h2>
+            <p class="profile-contact">thuy@gmail.com · +84 905 123 456</p>
+          </div>
+        </div>
+        
+        <div class="profile-completion">
+          <div class="completion-header">
+            <h3 class="completion-title" data-i18n="completionTitle">Hồ sơ hoàn thiện 65%</h3>
+            <span class="completion-percentage">65%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="missing-items">
+            <a href="#experience" class="missing-item" data-i18n="addWorkExperience">+ Work Experience</a>
+            <a href="#skills" class="missing-item" data-i18n="addSkills">+ Skills</a>
+            <a href="#resume" class="missing-item" data-i18n="uploadResume">+ Upload Resume</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Container -->
+      <div class="tabs-container">
+        <div class="tabs-header">
+          <button class="tab-button active" data-tab="personal" data-i18n="tabPersonal">Personal Info</button>
+          <button class="tab-button" data-tab="experience" data-i18n="tabExperience">Experience</button>
+          <button class="tab-button" data-tab="education" data-i18n="tabEducation">Education</button>
+          <button class="tab-button" data-tab="skills" data-i18n="tabSkills">Skills & Languages</button>
+          <button class="tab-button" data-tab="resume" data-i18n="tabResume">Resume</button>
+          <button class="tab-button" data-tab="preferences" data-i18n="tabPreferences">Preferences</button>
+        </div>
+        
+        <div class="tabs-content">
+          <!-- Personal Info Tab -->
+          <div class="tab-panel active" id="personal">
+            <div class="form-section">
+              <div class="form-group">
+                <label class="form-label" data-i18n="fullNameLabel">Full Name <span class="required">*</span></label>
+                <input type="text" class="form-input" value="Lê Thị Thuy">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="emailLabel">Email <span class="required">*</span></label>
+                <input type="email" class="form-input" value="thuy@gmail.com" readonly>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="phoneLabel">Phone <span class="required">*</span></label>
+                <input type="tel" class="form-input" value="+84 905 123 456">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="dobLabel">Date of Birth</label>
+                <input type="date" class="form-input" value="2002-05-15">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="genderLabel">Gender</label>
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="gender" class="radio-input">
+                    <span class="radio-label" data-i18n="male">Male</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="gender" class="radio-input" checked>
+                    <span class="radio-label" data-i18n="female">Female</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="gender" class="radio-input">
+                    <span class="radio-label" data-i18n="preferNotToSay">Prefer not to say</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="currentLocationLabel">Current Location <span class="required">*</span></label>
+                <select class="form-select">
+                  <option value="hcmc" selected data-i18n="hcmc">TP. Hồ Chí Minh</option>
+                  <option value="hanoi" data-i18n="hanoi">Hà Nội</option>
+                  <option value="danang" data-i18n="danang">Đà Nẵng</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="desiredLocationLabel">Desired Location</label>
+                <select class="form-select" multiple>
+                  <option value="hanoi" selected data-i18n="hanoi">Hà Nội</option>
+                  <option value="hcmc" selected data-i18n="hcmc">TP. Hồ Chí Minh</option>
+                  <option value="danang" data-i18n="danang">Đà Nẵng</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="headlineLabel">Professional Headline</label>
+                <input type="text" class="form-input" value="Junior Backend Developer | 2 years experience">
+                <div class="form-help" data-i18n="headlineHelp">Shown on your profile and applications</div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="aboutLabel">About Me (bio)</label>
+                <textarea class="form-textarea" id="aboutTextarea">Tôi là lập trình viên backend với 2 năm kinh nghiệm làm việc với Node.js và PostgreSQL. Tôi có đam mê về công nghệ và luôn muốn học hỏi những công nghệ mới để phát triển bản thân.</textarea>
+                <div class="char-count"><span id="charCount">234</span> / 500</div>
+              </div>
+              
+              <button class="btn btn-primary" data-i18n="savePersonalInfo">Save Personal Info</button>
+            </div>
+          </div>
+
+          <!-- Experience Tab -->
+          <div class="tab-panel" id="experience">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: var(--space-4);">
+              <button class="add-btn" id="addExperienceBtn">
+                + <span data-i18n="addExperience">Add Experience</span>
+              </button>
+            </div>
+            
+            <div class="item-list">
+              <div class="item-card">
+                <div class="item-header">
+                  <div>
+                    <h3 class="item-title">Mid-level Backend Developer</h3>
+                    <p class="item-company">StartupVN</p>
+                    <p class="item-duration">TP. Hồ Chí Minh · Tháng 1, 2024 – Present</p>
+                  </div>
+                  <div class="item-actions">
+                    <button class="btn-icon" data-i18n="edit" title="Edit">✏️</button>
+                    <button class="btn-icon" data-i18n="delete" title="Delete">🗑</button>
+                  </div>
+                </div>
+                <p class="item-description" data-i18n="exp1Description">Phát triển API với Node.js và PostgreSQL, tối ưu hóa hiệu suất hệ thống, tham gia thiết kế kiến trúc microservices.</p>
+              </div>
+              
+              <div class="item-card">
+                <div class="item-header">
+                  <div>
+                    <h3 class="item-title">Junior Developer</h3>
+                    <p class="item-company">DataVN Ltd</p>
+                    <p class="item-duration">TP. Hồ Chí Minh · Tháng 6, 2023 – Tháng 12, 2023</p>
+                  </div>
+                  <div class="item-actions">
+                    <button class="btn-icon" data-i18n="edit" title="Edit">✏️</button>
+                    <button class="btn-icon" data-i18n="delete" title="Delete">🗑</button>
+                  </div>
+                </div>
+                <p class="item-description" data-i18n="exp2Description">Hỗ trợ team backend trong dự án phát triển hệ thống quản lý dữ liệu, viết unit test và tham gia code review.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Education Tab -->
+          <div class="tab-panel" id="education">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: var(--space-4);">
+              <button class="add-btn" id="addEducationBtn">
+                + <span data-i18n="addEducation">Add Education</span>
+              </button>
+            </div>
+            
+            <div class="item-list">
+              <div class="item-card">
+                <div class="item-header">
+                  <div>
+                    <h3 class="item-title" data-i18n="degree1">Bachelor's in Computer Science</h3>
+                    <p class="item-company" data-i18n="institution1">HCMC University of Technology</p>
+                    <p class="item-duration" data-i18n="graduation1">Graduation: 2024</p>
+                  </div>
+                  <div class="item-actions">
+                    <button class="btn-icon" data-i18n="edit" title="Edit">✏️</button>
+                    <button class="btn-icon" data-i18n="delete" title="Delete">🗑</button>
+                  </div>
+                </div>
+                <p class="item-description" data-i18n="gpa1">GPA: 3.2 / 4.0</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills & Languages Tab -->
+          <div class="tab-panel" id="skills">
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="skillsTitle">Skills</h3>
+              <div class="skills-container">
+                <div class="skill-tag">
+                  Node.js
+                  <button class="skill-remove">×</button>
+                </div>
+                <div class="skill-tag">
+                  PostgreSQL
+                  <button class="skill-remove">×</button>
+                </div>
+                <div class="skill-tag">
+                  FastAPI
+                  <button class="skill-remove">×</button>
+                </div>
+                <div class="skill-tag">
+                  Docker
+                  <button class="skill-remove">×</button>
+                </div>
+                <div class="skill-tag">
+                  Git
+                  <button class="skill-remove">×</button>
+                </div>
+                <div class="skill-tag">
+                  React
+                  <button class="skill-remove">×</button>
+                </div>
+              </div>
+              
+              <div class="skill-input-container">
+                <input type="text" class="skill-input" id="skillInput" placeholder="Add skill..." data-i18n-placeholder="addSkillPlaceholder">
+                <button class="add-skill-btn" data-i18n="addSkillBtn">+ Add</button>
+              </div>
+              <div class="form-help" data-i18n="maxSkillsHelp">Max 30 skills.</div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="languagesTitle">Languages</h3>
+              <div class="language-item">
+                <div class="language-info">
+                  <span class="language-name" data-i18n="vietnamese">Vietnamese</span>
+                  <span class="language-level" data-i18n="native">Native</span>
+                </div>
+                <div class="language-actions">
+                  <button class="btn-icon" data-i18n="edit" title="Edit">✏️</button>
+                  <button class="btn-icon" data-i18n="delete" title="Delete">🗑</button>
+                </div>
+              </div>
+              
+              <div class="language-item">
+                <div class="language-info">
+                  <span class="language-name">English</span>
+                  <span class="language-level" data-i18n="professionalWorking">Professional Working</span>
+                </div>
+                <div class="language-actions">
+                  <button class="btn-icon" data-i18n="edit" title="Edit">✏️</button>
+                  <button class="btn-icon" data-i18n="delete" title="Delete">🗑</button>
+                </div>
+              </div>
+              
+              <button class="add-btn" style="margin-top: var(--space-3);">
+                + <span data-i18n="addLanguage">Add Language</span>
+              </button>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="salaryTitle">Desired Salary Range (VND — BR-009)</h3>
+              <div class="salary-range">
+                <input type="text" class="salary-input" value="20.000.000" data-i18n-placeholder="minSalary">
+                <span>-</span>
+                <input type="text" class="salary-input" value="35.000.000" data-i18n-placeholder="maxSalary">
+              </div>
+              <div class="checkbox-option">
+                <input type="checkbox" class="checkbox-input" checked>
+                <span class="checkbox-label" data-i18n="openToNegotiation">Open to negotiation</span>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary" data-i18n="saveSkillsLanguages">Save Skills & Languages</button>
+          </div>
+
+          <!-- Resume Tab -->
+          <div class="tab-panel" id="resume">
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="currentResume">Current Resume</h3>
+              <div class="resume-current">
+                <div class="resume-info">
+                  <span class="resume-icon">📄</span>
+                  <div class="resume-details">
+                    <p class="resume-name">resume-le-thi-thuy-2026.pdf</p>
+                    <p class="resume-meta" data-i18n="resumeMeta">Size: 1.8MB · Uploaded: 5 Tháng 3, 2026</p>
+                  </div>
+                </div>
+                <div class="resume-actions">
+                  <button class="btn btn-sm btn-secondary" data-i18n="preview">Preview</button>
+                  <button class="btn btn-sm btn-secondary" data-i18n="download">Download</button>
+                  <button class="btn btn-sm btn-primary" data-i18n="replace">Replace</button>
+                </div>
+              </div>
+              
+              <h3 class="section-title" data-i18n="uploadNewResume">Upload New Resume</h3>
+              <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📎</div>
+                <p class="upload-text" data-i18n="uploadText">Kéo thả CV hoặc click để tải lên</p>
+                <p class="upload-hint" data-i18n="uploadHint">Accepted: PDF, DOC, DOCX · Max 10MB (JSP-FR-004)</p>
+              </div>
+              <input type="file" id="resumeInput" style="display: none;" accept=".pdf,.doc,.docx">
+              
+              <div class="tips-container">
+                <div class="tips-header" id="tipsHeader">
+                  <h4 class="tips-title">💡 <span data-i18n="resumeTipsTitle">Mẹo viết CV hiệu quả</span></h4>
+                  <span class="tips-toggle">▼</span>
+                </div>
+                <div class="tips-content" id="tipsContent">
+                  <ul class="tips-list">
+                    <li data-i18n="tip1">Giữ CV dưới 2 trang</li>
+                    <li data-i18n="tip2">Thêm từ khoá liên quan đến ngành</li>
+                    <li data-i18n="tip3">Định dạng rõ ràng, dễ đọc</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preferences Tab -->
+          <div class="tab-panel" id="preferences">
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="jobTypesTitle">Job Types preferred</h3>
+              <div class="checkbox-group">
+                <div class="checkbox-option">
+                  <input type="checkbox" class="checkbox-input" checked>
+                  <span class="checkbox-label" data-i18n="fullTime">Full-time</span>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" class="checkbox-input" checked>
+                  <span class="checkbox-label" data-i18n="remote">Remote</span>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" class="checkbox-input">
+                  <span class="checkbox-label" data-i18n="partTime">Part-time</span>
+                </div>
+                <div class="checkbox-option">
+                  <input type="checkbox" class="checkbox-input">
+                  <span class="checkbox-label" data-i18n="contract">Contract</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="industriesTitle">Industries interested in</h3>
+              <div class="skills-container">
+                <div class="skill-tag">
+                  IT / SaaS
+                  <button class="skill-remove">×</button>
+                </div>
+                <div class="skill-tag">
+                  E-commerce
+                  <button class="skill-remove">×</button>
+                </div>
+              </div>
+              <div class="skill-input-container">
+                <input type="text" class="skill-input" placeholder="Add industry..." data-i18n-placeholder="addIndustryPlaceholder">
+                <button class="add-skill-btn" data-i18n="addBtn">+ Add</button>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="relocationTitle">Open to relocation</h3>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="relocation" class="radio-input" checked>
+                  <span class="radio-label" data-i18n="yes">Yes</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="relocation" class="radio-input">
+                  <span class="radio-label" data-i18n="no">No</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="noticePeriodTitle">Notice period</h3>
+              <select class="form-select">
+                <option value="immediately" data-i18n="immediately">Immediately</option>
+                <option value="2weeks" data-i18n="2weeks">2 weeks</option>
+                <option value="1month" selected data-i18n="1month">1 month</option>
+                <option value="2months" data-i18n="2months">2 months</option>
+                <option value="3months" data-i18n="3months">3 months</option>
+              </select>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="profileVisibilityTitle">Profile visibility</h3>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="visibility" class="radio-input" checked>
+                  <span class="radio-label" data-i18n="public">Public — visible to verified employers</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="visibility" class="radio-input">
+                  <span class="radio-label" data-i18n="private">Private — only apply manually</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="visibility" class="radio-input">
+                  <span class="radio-label" data-i18n="hidden">Hidden — not searchable</span>
+                </label>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary" data-i18n="savePreferences">Save Preferences</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav">
+      <a href="js01-dashboard.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon">🏠</span>
+        <span data-i18n="navHome">Home</span>
+      </a>
+      <a href="../public/p02-job-search.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon">🔍</span>
+        <span data-i18n="navFindJobs">Find Jobs</span>
+      </a>
+      <a href="js04-tracker.html" class="bottom-nav-item">
+        <span class="bottom-nav-icon">📋</span>
+        <span data-i18n="navApplications">My Applications</span>
+      </a>
+      <a href="js07-profile.html" class="bottom-nav-item active">
+        <span class="bottom-nav-icon">👤</span>
+        <span data-i18n="navProfile">Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Experience Modal -->
+  <div class="modal-overlay" id="experienceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="addExperienceTitle">Add Experience</h3>
+        <button class="modal-close" id="closeExperienceModal">×</button>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="jobTitleLabel">Job Title <span class="required">*</span></label>
+        <input type="text" class="form-input" id="jobTitleInput">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="companyLabel">Company <span class="required">*</span></label>
+        <input type="text" class="form-input" id="companyInput">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="locationLabel">Location</label>
+        <input type="text" class="form-input" id="locationInput">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="startDateLabel">Start Date <span class="required">*</span></label>
+        <input type="month" class="form-input" id="startDateInput">
+      </div>
+      
+      <div class="form-group">
+        <div class="checkbox-option">
+          <input type="checkbox" class="checkbox-input" id="currentlyWorking">
+          <span class="checkbox-label" data-i18n="currentlyWorking">Currently working here</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="endDateLabel">End Date</label>
+        <input type="month" class="form-input" id="endDateInput">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="descriptionLabel">Description</label>
+        <textarea class="form-textarea" id="descriptionInput"></textarea>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelExperience" data-i18n="cancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveExperience" data-i18n="saveExperienceBtn">Save Experience</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Education Modal -->
+  <div class="modal-overlay" id="educationModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="addEducationTitle">Add Education</h3>
+        <button class="modal-close" id="closeEducationModal">×</button>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="degreeLevelLabel">Degree Level <span class="required">*</span></label>
+        <select class="form-select" id="degreeLevelSelect">
+          <option value="bachelor" selected data-i18n="bachelor">Bachelor's</option>
+          <option value="master" data-i18n="master">Master's</option>
+          <option value="phd" data-i18n="phd">PhD</option>
+          <option value="associate" data-i18n="associate">Associate</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="fieldOfStudyLabel">Field of Study <span class="required">*</span></label>
+        <input type="text" class="form-input" id="fieldOfStudyInput" value="Computer Science">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="institutionLabel">Institution <span class="required">*</span></label>
+        <input type="text" class="form-input" id="institutionInput">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="startYearLabel">Start Year</label>
+        <input type="number" class="form-input" id="startYearInput" min="1950" max="2030">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="endYearLabel">End Year</label>
+        <input type="number" class="form-input" id="endYearInput" min="1950" max="2030">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" data-i18n="gpaLabel">GPA (optional)</label>
+        <input type="text" class="form-input" id="gpaInput" placeholder="3.2 / 4.0">
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelEducation" data-i18n="cancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveEducation" data-i18n="saveEducationBtn">Save Education</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:80px; right:16px; z-index:9999;
+    background:#10B981; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#93C5FD;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 js07: Profile Editor
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="js09-documents.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ js09: Documents</a>
+    <a href="js01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← js01: Dashboard</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        pageTitle: 'My Profile',
+        completionTitle: 'Hồ sơ hoàn thiện 65%',
+        addWorkExperience: '+ Work Experience',
+        addSkills: '+ Skills',
+        uploadResume: '+ Upload Resume',
+        tabPersonal: 'Personal Info',
+        tabExperience: 'Experience',
+        tabEducation: 'Education',
+        tabSkills: 'Skills & Languages',
+        tabResume: 'Resume',
+        tabPreferences: 'Preferences',
+        fullNameLabel: 'Full Name',
+        emailLabel: 'Email',
+        phoneLabel: 'Phone',
+        dobLabel: 'Date of Birth',
+        genderLabel: 'Gender',
+        male: 'Male',
+        female: 'Female',
+        preferNotToSay: 'Prefer not to say',
+        currentLocationLabel: 'Current Location',
+        desiredLocationLabel: 'Desired Location',
+        hcmc: 'TP. Hồ Chí Minh',
+        hanoi: 'Hà Nội',
+        danang: 'Đà Nẵng',
+        headlineLabel: 'Professional Headline',
+        headlineHelp: 'Shown on your profile and applications',
+        aboutLabel: 'About Me (bio)',
+        savePersonalInfo: 'Save Personal Info',
+        addExperience: 'Add Experience',
+        exp1Description: 'Phát triển API với Node.js và PostgreSQL, tối ưu hóa hiệu suất hệ thống, tham gia thiết kế kiến trúc microservices.',
+        exp2Description: 'Hỗ trợ team backend trong dự án phát triển hệ thống quản lý dữ liệu, viết unit test và tham gia code review.',
+        edit: 'Edit',
+        delete: 'Delete',
+        addEducation: 'Add Education',
+        degree1: "Bachelor's in Computer Science",
+        institution1: 'HCMC University of Technology',
+        graduation1: 'Graduation: 2024',
+        gpa1: 'GPA: 3.2 / 4.0',
+        skillsTitle: 'Skills',
+        addSkillPlaceholder: 'Add skill...',
+        addSkillBtn: '+ Add',
+        maxSkillsHelp: 'Max 30 skills.',
+        languagesTitle: 'Languages',
+        vietnamese: 'Vietnamese',
+        native: 'Native',
+        professionalWorking: 'Professional Working',
+        addLanguage: 'Add Language',
+        salaryTitle: 'Desired Salary Range (VND — BR-009)',
+        minSalary: 'Min',
+        maxSalary: 'Max',
+        openToNegotiation: 'Open to negotiation',
+        saveSkillsLanguages: 'Save Skills & Languages',
+        currentResume: 'Current Resume',
+        resumeMeta: 'Size: 1.8MB · Uploaded: 5 Tháng 3, 2026',
+        preview: 'Preview',
+        download: 'Download',
+        replace: 'Replace',
+        uploadNewResume: 'Upload New Resume',
+        uploadText: 'Kéo thả CV hoặc click để tải lên',
+        uploadHint: 'Accepted: PDF, DOC, DOCX · Max 10MB (JSP-FR-004)',
+        resumeTipsTitle: 'Mẹo viết CV hiệu quả',
+        tip1: 'Giữ CV dưới 2 trang',
+        tip2: 'Thêm từ khoá liên quan đến ngành',
+        tip3: 'Định dạng rõ ràng, dễ đọc',
+        jobTypesTitle: 'Job Types preferred',
+        fullTime: 'Full-time',
+        remote: 'Remote',
+        partTime: 'Part-time',
+        contract: 'Contract',
+        industriesTitle: 'Industries interested in',
+        addIndustryPlaceholder: 'Add industry...',
+        addBtn: '+ Add',
+        relocationTitle: 'Open to relocation',
+        yes: 'Yes',
+        no: 'No',
+        noticePeriodTitle: 'Notice period',
+        immediately: 'Immediately',
+        '2weeks': '2 weeks',
+        '1month': '1 month',
+        '2months': '2 months',
+        '3months': '3 months',
+        profileVisibilityTitle: 'Profile visibility',
+        public: 'Public — visible to verified employers',
+        private: 'Private — only apply manually',
+        hidden: 'Hidden — not searchable',
+        savePreferences: 'Save Preferences',
+        navHome: 'Home',
+        navFindJobs: 'Find Jobs',
+        navApplications: 'My Applications',
+        navProfile: 'Profile',
+        changePhoto: 'Change Photo',
+        addExperienceTitle: 'Add Experience',
+        cancelBtn: 'Cancel',
+        saveExperienceBtn: 'Save Experience',
+        jobTitleLabel: 'Job Title',
+        companyLabel: 'Company',
+        locationLabel: 'Location',
+        startDateLabel: 'Start Date',
+        currentlyWorking: 'Currently working here',
+        endDateLabel: 'End Date',
+        descriptionLabel: 'Description',
+        addEducationTitle: 'Add Education',
+        degreeLevelLabel: 'Degree Level',
+        bachelor: "Bachelor's",
+        master: "Master's",
+        phd: 'PhD',
+        associate: 'Associate',
+        fieldOfStudyLabel: 'Field of Study',
+        institutionLabel: 'Institution',
+        startYearLabel: 'Start Year',
+        endYearLabel: 'End Year',
+        gpaLabel: 'GPA (optional)',
+        saveEducationBtn: 'Save Education'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        pageTitle: 'My Profile',
+        completionTitle: 'Profile 65% complete',
+        addWorkExperience: '+ Work Experience',
+        addSkills: '+ Skills',
+        uploadResume: '+ Upload Resume',
+        tabPersonal: 'Personal Info',
+        tabExperience: 'Experience',
+        tabEducation: 'Education',
+        tabSkills: 'Skills & Languages',
+        tabResume: 'Resume',
+        tabPreferences: 'Preferences',
+        fullNameLabel: 'Full Name',
+        emailLabel: 'Email',
+        phoneLabel: 'Phone',
+        dobLabel: 'Date of Birth',
+        genderLabel: 'Gender',
+        male: 'Male',
+        female: 'Female',
+        preferNotToSay: 'Prefer not to say',
+        currentLocationLabel: 'Current Location',
+        desiredLocationLabel: 'Desired Location',
+        hcmc: 'Ho Chi Minh City',
+        hanoi: 'Hanoi',
+        danang: 'Da Nang',
+        headlineLabel: 'Professional Headline',
+        headlineHelp: 'Shown on your profile and applications',
+        aboutLabel: 'About Me (bio)',
+        savePersonalInfo: 'Save Personal Info',
+        addExperience: 'Add Experience',
+        exp1Description: 'Developed APIs with Node.js and PostgreSQL, optimized system performance, participated in microservices architecture design.',
+        exp2Description: 'Supported backend team in data management system development, wrote unit tests and participated in code reviews.',
+        edit: 'Edit',
+        delete: 'Delete',
+        addEducation: 'Add Education',
+        degree1: "Bachelor's in Computer Science",
+        institution1: 'HCMC University of Technology',
+        graduation1: 'Graduation: 2024',
+        gpa1: 'GPA: 3.2 / 4.0',
+        skillsTitle: 'Skills',
+        addSkillPlaceholder: 'Add skill...',
+        addSkillBtn: '+ Add',
+        maxSkillsHelp: 'Max 30 skills.',
+        languagesTitle: 'Languages',
+        vietnamese: 'Vietnamese',
+        native: 'Native',
+        professionalWorking: 'Professional Working',
+        addLanguage: 'Add Language',
+        salaryTitle: 'Desired Salary Range (VND — BR-009)',
+        minSalary: 'Min',
+        maxSalary: 'Max',
+        openToNegotiation: 'Open to negotiation',
+        saveSkillsLanguages: 'Save Skills & Languages',
+        currentResume: 'Current Resume',
+        resumeMeta: 'Size: 1.8MB · Uploaded: 5 Mar, 2026',
+        preview: 'Preview',
+        download: 'Download',
+        replace: 'Replace',
+        uploadNewResume: 'Upload New Resume',
+        uploadText: 'Drag & drop CV or click to upload',
+        uploadHint: 'Accepted: PDF, DOC, DOCX · Max 10MB (JSP-FR-004)',
+        resumeTipsTitle: 'Effective CV Tips',
+        tip1: 'Keep CV under 2 pages',
+        tip2: 'Add industry-related keywords',
+        tip3: 'Clear, readable formatting',
+        jobTypesTitle: 'Job Types preferred',
+        fullTime: 'Full-time',
+        remote: 'Remote',
+        partTime: 'Part-time',
+        contract: 'Contract',
+        industriesTitle: 'Industries interested in',
+        addIndustryPlaceholder: 'Add industry...',
+        addBtn: '+ Add',
+        relocationTitle: 'Open to relocation',
+        yes: 'Yes',
+        no: 'No',
+        noticePeriodTitle: 'Notice period',
+        immediately: 'Immediately',
+        '2weeks': '2 weeks',
+        '1month': '1 month',
+        '2months': '2 months',
+        '3months': '3 months',
+        profileVisibilityTitle: 'Profile visibility',
+        public: 'Public — visible to verified employers',
+        private: 'Private — only apply manually',
+        hidden: 'Hidden — not searchable',
+        savePreferences: 'Save Preferences',
+        navHome: 'Home',
+        navFindJobs: 'Find Jobs',
+        navApplications: 'My Applications',
+        navProfile: 'Profile',
+        changePhoto: 'Change Photo',
+        addExperienceTitle: 'Add Experience',
+        cancelBtn: 'Cancel',
+        saveExperienceBtn: 'Save Experience',
+        jobTitleLabel: 'Job Title',
+        companyLabel: 'Company',
+        locationLabel: 'Location',
+        startDateLabel: 'Start Date',
+        currentlyWorking: 'Currently working here',
+        endDateLabel: 'End Date',
+        descriptionLabel: 'Description',
+        addEducationTitle: 'Add Education',
+        degreeLevelLabel: 'Degree Level',
+        bachelor: "Bachelor's",
+        master: "Master's",
+        phd: 'PhD',
+        associate: 'Associate',
+        fieldOfStudyLabel: 'Field of Study',
+        institutionLabel: 'Institution',
+        startYearLabel: 'Start Year',
+        endYearLabel: 'End Year',
+        gpaLabel: 'GPA (optional)',
+        saveEducationBtn: 'Save Education'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — My Profile | Job Seeker' : 'LàmViệc360 — My Profile | Job Seeker';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== TAB FUNCTIONALITY ==========
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabName = button.getAttribute('data-tab');
+        
+        // Update button states
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Update panel visibility
+        tabPanels.forEach(panel => panel.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+      });
+    });
+
+    // ========== CHARACTER COUNT ==========
+    const aboutTextarea = document.getElementById('aboutTextarea');
+    const charCount = document.getElementById('charCount');
+
+    aboutTextarea.addEventListener('input', () => {
+      const count = aboutTextarea.value.length;
+      charCount.textContent = count;
+      
+      if (count > 500) {
+        charCount.style.color = 'var(--color-danger)';
+      } else {
+        charCount.style.color = 'var(--color-grey-500)';
+      }
+    });
+
+    // ========== SKILLS MANAGEMENT ==========
+    const skillInput = document.getElementById('skillInput');
+    const addSkillBtn = document.querySelector('.add-skill-btn');
+    const skillsContainer = document.querySelector('.skills-container');
+
+    addSkillBtn.addEventListener('click', addSkill);
+    skillInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addSkill();
+      }
+    });
+
+    function addSkill() {
+      const skill = skillInput.value.trim();
+      if (skill && skillsContainer.children.length < 30) {
+        const skillTag = document.createElement('div');
+        skillTag.className = 'skill-tag';
+        skillTag.innerHTML = `
+          ${skill}
+          <button class="skill-remove">×</button>
+        `;
+        
+        skillTag.querySelector('.skill-remove').addEventListener('click', () => {
+          skillTag.remove();
+        });
+        
+        skillsContainer.appendChild(skillTag);
+        skillInput.value = '';
+      }
+    }
+
+    // Remove existing skill tags
+    document.querySelectorAll('.skill-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.parentElement.remove();
+      });
+    });
+
+    // ========== RESUME UPLOAD ==========
+    const uploadArea = document.getElementById('uploadArea');
+    const resumeInput = document.getElementById('resumeInput');
+
+    uploadArea.addEventListener('click', () => {
+      resumeInput.click();
+    });
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--color-primary)';
+      uploadArea.style.background = 'var(--color-primary-light)';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.borderColor = 'var(--color-grey-300)';
+      uploadArea.style.background = 'white';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--color-grey-300)';
+      uploadArea.style.background = 'white';
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileUpload(files[0]);
+      }
+    });
+
+    resumeInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileUpload(e.target.files[0]);
+      }
+    });
+
+    function handleFileUpload(file) {
+      // Validate file type and size
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      
+      if (!validTypes.includes(file.type)) {
+        alert('Please upload a PDF, DOC, or DOCX file');
+        return;
+      }
+      
+      if (file.size > maxSize) {
+        alert('File size must be less than 10MB');
+        return;
+      }
+      
+      console.log('File uploaded:', file.name);
+      // In real app, this would upload the file
+    }
+
+    // ========== TIPS COLLAPSIBLE ==========
+    const tipsHeader = document.getElementById('tipsHeader');
+    const tipsContent = document.getElementById('tipsContent');
+    const tipsToggle = tipsHeader.querySelector('.tips-toggle');
+
+    tipsHeader.addEventListener('click', () => {
+      tipsContent.classList.toggle('show');
+      tipsToggle.textContent = tipsContent.classList.contains('show') ? '▲' : '▼';
+    });
+
+    // ========== MODAL FUNCTIONALITY ==========
+    const experienceModal = document.getElementById('experienceModal');
+    const educationModal = document.getElementById('educationModal');
+
+    // Experience Modal
+    document.getElementById('addExperienceBtn').addEventListener('click', () => {
+      experienceModal.classList.add('show');
+    });
+
+    document.getElementById('closeExperienceModal').addEventListener('click', () => {
+      experienceModal.classList.remove('show');
+    });
+
+    document.getElementById('cancelExperience').addEventListener('click', () => {
+      experienceModal.classList.remove('show');
+    });
+
+    document.getElementById('saveExperience').addEventListener('click', () => {
+      // Save experience logic
+      console.log('Experience saved');
+      experienceModal.classList.remove('show');
+    });
+
+    // Education Modal
+    document.getElementById('addEducationBtn').addEventListener('click', () => {
+      educationModal.classList.add('show');
+    });
+
+    document.getElementById('closeEducationModal').addEventListener('click', () => {
+      educationModal.classList.remove('show');
+    });
+
+    document.getElementById('cancelEducation').addEventListener('click', () => {
+      educationModal.classList.remove('show');
+    });
+
+    document.getElementById('saveEducation').addEventListener('click', () => {
+      // Save education logic
+      console.log('Education saved');
+      educationModal.classList.remove('show');
+    });
+
+    // Close modals on overlay click
+    experienceModal.addEventListener('click', (e) => {
+      if (e.target === experienceModal) {
+        experienceModal.classList.remove('show');
+      }
+    });
+
+    educationModal.addEventListener('click', (e) => {
+      if (e.target === educationModal) {
+        educationModal.classList.remove('show');
+      }
+    });
+
+    // Currently working checkbox
+    const currentlyWorkingCheckbox = document.getElementById('currentlyWorking');
+    const endDateInput = document.getElementById('endDateInput');
+
+    currentlyWorkingCheckbox.addEventListener('change', () => {
+      endDateInput.disabled = currentlyWorkingCheckbox.checked;
+      if (currentlyWorkingCheckbox.checked) {
+        endDateInput.value = '';
+      }
+    });
+
+    // ========== SAVE BUTTONS ==========
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+      if (btn.textContent.includes('Save')) {
+        btn.addEventListener('click', () => {
+          // In real app, this would save the data
+          console.log('Data saved successfully');
+          alert('Profile saved successfully!');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

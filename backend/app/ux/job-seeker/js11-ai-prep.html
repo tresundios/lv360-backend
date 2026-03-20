@@ -1,0 +1,1624 @@
+<!doctype html>
+<!--
+  SCREEN: js11 AI Interview Preparation
+  PRD REFS: JSP-FR-009, BR-003, AC-019, NFR-003
+  FLOW: js04-tracker.html → THIS → js05-app-detail.html
+  PERSONA: Job Seeker
+  STAGE: Phase 1 MVP
+  NOTE: AI-generated interview questions for specific job applications
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — AI Interview Prep | Job Seeker</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Job Seeker (teal) */
+      --color-seeker-bg:     #F0FDF4;
+      --color-seeker-accent: #10B981;
+      --color-seeker-light:  #D1FAE5;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-seeker-bg);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 16px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .nav-logo {
+      height: 32px;
+      width: auto;
+    }
+
+    .nav-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: var(--space-6) var(--space-4) var(--space-8) var(--space-4);
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: var(--space-6);
+    }
+
+    .page-title {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-3) 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+    }
+
+    .page-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .powered-by {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin: 0;
+    }
+
+    /* AI Session Counter */
+    .ai-session-counter {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-6);
+      text-align: center;
+    }
+
+    .session-text {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-warning);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .session-progress {
+      background: var(--color-grey-200);
+      border-radius: var(--radius-full);
+      height: 8px;
+      margin-bottom: var(--space-1);
+      overflow: hidden;
+    }
+
+    .session-fill {
+      height: 100%;
+      background: var(--color-warning);
+      border-radius: var(--radius-full);
+      width: 40%;
+      transition: width 0.3s ease;
+    }
+
+    .session-details {
+      font-size: var(--text-xs);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* States */
+    .state {
+      display: none;
+    }
+
+    .state.active {
+      display: block;
+    }
+
+    /* Job Selection State */
+    .job-selection {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .job-cards {
+      margin-bottom: var(--space-6);
+    }
+
+    .job-card {
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+      transition: all 0.2s;
+    }
+
+    .job-card:hover {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .job-card.interview {
+      border-left: 4px solid var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .job-card.shortlisted {
+      border-left: 4px solid var(--color-success);
+    }
+
+    .job-card.disabled {
+      opacity: 0.6;
+      background: var(--color-grey-100);
+    }
+
+    .job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-2);
+    }
+
+    .job-info {
+      flex: 1;
+    }
+
+    .job-company {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .job-title {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .job-stage {
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .job-stage.interview {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    .job-stage.shortlisted {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .job-stage.applied {
+      background: var(--color-grey-200);
+      color: var(--color-grey-600);
+    }
+
+    .job-details {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-3);
+    }
+
+    .upcoming-badge {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      margin-bottom: var(--space-3);
+      display: inline-block;
+    }
+
+    .disabled-note {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin-bottom: var(--space-3);
+    }
+
+    /* Options Section */
+    .options-section {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .option-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .option-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .option-label {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .radio-input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--color-primary);
+    }
+
+    .radio-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    /* Generating State */
+    .generating-state {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    .loading-icon {
+      font-size: var(--text-5xl);
+      color: var(--color-primary);
+      margin-bottom: var(--space-4);
+      animation: sparkle 2s infinite;
+    }
+
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .loading-title {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .loading-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .progress-bar {
+      background: var(--color-grey-200);
+      border-radius: var(--radius-full);
+      height: 8px;
+      margin: 0 auto var(--space-4) auto;
+      max-width: 300px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: var(--radius-full);
+      width: 0%;
+      animation: progress 5s ease-in-out;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    .loading-note {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin: 0;
+    }
+
+    /* Questions State */
+    .questions-state {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+    }
+
+    .ai-badge {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      margin-bottom: var(--space-4);
+      text-align: center;
+    }
+
+    .ai-badge-text {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-info);
+      margin: 0;
+    }
+
+    .job-context {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      margin-bottom: var(--space-6);
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    .questions-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .section-header {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+      padding-bottom: var(--space-2);
+      border-bottom: 2px solid var(--color-primary);
+    }
+
+    .question-card {
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+      transition: all 0.2s;
+    }
+
+    .question-card:hover {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-3);
+    }
+
+    .question-number {
+      background: var(--color-primary);
+      color: white;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      margin-right: var(--space-3);
+    }
+
+    .question-text {
+      flex: 1;
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      line-height: 1.5;
+    }
+
+    .question-actions {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    .hint-container {
+      margin-top: var(--space-3);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .hint-container.show {
+      max-height: 200px;
+    }
+
+    .hint-content {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      line-height: 1.5;
+    }
+
+    .hint-toggle {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .hint-toggle:hover {
+      background: var(--color-primary-light);
+    }
+
+    .practised-checkbox {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .checkbox-input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-success);
+    }
+
+    .checkbox-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--color-grey-500);
+      font-size: var(--text-base);
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    /* Progress Tracker */
+    .progress-tracker {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+      text-align: center;
+    }
+
+    .progress-text {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .progress-bar-large {
+      background: var(--color-grey-200);
+      border-radius: var(--radius-full);
+      height: 12px;
+      margin-bottom: var(--space-2);
+      overflow: hidden;
+    }
+
+    .progress-fill-large {
+      height: 100%;
+      background: var(--color-success);
+      border-radius: var(--radius-full);
+      width: 30%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-percentage {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Action Row */
+    .action-row {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+    }
+
+    .retries-remaining {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-top: var(--space-2);
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .disclaimer-text {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+    .btn-success {
+      background: var(--color-success);
+      color: white;
+    }
+    .btn-success:hover {
+      background: #15803D;
+      text-decoration: none;
+    }
+    .btn-sm {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+    .btn-sm:active { transform: scale(0.98); }
+    .btn-sm-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-sm-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-sm-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-sm-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-sm-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-sm-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+
+    .btn-full-width {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Dev Navigator Tabs */
+    .dev-tabs {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--color-navy);
+      border-radius: var(--radius-md);
+      padding: var(--space-2);
+      display: flex;
+      gap: var(--space-1);
+      z-index: 1000;
+    }
+
+    .dev-tab {
+      background: transparent;
+      color: var(--color-grey-400);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dev-tab.active {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .dev-tab:hover:not(.active) {
+      color: white;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .main-content {
+        padding: var(--space-4) var(--space-4) var(--space-8) var(--space-4);
+      }
+
+      .page-title {
+        font-size: var(--text-2xl);
+      }
+
+      .radio-group {
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .question-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+
+      .question-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .action-row {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .btn-sm:active { transform: none; }
+      .loading-icon {
+        animation: none;
+      }
+      .progress-fill {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Top Navigation -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
+        <h1 class="nav-title" data-i18n="pageTitle">AI Interview Prep</h1>
+      </div>
+      
+      <div class="nav-right">
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">
+          ✦ <span data-i18n="pageHeaderTitle">Luyện tập phỏng vấn với AI</span>
+        </h1>
+        <p class="page-subtitle" data-i18n="pageSubtitle">
+          Câu hỏi được tạo ra từ mô tả công việc thực tế.
+        </p>
+        <p class="powered-by" data-i18n="poweredBy">Powered by: Google Gemini</p>
+      </div>
+
+      <!-- AI Session Counter -->
+      <div class="ai-session-counter">
+        <div class="session-text" data-i18n="sessionText">✦ Phiên AI: 2 / 5 yêu cầu đã dùng</div>
+        <div class="session-progress">
+          <div class="session-fill"></div>
+        </div>
+        <p class="session-details" data-i18n="sessionDetails">2 of 5 (AC-019)</p>
+      </div>
+
+      <!-- State 1: Select Job -->
+      <div class="state active" id="selectJobState">
+        <div class="job-selection">
+          <h2 class="section-title" data-i18n="selectJobTitle">Chọn đơn ứng tuyển để luyện tập</h2>
+          
+          <div class="job-cards">
+            <!-- Job Card 1: Interview Scheduled -->
+            <div class="job-card interview">
+              <div class="job-header">
+                <div class="job-info">
+                  <h3 class="job-company">DataVN Ltd</h3>
+                  <p class="job-title">Data Analyst</p>
+                </div>
+                <span class="job-stage interview" data-i18n="interviewStage">Interview Scheduled ●blue</span>
+              </div>
+              
+              <div class="job-details" data-i18n="interviewDetails">
+                Interview: 18 Tháng 3 · 10:00 AM
+              </div>
+              
+              <div class="upcoming-badge" data-i18n="upcomingBadge">⭐ Phỏng vấn sắp tới!</div>
+              
+              <button class="btn btn-primary btn-full-width" data-i18n="prepareForThisJob">Prepare for This Job →</button>
+            </div>
+            
+            <!-- Job Card 2: Shortlisted -->
+            <div class="job-card shortlisted">
+              <div class="job-header">
+                <div class="job-info">
+                  <h3 class="job-company">TechCorp Vietnam JSC</h3>
+                  <p class="job-title">Senior Backend Engineer</p>
+                </div>
+                <span class="job-stage shortlisted" data-i18n="shortlistedStage">Shortlisted ●green</span>
+              </div>
+              
+              <button class="btn btn-secondary btn-full-width" data-i18n="prepareForThisJob">Prepare for This Job →</button>
+            </div>
+            
+            <!-- Job Card 3: Applied (Disabled) -->
+            <div class="job-card disabled">
+              <div class="job-header">
+                <div class="job-info">
+                  <h3 class="job-company">FinApp Vietnam</h3>
+                  <p class="job-title">Product Manager</p>
+                </div>
+                <span class="job-stage applied" data-i18n="appliedStage">Applied</span>
+              </div>
+              
+              <div class="disabled-note" data-i18n="disabledNote">
+                Câu hỏi AI chỉ có cho đơn từ giai đoạn Shortlisted
+              </div>
+            </div>
+          </div>
+          
+          <!-- Options Section -->
+          <div class="options-section">
+            <div class="option-group">
+              <div class="option-label" data-i18n="interviewTypeLabel">Prepare for:</div>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="interviewType" class="radio-input" checked>
+                  <span class="radio-label" data-i18n="technicalInterview">Technical Interview</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="interviewType" class="radio-input">
+                  <span class="radio-label" data-i18n="hrInterview">HR / Cultural Fit Interview</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="interviewType" class="radio-input">
+                  <span class="radio-label" data-i18n="bothInterview">Both</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="option-group">
+              <div class="option-label" data-i18n="languageLabel">Language for questions:</div>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="questionLanguage" class="radio-input" checked>
+                  <span class="radio-label">Vietnamese (Tiếng Việt)</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="questionLanguage" class="radio-input">
+                  <span class="radio-label">English</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="questionLanguage" class="radio-input">
+                  <span class="radio-label">Both languages</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="option-group">
+              <div class="option-label" data-i18n="questionCountLabel">Number of questions:</div>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="questionCount" class="radio-input">
+                  <span class="radio-label" data-i18n="quickQuestions">5 (Quick)</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="questionCount" class="radio-input" checked>
+                  <span class="radio-label" data-i18n="standardQuestions">10 (Standard)</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="questionCount" class="radio-input">
+                  <span class="radio-label" data-i18n="thoroughQuestions">15 (Thorough)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary btn-full-width" id="generateBtn" data-i18n="generateBtn">
+            ✦ <span data-i18n="generateBtnText">Generate Interview Questions</span>
+          </button>
+          
+          <p class="retries-remaining" data-i18n="retriesRemaining">
+            Sử dụng 1 trong 5 yêu cầu AI của phiên này
+          </p>
+        </div>
+      </div>
+
+      <!-- State 2: Generating -->
+      <div class="state" id="generatingState">
+        <div class="generating-state">
+          <div class="loading-icon">✦</div>
+          <h2 class="loading-title" data-i18n="generatingTitle">Đang tạo câu hỏi phỏng vấn...</h2>
+          <p class="loading-subtitle" data-i18n="generatingSubtitle">
+            Phân tích mô tả công việc Data Analyst...
+          </p>
+          
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          
+          <p class="loading-note" data-i18n="generatingNote">
+            Thường mất 5–10 giây (NFR-003)
+          </p>
+        </div>
+      </div>
+
+      <!-- State 3: Questions Ready -->
+      <div class="state" id="questionsState">
+        <div class="questions-state">
+          <div class="ai-badge">
+            <p class="ai-badge-text" data-i18n="aiBadge">
+              ✦ Được tạo bởi AI — Xem lại trước khi sử dụng
+            </p>
+          </div>
+          
+          <div class="job-context">
+            DataVN Ltd · Data Analyst · Interview: 18 Tháng 3
+          </div>
+          
+          <!-- Technical Questions Section -->
+          <div class="questions-section">
+            <h3 class="section-header" data-i18n="technicalQuestions">Technical Questions (7)</h3>
+            
+            <!-- Question 1 -->
+            <div class="question-card">
+              <div class="question-header">
+                <span class="question-number">Q1</span>
+                <div class="question-text" data-i18n="q1">
+                  Bạn có kinh nghiệm như thế nào với SQL và các cơ sở dữ liệu quan hệ?
+                </div>
+                <div class="question-actions">
+                  <div class="practised-checkbox">
+                    <input type="checkbox" class="checkbox-input" id="q1-practised">
+                    <label for="q1-practised" class="checkbox-label" data-i18n="practised">✓ Practised</label>
+                  </div>
+                  <button class="copy-btn" data-i18n="copyBtn">📋</button>
+                </div>
+              </div>
+              
+              <div class="hint-container" id="q1-hint">
+                <div class="hint-content" data-i18n="q1Hint">
+                  Gợi ý: Đề cập đến các cơ sở dữ liệu cụ thể (PostgreSQL, MySQL), kinh nghiệm tối ưu hóa truy vấn, indexing, và các pipeline ETL bạn đã làm việc.
+                </div>
+              </div>
+              
+              <button class="hint-toggle" data-hint="q1-hint" data-i18n="seeHint">▾ See suggested answer framework</button>
+            </div>
+            
+            <!-- Question 2 -->
+            <div class="question-card">
+              <div class="question-header">
+                <span class="question-number">Q2</span>
+                <div class="question-text" data-i18n="q2">
+                  Mô tả cách bạn xử lý và làm sạch dữ liệu bẩn trong một dự án thực tế.
+                </div>
+                <div class="question-actions">
+                  <div class="practised-checkbox">
+                    <input type="checkbox" class="checkbox-input" id="q2-practised">
+                    <label for="q2-practised" class="checkbox-label" data-i18n="practised">✓ Practised</label>
+                  </div>
+                  <button class="copy-btn" data-i18n="copyBtn">📋</button>
+                </div>
+              </div>
+              
+              <div class="hint-container" id="q2-hint">
+                <div class="hint-content" data-i18n="q2Hint">
+                  Gợi ý: Mô tả quy trình xử lý missing values, outliers, data validation, và các công cụ như pandas, SQL, hoặc Excel bạn đã sử dụng.
+                </div>
+              </div>
+              
+              <button class="hint-toggle" data-hint="q2-hint" data-i18n="seeHint">▾ See hint</button>
+            </div>
+            
+            <!-- Question 3 -->
+            <div class="question-card">
+              <div class="question-header">
+                <span class="question-number">Q3</span>
+                <div class="question-text" data-i18n="q3">
+                  Bạn đã sử dụng những công cụ BI hoặc visualisation nào?
+                </div>
+                <div class="question-actions">
+                  <div class="practised-checkbox">
+                    <input type="checkbox" class="checkbox-input" id="q3-practised">
+                    <label for="q3-practised" class="checkbox-label" data-i18n="practised">✓ Practised</label>
+                  </div>
+                  <button class="copy-btn" data-i18n="copyBtn">📋</button>
+                </div>
+              </div>
+              
+              <div class="hint-container" id="q3-hint">
+                <div class="hint-content" data-i18n="q3Hint">
+                  Gợi ý: Đề cập đến Tableau, Power BI, Looker, hoặc các thư viện Python như matplotlib, seaborn, plotly. Cho biết các loại visualisations bạn đã tạo.
+                </div>
+              </div>
+              
+              <button class="hint-toggle" data-hint="q3-hint" data-i18n="seeHint">▾ See hint</button>
+            </div>
+            
+            <!-- Additional technical questions would go here -->
+          </div>
+          
+          <!-- HR Questions Section -->
+          <div class="questions-section">
+            <h3 class="section-header" data-i18n="hrQuestions">HR / Cultural Fit Questions (3)</h3>
+            
+            <!-- Question 8 -->
+            <div class="question-card">
+              <div class="question-header">
+                <span class="question-number">Q8</span>
+                <div class="question-text" data-i18n="q8">
+                  Tại sao bạn muốn làm việc tại DataVN Ltd?
+                </div>
+                <div class="question-actions">
+                  <div class="practised-checkbox">
+                    <input type="checkbox" class="checkbox-input" id="q8-practised">
+                    <label for="q8-practised" class="checkbox-label" data-i18n="practised">✓ Practised</label>
+                  </div>
+                  <button class="copy-btn" data-i18n="copyBtn">📋</button>
+                </div>
+              </div>
+              
+              <div class="hint-container" id="q8-hint">
+                <div class="hint-content" data-i18n="q8Hint">
+                  Gợi ý: Nghiên cứu về công ty, sản phẩm, văn hóa. Đề cập đến cách kỹ năng và mục tiêu của bạn phù hợp với DataVN.
+                </div>
+              </div>
+              
+              <button class="hint-toggle" data-hint="q8-hint" data-i18n="seeHint">▾ See hint</button>
+            </div>
+            
+            <!-- Question 9 -->
+            <div class="question-card">
+              <div class="question-header">
+                <span class="question-number">Q9</span>
+                <div class="question-text" data-i18n="q9">
+                  Bạn xử lý như thế nào khi có deadline gấp?
+                </div>
+                <div class="question-actions">
+                  <div class="practised-checkbox">
+                    <input type="checkbox" class="checkbox-input" id="q9-practised">
+                    <label for="q9-practised" class="checkbox-label" data-i18n="practised">✓ Practised</label>
+                  </div>
+                  <button class="copy-btn" data-i18n="copyBtn">📋</button>
+                </div>
+              </div>
+              
+              <div class="hint-container" id="q9-hint">
+                <div class="hint-content" data-i18n="q9Hint">
+                  Gợi ý: Mô tả cách ưu tiên công việc, giao tiếp với team leader, và đảm bảo chất lượng công việc trong áp lực.
+                </div>
+              </div>
+              
+              <button class="hint-toggle" data-hint="q9-hint" data-i18n="seeHint">▾ See hint</button>
+            </div>
+            
+            <!-- Question 10 -->
+            <div class="question-card">
+              <div class="question-header">
+                <span class="question-number">Q10</span>
+                <div class="question-text" data-i18n="q10">
+                  Mô tả một thách thức lớn trong công việc và cách bạn vượt qua.
+                </div>
+                <div class="question-actions">
+                  <div class="practised-checkbox">
+                    <input type="checkbox" class="checkbox-input" id="q10-practised">
+                    <label for="q10-practised" class="checkbox-label" data-i18n="practised">✓ Practised</label>
+                  </div>
+                  <button class="copy-btn" data-i18n="copyBtn">📋</button>
+                </div>
+              </div>
+              
+              <div class="hint-container" id="q10-hint">
+                <div class="hint-content" data-i18n="q10Hint">
+                  Gợi ý: Sử dụng phương pháp STAR (Situation, Task, Action, Result) để cấu trúc câu trả lời của bạn.
+                </div>
+              </div>
+              
+              <button class="hint-toggle" data-hint="q10-hint" data-i18n="seeHint">▾ See hint</button>
+            </div>
+          </div>
+          
+          <!-- Progress Tracker -->
+          <div class="progress-tracker">
+            <div class="progress-text" data-i18n="progressText">Đã luyện: 3 / 10 câu hỏi</div>
+            <div class="progress-bar-large">
+              <div class="progress-fill-large" id="progressFillLarge"></div>
+            </div>
+            <p class="progress-percentage">30%</p>
+          </div>
+          
+          <!-- Action Row -->
+          <div class="action-row">
+            <button class="btn btn-secondary" id="regenerateBtn" data-i18n="regenerateBtn">↺ Regenerate Questions</button>
+            <button class="btn btn-secondary" data-i18n="downloadPdf">📥 Download as PDF</button>
+            <button class="btn btn-secondary" data-i18n="generateNewSet">🔄 Generate New Set</button>
+          </div>
+          
+          <p class="retries-remaining" data-i18n="retriesRemaining2">1 lần thử còn lại</p>
+          
+          <!-- Disclaimer -->
+          <div class="disclaimer">
+            <p class="disclaimer-text" data-i18n="disclaimer">
+              ⚠ Câu hỏi được tạo tự động dựa trên JD. Các câu hỏi thực tế có thể khác. Dùng để chuẩn bị chứ không phải dự đoán chính xác.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div class="dev-tabs">
+    <button class="dev-tab active" data-state="selectJob" data-i18n="selectJobTab">Select Job</button>
+    <button class="dev-tab" data-state="generating" data-i18n="generatingTab">Generating</button>
+    <button class="dev-tab" data-state="questions" data-i18n="questionsTab">Questions Ready</button>
+  </div>
+
+  <div id="dev-nav" style="
+    position:fixed; bottom:60px; right:16px; z-index:9999;
+    background:#10B981; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#93C5FD;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 js11: AI Prep
+    </div>
+    <a href="js04-tracker.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← js04: Tracker</a>
+    <a href="js05-app-detail.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← js05: App Detail</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        pageTitle: 'AI Interview Prep',
+        pageHeaderTitle: 'Luyện tập phỏng vấn với AI',
+        pageSubtitle: 'Câu hỏi được tạo ra từ mô tả công việc thực tế.',
+        poweredBy: 'Powered by: Google Gemini',
+        sessionText: '✦ Phiên AI: 2 / 5 yêu cầu đã dùng',
+        sessionDetails: '2 of 5 (AC-019)',
+        selectJobTitle: 'Chọn đơn ứng tuyển để luyện tập',
+        interviewStage: 'Interview Scheduled ●blue',
+        interviewDetails: 'Interview: 18 Tháng 3 · 10:00 AM',
+        upcomingBadge: '⭐ Phỏng vấn sắp tới!',
+        prepareForThisJob: 'Prepare for This Job →',
+        shortlistedStage: 'Shortlisted ●green',
+        appliedStage: 'Applied',
+        disabledNote: 'Câu hỏi AI chỉ có cho đơn từ giai đoạn Shortlisted',
+        interviewTypeLabel: 'Prepare for:',
+        technicalInterview: 'Technical Interview',
+        hrInterview: 'HR / Cultural Fit Interview',
+        bothInterview: 'Both',
+        languageLabel: 'Language for questions:',
+        questionCountLabel: 'Number of questions:',
+        quickQuestions: '5 (Quick)',
+        standardQuestions: '10 (Standard)',
+        thoroughQuestions: '15 (Thorough)',
+        generateBtn: '✦ Generate Interview Questions',
+        generateBtnText: 'Generate Interview Questions',
+        retriesRemaining: 'Sử dụng 1 trong 5 yêu cầu AI của phiên này',
+        generatingTitle: 'Đang tạo câu hỏi phỏng vấn...',
+        generatingSubtitle: 'Phân tích mô tả công việc Data Analyst...',
+        generatingNote: 'Thường mất 5–10 giây (NFR-003)',
+        aiBadge: '✦ Được tạo bởi AI — Xem lại trước khi sử dụng',
+        technicalQuestions: 'Technical Questions (7)',
+        hrQuestions: 'HR / Cultural Fit Questions (3)',
+        q1: 'Bạn có kinh nghiệm như thế nào với SQL và các cơ sở dữ liệu quan hệ?',
+        q1Hint: 'Gợi ý: Đề cập đến các cơ sở dữ liệu cụ thể (PostgreSQL, MySQL), kinh nghiệm tối ưu hóa truy vấn, indexing, và các pipeline ETL bạn đã làm việc.',
+        q2: 'Mô tả cách bạn xử lý và làm sạch dữ liệu bẩn trong một dự án thực tế.',
+        q2Hint: 'Gợi ý: Mô tả quy trình xử lý missing values, outliers, data validation, và các công cụ như pandas, SQL, hoặc Excel bạn đã sử dụng.',
+        q3: 'Bạn đã sử dụng những công cụ BI hoặc visualisation nào?',
+        q3Hint: 'Gợi ý: Đề cập đến Tableau, Power BI, Looker, hoặc các thư viện Python như matplotlib, seaborn, plotly. Cho biết các loại visualisations bạn đã tạo.',
+        q8: 'Tại sao bạn muốn làm việc tại DataVN Ltd?',
+        q8Hint: 'Gợi ý: Nghiên cứu về công ty, sản phẩm, văn hóa. Đề cập đến cách kỹ năng và mục tiêu của bạn phù hợp với DataVN.',
+        q9: 'Bạn xử lý như thế nào khi có deadline gấp?',
+        q9Hint: 'Gợi ý: Mô tả cách ưu tiên công việc, giao tiếp với team leader, và đảm bảo chất lượng công việc trong áp lực.',
+        q10: 'Mô tả một thách thức lớn trong công việc và cách bạn vượt qua.',
+        q10Hint: 'Gợi ý: Sử dụng phương pháp STAR (Situation, Task, Action, Result) để cấu trúc câu trả lời của bạn.',
+        seeHint: '▾ See suggested answer framework',
+        practised: '✓ Practised',
+        copyBtn: '📋',
+        progressText: 'Đã luyện: 3 / 10 câu hỏi',
+        regenerateBtn: '↺ Regenerate Questions',
+        downloadPdf: '📥 Download as PDF',
+        generateNewSet: '🔄 Generate New Set',
+        retriesRemaining2: '1 lần thử còn lại',
+        disclaimer: '⚠ Câu hỏi được tạo tự động dựa trên JD. Các câu hỏi thực tế có thể khác. Dùng để chuẩn bị chứ không phải dự đoán chính xác.',
+        selectJobTab: 'Select Job',
+        generatingTab: 'Generating',
+        questionsTab: 'Questions Ready'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        pageTitle: 'AI Interview Prep',
+        pageHeaderTitle: '✦ AI Interview Preparation',
+        pageSubtitle: 'Questions generated from the actual job description.',
+        poweredBy: 'Powered by: Google Gemini',
+        sessionText: '✦ AI Session: 2 / 5 requests used',
+        sessionDetails: '2 of 5 (AC-019)',
+        selectJobTitle: 'Select an application to prepare for',
+        interviewStage: 'Interview Scheduled ●blue',
+        interviewDetails: 'Interview: 18 Mar · 10:00 AM',
+        upcomingBadge: '⭐ Upcoming interview!',
+        prepareForThisJob: 'Prepare for This Job →',
+        shortlistedStage: 'Shortlisted ●green',
+        appliedStage: 'Applied',
+        disabledNote: 'AI prep available from Shortlisted stage',
+        interviewTypeLabel: 'Prepare for:',
+        technicalInterview: 'Technical Interview',
+        hrInterview: 'HR / Cultural Fit Interview',
+        bothInterview: 'Both',
+        languageLabel: 'Language for questions:',
+        questionCountLabel: 'Number of questions:',
+        quickQuestions: '5 (Quick)',
+        standardQuestions: '10 (Standard)',
+        thoroughQuestions: '15 (Thorough)',
+        generateBtn: '✦ Generate Interview Questions',
+        generateBtnText: 'Generate Interview Questions',
+        retriesRemaining: 'Uses 1 of your 5 AI session requests',
+        generatingTitle: 'Generating interview questions...',
+        generatingSubtitle: 'Analysing Data Analyst job description...',
+        generatingNote: 'Usually takes 5–10 seconds (NFR-003)',
+        aiBadge: '✦ AI Generated — Review before using',
+        technicalQuestions: 'Technical Questions (7)',
+        hrQuestions: 'HR / Cultural Fit Questions (3)',
+        q1: 'What is your experience with SQL and relational databases?',
+        q1Hint: 'Hint: Mention specific databases (PostgreSQL, MySQL), query optimisation, indexing experience, and any ETL pipelines you\'ve worked on.',
+        q2: 'Describe how you handled dirty/missing data in a real project.',
+        q2Hint: 'Hint: Describe your process for handling missing values, outliers, data validation, and tools like pandas, SQL, or Excel you used.',
+        q3: 'What BI or visualisation tools have you used?',
+        q3Hint: 'Hint: Mention Tableau, Power BI, Looker, or Python libraries like matplotlib, seaborn, plotly. Share types of visualisations you created.',
+        q8: 'Why do you want to work at DataVN Ltd?',
+        q8Hint: 'Hint: Research the company, products, culture. Mention how your skills and goals align with DataVN.',
+        q9: 'How do you handle tight deadlines?',
+        q9Hint: 'Hint: Describe how you prioritize work, communicate with team leaders, and ensure quality under pressure.',
+        q10: 'Describe a major challenge at work and how you overcame it.',
+        q10Hint: 'Hint: Use the STAR method (Situation, Task, Action, Result) to structure your answer.',
+        seeHint: '▾ See suggested answer framework',
+        practised: '✓ Practised',
+        copyBtn: '📋',
+        progressText: 'Practised: 3 / 10 questions',
+        regenerateBtn: '↺ Regenerate Questions',
+        downloadPdf: '📥 Download as PDF',
+        generateNewSet: '🔄 Generate New Set',
+        retriesRemaining2: '1 retry remaining',
+        disclaimer: '⚠ Questions are AI-generated from the JD. Actual questions may differ. Use for preparation, not prediction.',
+        selectJobTab: 'Select Job',
+        generatingTab: 'Generating',
+        questionsTab: 'Questions Ready'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — AI Interview Prep | Job Seeker' : 'LàmViệc360 — AI Interview Prep | Job Seeker';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== STATE MANAGEMENT ==========
+    const states = {
+      selectJob: document.getElementById('selectJobState'),
+      generating: document.getElementById('generatingState'),
+      questions: document.getElementById('questionsState')
+    };
+
+    function showState(stateName) {
+      Object.keys(states).forEach(key => {
+        states[key].classList.remove('active');
+      });
+      states[stateName].classList.add('active');
+      
+      // Update dev tabs
+      document.querySelectorAll('.dev-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-state') === stateName);
+      });
+    }
+
+    // ========== DEV NAVIGATOR TABS ==========
+    document.querySelectorAll('.dev-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const stateName = tab.getAttribute('data-state');
+        showState(stateName);
+        
+        if (stateName === 'generating') {
+          // Reset and restart animation
+          const progressFill = document.querySelector('.progress-fill');
+          progressFill.style.animation = 'none';
+          setTimeout(() => {
+            progressFill.style.animation = 'progress 5s ease-in-out';
+          }, 10);
+        }
+      });
+    });
+
+    // ========== JOB SELECTION ==========
+    const generateBtn = document.getElementById('generateBtn');
+    
+    generateBtn.addEventListener('click', () => {
+      showState('generating');
+      
+      // Simulate generation process
+      setTimeout(() => {
+        showState('questions');
+        initializeQuestions();
+      }, 5000);
+    });
+
+    // ========== QUESTIONS FUNCTIONALITY ==========
+    function initializeQuestions() {
+      // Hint toggles
+      document.querySelectorAll('.hint-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const hintId = btn.getAttribute('data-hint');
+          const hintContainer = document.getElementById(hintId);
+          
+          hintContainer.classList.toggle('show');
+          btn.textContent = hintContainer.classList.contains('show') 
+            ? t('seeHint').replace('▾', '▲') 
+            : t('seeHint');
+        });
+      });
+      
+      // Practised checkboxes
+      document.querySelectorAll('.checkbox-input').forEach(checkbox => {
+        checkbox.addEventListener('change', updateProgress);
+      });
+      
+      // Copy buttons
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const questionCard = btn.closest('.question-card');
+          const questionText = questionCard.querySelector('.question-text').textContent;
+          
+          navigator.clipboard.writeText(questionText).then(() => {
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            setTimeout(() => {
+              btn.textContent = originalText;
+            }, 2000);
+          });
+        });
+      });
+      
+      // Action buttons
+      document.getElementById('regenerateBtn').addEventListener('click', () => {
+        if (confirm('This will use 1 more AI request. Continue?')) {
+          showState('generating');
+          setTimeout(() => {
+            showState('questions');
+            // Reset checkboxes
+            document.querySelectorAll('.checkbox-input').forEach(cb => cb.checked = false);
+            updateProgress();
+          }, 3000);
+        }
+      });
+      
+      document.getElementById('downloadPdf').addEventListener('click', () => {
+        alert('PDF download would start here');
+      });
+      
+      document.getElementById('generateNewSet').addEventListener('click', () => {
+        if (confirm('This will use 1 more AI request. Continue?')) {
+          showState('generating');
+          setTimeout(() => {
+            showState('questions');
+            // Reset checkboxes
+            document.querySelectorAll('.checkbox-input').forEach(cb => cb.checked = false);
+            updateProgress();
+          }, 3000);
+        }
+      });
+    }
+
+    function updateProgress() {
+      const totalQuestions = document.querySelectorAll('.checkbox-input').length;
+      const practisedQuestions = document.querySelectorAll('.checkbox-input:checked').length;
+      const percentage = Math.round((practisedQuestions / totalQuestions) * 100);
+      
+      const progressText = document.querySelector('.progress-text');
+      const progressFill = document.querySelector('.progress-fill-large');
+      const progressPercentage = document.querySelector('.progress-percentage');
+      
+      progressText.textContent = t('progressText').replace('3 / 10', `${practisedQuestions} / ${totalQuestions}`);
+      progressFill.style.width = percentage + '%';
+      progressPercentage.textContent = percentage + '%';
+    }
+
+    // Initialize progress on load
+    updateProgress();
+  </script>
+</body>
+</html>

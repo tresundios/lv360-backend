@@ -1,0 +1,2821 @@
+<!doctype html>
+<!--
+  SCREEN: e06 Candidate Pipeline Kanban
+  PRD REFS: EMP-FR-016, EMP-FR-017, EMP-FR-018, EMP-FR-019, EMP-FR-019b, EMP-FR-020, EMP-FR-022, EMP-FR-023, EMP-FR-023b, EMP-FR-024, EMP-FR-025, BR-005, BR-006, BR-013, BR-014
+  FLOW: e01-dashboard.html → THIS → e07-candidate-detail.html
+  PERSONA: Company Admin, HR/Recruiter
+  STAGE: Phase 1 MVP
+  NOTE: Phase 1 uses dropdown-based stage movement only (no drag-and-drop)
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Candidate Pipeline | TechCorp Vietnam JSC</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-50);
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--color-navy);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1000;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo {
+      height: 32px;
+      width: auto;
+      display: block;
+      margin-bottom: var(--space-4);
+      filter: brightness(0) invert(1);
+    }
+
+    .company-info {
+      margin-bottom: var(--space-2);
+    }
+
+    .company-name {
+      font-size: var(--text-base);
+      font-weight: 700;
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .role-badge {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      margin-right: var(--space-2);
+    }
+
+    .verified-badge {
+      display: inline-block;
+      background: var(--color-success);
+      color: white;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-4) 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-6);
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-footer {
+      padding: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
+
+    .sign-out-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: color 0.2s;
+    }
+
+    .sign-out-link:hover {
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .page-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0;
+      color: var(--color-grey-900);
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      border: 1px solid var(--color-grey-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-grey-700);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--color-danger);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: 700;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .user-avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+    }
+
+    .job-selector {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .job-selector-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      font-weight: 600;
+    }
+
+    .job-dropdown {
+      padding: var(--space-2) var(--space-4);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      min-width: 200px;
+      cursor: pointer;
+    }
+
+    .controls-actions {
+      display: flex;
+      gap: var(--space-3);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 36px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-secondary { background: var(--color-primary-light); color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-secondary:hover { background: var(--color-primary); color: white; text-decoration: none; }
+    .btn-ghost { background: transparent; color: var(--color-grey-700); border: 1px solid var(--color-grey-300); }
+    .btn-ghost:hover { background: var(--color-grey-50); text-decoration: none; }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .filter-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      font-weight: 600;
+    }
+
+    .filter-select {
+      padding: var(--space-2) var(--space-3);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: white;
+      min-width: 100px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: var(--space-2) var(--space-3);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: white;
+    }
+
+    /* Bulk Action Bar */
+    .bulk-action-bar {
+      background: var(--color-primary);
+      color: white;
+      padding: var(--space-4) var(--space-6);
+      display: none;
+      align-items: center;
+      gap: var(--space-4);
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .bulk-action-bar.show {
+      display: flex;
+      transform: translateY(0);
+    }
+
+    .bulk-action-text {
+      font-weight: 600;
+    }
+
+    .bulk-action-buttons {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .bulk-btn {
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bulk-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .bulk-btn.danger {
+      background: rgba(220, 38, 38, 0.8);
+      border-color: rgba(220, 38, 38, 0.9);
+    }
+
+    .bulk-btn.danger:hover {
+      background: rgba(220, 38, 38, 1);
+    }
+
+    .bulk-cancel {
+      background: none;
+      border: none;
+      color: white;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s;
+    }
+
+    .bulk-cancel:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Kanban Board */
+    .kanban-board {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      background: var(--color-grey-50);
+      padding: var(--space-6);
+    }
+
+    .kanban-columns {
+      display: flex;
+      gap: var(--space-4);
+      min-height: 100%;
+      padding-bottom: var(--space-6);
+    }
+
+    .kanban-column {
+      min-width: 280px;
+      background: white;
+      border-radius: var(--radius-lg);
+      border: var(--border-default);
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .column-header {
+      padding: var(--space-4);
+      border-bottom: var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .column-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .column-count {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .column-content {
+      flex: 1;
+      padding: var(--space-4);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    /* Stage Colors */
+    .column-applied .column-header { background: var(--color-grey-100); }
+    .column-screening .column-header { background: var(--color-primary-light); }
+    .column-shortlisted .column-header { background: var(--color-warning-bg); }
+    .column-interview .column-header { background: #F0F9FF; }
+    .column-offer .column-header { background: var(--color-success-bg); }
+    .column-hired .column-header { background: var(--color-success-bg); }
+    .column-rejected .column-header { background: var(--color-danger-bg); }
+
+    /* Candidate Cards */
+    .candidate-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .candidate-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .candidate-checkbox {
+      position: absolute;
+      top: var(--space-3);
+      left: var(--space-3);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .candidate-card:hover .candidate-checkbox {
+      opacity: 1;
+    }
+
+    .candidate-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+
+    .candidate-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .candidate-info {
+      flex: 1;
+    }
+
+    .candidate-name {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .candidate-details {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .ai-score {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+
+    .candidate-meta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-3);
+    }
+
+    .candidate-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .move-dropdown {
+      position: relative;
+    }
+
+    .move-button {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      background: white;
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .move-button:hover {
+      background: var(--color-grey-50);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      min-width: 160px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .dropdown-menu.open {
+      display: block;
+    }
+
+    .dropdown-item {
+      display: block;
+      padding: var(--space-3) var(--space-4);
+      color: var(--color-grey-700);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: var(--color-grey-50);
+      color: var(--color-grey-900);
+      text-decoration: none;
+    }
+
+    .dropdown-item.danger {
+      color: var(--color-danger);
+    }
+
+    .dropdown-item.danger:hover {
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+    }
+
+    .view-profile {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      color: white;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .view-profile:hover {
+      background: var(--color-primary-dark);
+      color: white;
+      text-decoration: none;
+    }
+
+    .show-more {
+      padding: var(--space-3);
+      text-align: center;
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border-top: 1px solid var(--color-grey-100);
+      margin-top: var(--space-2);
+    }
+
+    /* AI Screening Panel */
+    .ai-screening-panel {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      margin: 0 var(--space-6) var(--space-6);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      overflow: hidden;
+    }
+
+    .ai-screening-panel.show {
+      display: block;
+    }
+
+    .ai-panel-header {
+      background: var(--color-primary);
+      color: white;
+      padding: var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-panel-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .ai-transparency-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .ai-panel-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s;
+    }
+
+    .ai-panel-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .ai-panel-content {
+      padding: var(--space-6);
+    }
+
+    .ai-panel-description {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-6);
+      line-height: 1.6;
+    }
+
+    .ai-screening-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--space-6);
+    }
+
+    .ai-screening-table th {
+      background: var(--color-grey-50);
+      padding: var(--space-3);
+      text-align: left;
+      font-weight: 600;
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      border-bottom: var(--border-default);
+    }
+
+    .ai-screening-table td {
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--color-grey-100);
+      font-size: var(--text-sm);
+    }
+
+    .ai-screening-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .ai-rank {
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .ai-score-badge {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .ai-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .ai-move-dropdown {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      color: white;
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ai-move-dropdown:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .ai-override {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      background: white;
+      color: var(--color-grey-700);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ai-override:hover {
+      background: var(--color-grey-50);
+    }
+
+    .ai-disclaimer {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-top: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .disclaimer-icon {
+      font-size: 20px;
+      color: var(--color-warning);
+    }
+
+    .disclaimer-text {
+      font-size: var(--text-sm);
+      color: var(--color-warning);
+      font-weight: 600;
+      flex: 1;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      max-width: 500px;
+      width: 90%;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .modal-header {
+      margin-bottom: var(--space-6);
+    }
+
+    .modal-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0;
+      color: var(--color-grey-900);
+    }
+
+    .modal-body {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .notification-toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--color-grey-300);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--color-primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: var(--radius-full);
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: var(--space-4);
+      justify-content: flex-end;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: var(--space-6);
+      right: var(--space-6);
+      background: var(--color-grey-900);
+      color: white;
+      padding: var(--space-4) var(--space-6);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      align-items: center;
+      gap: var(--space-4);
+      z-index: 3000;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    .toast-text {
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .toast-undo {
+      background: var(--color-primary);
+      color: white;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toast-undo:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s;
+    }
+
+    .toast-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Mobile View */
+    .mobile-view {
+      display: none;
+    }
+
+    .mobile-stage-tabs {
+      display: flex;
+      gap: var(--space-2);
+      overflow-x: auto;
+      padding: var(--space-4) var(--space-6);
+      background: white;
+      border-bottom: var(--border-default);
+    }
+
+    .mobile-stage-tab {
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .mobile-stage-tab:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .mobile-stage-tab.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .mobile-candidate-list {
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .mobile-candidate-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--color-grey-700);
+      cursor: pointer;
+      padding: var(--space-2);
+    }
+
+    .mobile-menu-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .mobile-overlay.open {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .desktop-view {
+        display: none;
+      }
+
+      .mobile-view {
+        display: block;
+      }
+
+      .controls-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+
+      .controls-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .filter-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+
+      .search-input {
+        width: 100%;
+      }
+
+      .bulk-action-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+
+      .bulk-action-buttons {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .sidebar { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <!-- Logo (RULE G-003) -->
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+        
+        <div class="company-info">
+          <h2 class="company-name">TechCorp Vietnam JSC</h2>
+          <div>
+            <span class="role-badge" data-i18n="roleAdmin">Company Admin</span>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+        <a href="e01-dashboard.html" class="nav-item" data-i18n="navDashboard">
+          <span class="nav-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="e02-job-list.html" class="nav-item" data-i18n="navJobManagement">
+          <span class="nav-icon">💼</span>
+          Job Management
+        </a>
+        <a href="e06-pipeline-kanban.html" class="nav-item active" data-i18n="navCandidatePipeline">
+          <span class="nav-icon">👥</span>
+          Candidate Pipeline
+        </a>
+        <a href="e14-team-list.html" class="nav-item" data-i18n="navTeamManagement">
+          <span class="nav-icon">👤</span>
+          Team Management
+        </a>
+        <a href="e18-account-settings.html" class="nav-item" data-i18n="navSettings">
+          <span class="nav-icon">⚙</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">NH</div>
+          <div class="user-info">
+            <p class="user-name">Nguyễn Thị Haanh</p>
+          </div>
+        </div>
+        <a href="../auth/a01-login.html" class="sign-out-link" data-i18n="signOut">Sign Out</a>
+      </div>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div style="display: flex; align-items: center; gap: var(--space-4);">
+          <!-- Mobile Menu Toggle -->
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <svg class="mobile-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          
+          <h1 class="page-title" data-i18n="pageTitle">Candidate Pipeline</h1>
+        </div>
+
+        <div class="top-bar-actions">
+          <!-- Notifications -->
+          <a href="e17-notifications.html" class="notification-bell" aria-label="Notifications">
+            🔔
+            <span class="notification-badge">3</span>
+          </a>
+
+          <!-- Language Toggle (RULE G-002) -->
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+
+          <!-- User Avatar -->
+          <div class="user-avatar-circle">NH</div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Desktop View -->
+        <div class="desktop-view">
+          <!-- Controls Bar -->
+          <div class="controls-bar">
+            <div class="job-selector">
+              <span class="job-selector-label" data-i18n="jobSelectorLabel">Job:</span>
+              <select class="job-dropdown">
+                <option data-i18n="selectedJob">Senior Backend Engineer (23 apps)</option>
+                <option data-i18n="job2">UI/UX Designer (15 apps)</option>
+                <option data-i18n="job3">Product Manager (31 apps)</option>
+              </select>
+            </div>
+
+            <div class="controls-actions">
+              <button class="btn btn-secondary" id="aiScreenBtn" data-i18n="aiScreenBtn">✦ AI Screen Candidates</button>
+              <button class="btn btn-ghost" data-i18n="addStageBtn">+ Add Stage</button>
+              <button class="btn btn-ghost" data-i18n="configureStagesBtn">⚙ Configure Stages</button>
+            </div>
+          </div>
+
+          <!-- Filter Bar -->
+          <div class="filter-bar">
+            <div class="filter-group">
+              <span class="filter-label" data-i18n="stageFilter">Stage:</span>
+              <select class="filter-select">
+                <option data-i18n="allStages">All</option>
+                <option data-i18n="applied">Applied</option>
+                <option data-i18n="screening">Screening</option>
+                <option data-i18n="shortlisted">Shortlisted</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label" data-i18n="dateFilter">Date:</span>
+              <select class="filter-select">
+                <option data-i18n="newest">Newest</option>
+                <option data-i18n="oldest">Oldest</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label" data-i18n="aiScoreFilter">AI Score:</span>
+              <select class="filter-select">
+                <option data-i18n="anyScore">Any</option>
+                <option data-i18n="highScore">High (80%+)</option>
+                <option data-i18n="mediumScore">Medium (60-79%)</option>
+                <option data-i18n="lowScore">Low (below 60%)</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label" data-i18n="experienceFilter">Experience:</span>
+              <select class="filter-select">
+                <option data-i18n="anyExperience">Any</option>
+                <option data-i18n="exp0to1">0-1 years</option>
+                <option data-i18n="exp1to3">1-3 years</option>
+                <option data-i18n="exp3to5">3-5 years</option>
+                <option data-i18n="exp5plus">5+ years</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label" data-i18n="educationFilter">Education:</span>
+              <select class="filter-select">
+                <option data-i18n="anyEducation">Any</option>
+                <option data-i18n="highSchool">High School</option>
+                <option data-i18n="bachelor">Bachelor's</option>
+                <option data-i18n="master">Master's</option>
+                <option data-i18n="phd">PhD</option>
+              </select>
+            </div>
+
+            <input type="text" class="search-input" placeholder="🔍 Search candidates..." data-i18n-placeholder="searchPlaceholder">
+          </div>
+
+          <!-- Bulk Action Bar -->
+          <div class="bulk-action-bar" id="bulkActionBar">
+            <span class="bulk-action-text" id="bulkActionText">3 candidates selected</span>
+            <div class="bulk-action-buttons">
+              <button class="bulk-btn" data-i18n="moveToStage">Move to Stage ▾</button>
+              <button class="bulk-btn" data-i18n="sendNotification">Send Notification</button>
+              <button class="bulk-btn danger" data-i18n="rejectSelected">Reject Selected</button>
+              <button class="bulk-cancel" id="bulkCancel">×</button>
+            </div>
+          </div>
+
+          <!-- Kanban Board -->
+          <div class="kanban-board">
+            <div class="kanban-columns">
+              <!-- Applied Column -->
+              <div class="kanban-column column-applied">
+                <div class="column-header">
+                  <h2 class="column-title" data-i18n="applied">Applied</h2>
+                  <span class="column-count">12</span>
+                </div>
+                <div class="column-content">
+                  <!-- Candidate Card 1 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">NT</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate1Name">Nguyễn Thị Thu</h3>
+                        <p class="candidate-details" data-i18n="candidate1Details">3 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate1Score">82% ●blue badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="appliedDate">Applied: 10 Tháng 3</span>
+                      <span data-i18n="source">Source: Portal</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="screening" data-i18n="moveToScreening">→ Screening</a>
+                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Candidate Card 2 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">TB</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate2Name">Trần Văn Bình</h3>
+                        <p class="candidate-details" data-i18n="candidate2Details">2 năm · Fullstack</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate2Score">71% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="appliedDate">Applied: 8 Tháng 3</span>
+                      <span data-i18n="source">Source: Referral</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="screening" data-i18n="moveToScreening">→ Screening</a>
+                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Show More -->
+                  <div class="show-more" data-i18n="showMore">Show 10 more ↓</div>
+                </div>
+              </div>
+
+              <!-- Screening Column -->
+              <div class="kanban-column column-screening">
+                <div class="column-header">
+                  <h2 class="column-title" data-i18n="screening">Screening</h2>
+                  <span class="column-count">8</span>
+                </div>
+                <div class="column-content">
+                  <!-- Candidate Card 1 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">LC</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate3Name">Lê Văn Cường</h3>
+                        <p class="candidate-details" data-i18n="candidate3Details">4 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate3Score">91% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="contactInfo">📞 0912345678</span>
+                      <span data-i18n="contactEmail">✉️ le.cuong@email.com</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Candidate Card 2 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">PM</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate4Name">Phạm Thị Mai</h3>
+                        <p class="candidate-details" data-i18n="candidate4Details">3 năm · Frontend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate4Score">78% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="contactInfo">📞 0987654321</span>
+                      <span data-i18n="contactEmail">✉️ mai.pham@email.com</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Candidate Card 3 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">HN</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate5Name">Hoàng Nam</h3>
+                        <p class="candidate-details" data-i18n="candidate5Details">5 năm · Fullstack</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate5Score">85% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="contactInfo">📞 0912345678</span>
+                      <span data-i18n="contactEmail">✉️ hoang.nam@email.com</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shortlisted Column -->
+              <div class="kanban-column column-shortlisted">
+                <div class="column-header">
+                  <h2 class="column-title" data-i18n="shortlisted">Shortlisted</h2>
+                  <span class="column-count">4</span>
+                </div>
+                <div class="column-content">
+                  <!-- Candidate Card 1 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">VT</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate6Name">Võ Thị Thu</h3>
+                        <p class="candidate-details" data-i18n="candidate6Details">6 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate6Score">94% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="contactInfo">📞 0912345678</span>
+                      <span data-i18n="contactEmail">✉️ vo.thu@email.com</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
+                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Candidate Card 2 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">DN</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate7Name">Đỗ Nam</h3>
+                        <p class="candidate-details" data-i18n="candidate7Details">4 năm · DevOps</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate7Score">88% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="contactInfo">📞 0987654321</span>
+                      <span data-i18n="contactEmail">✉️ do.nam@email.com</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
+                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interview Scheduled Column -->
+              <div class="kanban-column column-interview">
+                <div class="column-header">
+                  <h2 class="column-title" data-i18n="interview">Interview Scheduled</h2>
+                  <span class="column-count">2</span>
+                </div>
+                <div class="column-content">
+                  <!-- Candidate Card 1 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">TK</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate8Name">Trần Kim</h3>
+                        <p class="candidate-details" data-i18n="candidate8Details">7 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate8Score">96% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="interviewDate">Interview: 15 Tháng 3, 14:00</span>
+                      <span data-i18n="contactInfo">📞 0912345678</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
+                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Candidate Card 2 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">LQ</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate9Name">Lâm Quang</h3>
+                        <p class="candidate-details" data-i18n="candidate9Details">5 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate9Score">92% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="interviewDate">Interview: 16 Tháng 3, 10:00</span>
+                      <span data-i18n="contactInfo">📞 0987654321</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
+                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Offer Sent Column -->
+              <div class="kanban-column column-offer">
+                <div class="column-header">
+                  <h2 class="column-title" data-i18n="offer">Offer Sent</h2>
+                  <span class="column-count">1</span>
+                </div>
+                <div class="column-content">
+                  <!-- Candidate Card 1 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">PT</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate10Name">Phạm Tuấn</h3>
+                        <p class="candidate-details" data-i18n="candidate10Details">8 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate10Score">98% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="offerDate">Offer: 12 Tháng 3</span>
+                      <span data-i18n="contactInfo">📞 0912345678</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="hired" data-i18n="moveToHired">→ Hired</a>
+                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hired Column -->
+              <div class="kanban-column column-hired">
+                <div class="column-header">
+                  <h2 class="column-title" data-i18n="hired">Hired</h2>
+                  <span class="column-count">1</span>
+                </div>
+                <div class="column-content">
+                  <!-- Candidate Card 1 -->
+                  <div class="candidate-card">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">NV</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate11Name">Nguyễn Văn</h3>
+                        <p class="candidate-details" data-i18n="candidate11Details">6 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate11Score">95% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="hiredDate">Hired: 5 Tháng 3</span>
+                      <span data-i18n="contactInfo">📞 0912345678</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rejected Column -->
+              <div class="kanban-column column-rejected">
+                <div class="column-header">
+                  <h2 class="column-title" data-i18n="rejected">Rejected</h2>
+                  <span class="column-count">3</span>
+                </div>
+                <div class="column-content">
+                  <!-- Candidate Card 1 -->
+                  <div class="candidate-card" style="opacity: 0.7;">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">HT</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate12Name">Hoàng Thị</h3>
+                        <p class="candidate-details" data-i18n="candidate12Details">1 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate12Score">45% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="rejectedDate">Rejected: 8 Tháng 3</span>
+                      <span data-i18n="rejectReason">Reason: Not enough experience</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="applied" data-i18n="moveToApplied">→ Applied</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Candidate Card 2 -->
+                  <div class="candidate-card" style="opacity: 0.7;">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">QL</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate13Name">Quốc Luân</h3>
+                        <p class="candidate-details" data-i18n="candidate13Details">2 năm · Frontend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate13Score">52% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="rejectedDate">Rejected: 10 Tháng 3</span>
+                      <span data-i18n="rejectReason">Reason: Role mismatch</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="applied" data-i18n="moveToApplied">→ Applied</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+
+                  <!-- Candidate Card 3 -->
+                  <div class="candidate-card" style="opacity: 0.7;">
+                    <input type="checkbox" class="candidate-checkbox">
+                    <div class="candidate-header">
+                      <div class="candidate-avatar">TN</div>
+                      <div class="candidate-info">
+                        <h3 class="candidate-name" data-i18n="candidate14Name">Trần Nam</h3>
+                        <p class="candidate-details" data-i18n="candidate14Details">3 năm · Backend</p>
+                      </div>
+                    </div>
+                    <div class="ai-score" data-i18n="candidate14Score">58% badge</div>
+                    <div class="candidate-meta">
+                      <span data-i18n="rejectedDate">Rejected: 12 Tháng 3</span>
+                      <span data-i18n="rejectReason">Reason: Poor communication</span>
+                    </div>
+                    <div class="candidate-actions">
+                      <div class="move-dropdown">
+                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-stage="applied" data-i18n="moveToApplied">→ Applied</a>
+                        </div>
+                      </div>
+                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile View -->
+        <div class="mobile-view">
+          <!-- Mobile Stage Tabs -->
+          <div class="mobile-stage-tabs">
+            <button class="mobile-stage-tab active" data-stage="applied" data-i18n="appliedMobile">Applied(12)</button>
+            <button class="mobile-stage-tab" data-stage="screening" data-i18n="screeningMobile">Screening(8)</button>
+            <button class="mobile-stage-tab" data-stage="shortlisted" data-i18n="shortlistedMobile">Shortlisted(4)</button>
+            <button class="mobile-stage-tab" data-stage="interview" data-i18n="interviewMobile">Interview(2)</button>
+            <button class="mobile-stage-tab" data-stage="offer" data-i18n="offerMobile">Offer(1)</button>
+            <button class="mobile-stage-tab" data-stage="hired" data-i18n="hiredMobile">Hired(1)</button>
+            <button class="mobile-stage-tab" data-stage="rejected" data-i18n="rejectedMobile">Rejected(3)</button>
+          </div>
+
+          <!-- Mobile Candidate List -->
+          <div class="mobile-candidate-list" id="mobileCandidateList">
+            <!-- Candidates will be populated here based on selected stage -->
+          </div>
+        </div>
+
+        <!-- AI Screening Panel -->
+        <div class="ai-screening-panel" id="aiScreeningPanel">
+          <div class="ai-panel-header">
+            <div class="ai-panel-title">
+              <span>✦</span>
+              <span data-i18n="aiPanelTitle">AI Candidate Screening — Senior Backend Engineer</span>
+            </div>
+            <div class="ai-transparency-badge" data-i18n="aiTransparencyBadge">AI Transparency Badge</div>
+            <button class="ai-panel-close" id="aiPanelClose">×</button>
+          </div>
+          <div class="ai-panel-content">
+            <p class="ai-panel-description" data-i18n="aiPanelDescription">
+              AI has analysed 23 resumes against job requirements. Review results and confirm before moving any candidate.
+            </p>
+            
+            <table class="ai-screening-table">
+              <thead>
+                <tr>
+                  <th data-i18n="aiRank">Rank</th>
+                  <th data-i18n="aiName">Name</th>
+                  <th data-i18n="aiScore">AI Score</th>
+                  <th data-i18n="aiRationale">Rationale</th>
+                  <th data-i18n="aiAction">Your Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ai-rank">1</td>
+                  <td data-i18n="aiCandidate1">Nguyễn Thị Thu</td>
+                  <td><span class="ai-score-badge">91%</span></td>
+                  <td data-i18n="aiRationale1">Strong Node.js + 3yr exp</td>
+                  <td>
+                    <div class="ai-actions">
+                      <div class="ai-move-dropdown">
+                        <select class="ai-move-dropdown">
+                          <option data-i18n="selectAction">Select action</option>
+                          <option value="shortlisted" data-i18n="moveToShortlisted">Move to Shortlisted</option>
+                          <option value="interview" data-i18n="moveToInterview">Move to Interview</option>
+                        </select>
+                      </div>
+                      <button class="ai-override" data-i18n="aiOverride">Override ↺</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="ai-rank">2</td>
+                  <td data-i18n="aiCandidate2">Lê Văn Cường</td>
+                  <td><span class="ai-score-badge">84%</span></td>
+                  <td data-i18n="aiRationale2">Good backend, lacks Docker</td>
+                  <td>
+                    <div class="ai-actions">
+                      <div class="ai-move-dropdown">
+                        <select class="ai-move-dropdown">
+                          <option data-i18n="selectAction">Select action</option>
+                          <option value="shortlisted" data-i18n="moveToShortlisted">Move to Shortlisted</option>
+                          <option value="interview" data-i18n="moveToInterview">Move to Interview</option>
+                        </select>
+                      </div>
+                      <button class="ai-override" data-i18n="aiOverride">Override ↺</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="ai-rank">3</td>
+                  <td data-i18n="aiCandidate3">Phạm Thị Mai</td>
+                  <td><span class="ai-score-badge">78%</span></td>
+                  <td data-i18n="aiRationale3">Solid skills, junior exp</td>
+                  <td>
+                    <div class="ai-actions">
+                      <div class="ai-move-dropdown">
+                        <select class="ai-move-dropdown">
+                          <option data-i18n="selectAction">Select action</option>
+                          <option value="shortlisted" data-i18n="moveToShortlisted">Move to Shortlisted</option>
+                          <option value="interview" data-i18n="moveToInterview">Move to Interview</option>
+                        </select>
+                      </div>
+                      <button class="ai-override" data-i18n="aiOverride">Override ↺</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="ai-disclaimer">
+              <span class="disclaimer-icon">⚠</span>
+              <span class="disclaimer-text" data-i18n="aiDisclaimer">
+                AI screening must not be the sole basis for rejection. All stage changes require HR confirmation.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Stage Move Confirmation Modal -->
+  <div class="modal-overlay" id="moveModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="moveModalTitle">Move Nguyễn Thị Thu to Shortlisted?</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" data-i18n="addNote">Add a note (optional)</label>
+          <textarea class="form-textarea" id="moveNote" placeholder="Add any notes about this move..."></textarea>
+        </div>
+        <div class="form-group">
+          <div class="notification-toggle">
+            <label class="form-label" data-i18n="notifyCandidate">🔔 Notify candidate:</label>
+            <div class="toggle-switch active" id="notifyToggle"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="moveCancel" data-i18n="cancel">Cancel</button>
+        <button class="btn btn-primary" id="moveConfirm" data-i18n="confirmMove">Confirm Move</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Reject Double-Confirm Modal -->
+  <div class="modal-overlay" id="bulkRejectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="bulkRejectTitle">⚠ Reject 3 candidates?</h3>
+      </div>
+      <div class="modal-body">
+        <p data-i18n="bulkRejectMessage">
+          This action will be logged in the audit trail. You have 5 minutes to undo after confirming.
+        </p>
+        <div class="form-group">
+          <label class="form-label" data-i18n="rejectionReason">Reason required:</label>
+          <select class="form-select" id="rejectionReason">
+            <option value="" data-i18n="selectReason">Select rejection reason</option>
+            <option value="experience" data-i18n="reasonExperience">Insufficient experience</option>
+            <option value="skills" data-i18n="reasonSkills">Skills mismatch</option>
+            <option value="culture" data-i18n="reasonCulture">Culture fit</option>
+            <option value="communication" data-i18n="reasonCommunication">Poor communication</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="notification-toggle">
+            <label class="form-label" data-i18n="suppressNotifications">🔕 Suppress notifications:</label>
+            <div class="toggle-switch" id="suppressToggle"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="bulkRejectCancel" data-i18n="cancel">Cancel</button>
+        <button class="btn btn-danger" id="bulkRejectConfirm" data-i18n="confirmRejection">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span class="toast-text" id="toastText">3 candidates moved to Rejected.</span>
+    <button class="toast-undo" id="toastUndo">Undo (4:52)</button>
+    <button class="toast-close" id="toastClose">×</button>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 e06: Pipeline Kanban
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="e05-ai-jd-generator.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← e05: AI JD Generator</a>
+    <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="e07-candidate-detail.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e07: Candidate Detail</a>
+    <a href="e08-move-stage-modal.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e08: Move Stage</a>
+    <a href="e09-reject-notify.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e09: Reject Notify</a>
+    <a href="e10-candidate-notes.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e10: Notes</a>
+    <a href="e11-view-documents.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e11: Documents</a>
+    <a href="e12-stage-config.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e12: Stage Config</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        pageTitle: 'Candidate Pipeline',
+        jobSelectorLabel: 'Job:',
+        selectedJob: 'Senior Backend Engineer (23 apps)',
+        job2: 'UI/UX Designer (15 apps)',
+        job3: 'Product Manager (31 apps)',
+        aiScreenBtn: '✦ AI Screen Candidates',
+        addStageBtn: '+ Add Stage',
+        configureStagesBtn: '⚙ Configure Stages',
+        stageFilter: 'Stage:',
+        dateFilter: 'Date:',
+        aiScoreFilter: 'AI Score:',
+        experienceFilter: 'Experience:',
+        educationFilter: 'Education:',
+        allStages: 'All',
+        applied: 'Applied',
+        screening: 'Screening',
+        shortlisted: 'Shortlisted',
+        newest: 'Newest',
+        oldest: 'Oldest',
+        anyScore: 'Any',
+        highScore: 'High (80%+)',
+        mediumScore: 'Medium (60-79%)',
+        lowScore: 'Low (below 60%)',
+        anyExperience: 'Any',
+        exp0to1: '0-1 years',
+        exp1to3: '1-3 years',
+        exp3to5: '3-5 years',
+        exp5plus: '5+ years',
+        anyEducation: 'Any',
+        highSchool: 'High School',
+        bachelor: "Bachelor's",
+        master: "Master's",
+        phd: 'PhD',
+        searchPlaceholder: '🔍 Search candidates...',
+        moveTo: 'Move to ▾',
+        viewProfile: 'View Profile →',
+        showMore: 'Show 10 more ↓',
+        contactInfo: '📞 0912345678',
+        contactEmail: '✉️ le.cuong@email.com',
+        interview: 'Interview',
+        offer: 'Offer',
+        hired: 'Hired',
+        rejected: 'Rejected',
+        interviewDate: 'Interview: 15 Tháng 3, 14:00',
+        offerDate: 'Offer: 12 Tháng 3',
+        hiredDate: 'Hired: 5 Tháng 3',
+        rejectedDate: 'Rejected: 8 Tháng 3',
+        rejectReason: 'Reason: Not enough experience',
+        appliedMobile: 'Applied(12)',
+        screeningMobile: 'Screening(8)',
+        shortlistedMobile: 'Shortlisted(4)',
+        interviewMobile: 'Interview(2)',
+        offerMobile: 'Offer(1)',
+        hiredMobile: 'Hired(1)',
+        rejectedMobile: 'Rejected(3)',
+        aiPanelTitle: 'AI Candidate Screening — Senior Backend Engineer',
+        aiTransparencyBadge: 'AI Transparency Badge',
+        aiPanelDescription: 'AI has analysed 23 resumes against job requirements. Review results and confirm before moving any candidate.',
+        aiRank: 'Rank',
+        aiName: 'Name',
+        aiScore: 'AI Score',
+        aiRationale: 'Rationale',
+        aiAction: 'Your Action',
+        aiCandidate1: 'Nguyễn Thị Thu',
+        aiCandidate2: 'Lê Văn Cường',
+        aiCandidate3: 'Phạm Thị Mai',
+        aiRationale1: 'Strong Node.js + 3yr exp',
+        aiRationale2: 'Good backend, lacks Docker',
+        aiRationale3: 'Solid skills, junior exp',
+        selectAction: 'Select action',
+        moveToShortlisted: 'Move to Shortlisted',
+        moveToInterview: 'Move to Interview',
+        aiOverride: 'Override ↺',
+        aiDisclaimer: 'AI screening must not be the sole basis for rejection. All stage changes require HR confirmation.',
+        moveModalTitle: 'Move Nguyễn Thị Thu to Shortlisted?',
+        addNote: 'Add a note (optional)',
+        notifyCandidate: '🔔 Notify candidate:',
+        cancel: 'Cancel',
+        confirmMove: 'Confirm Move',
+        bulkRejectTitle: '⚠ Reject 3 candidates?',
+        bulkRejectMessage: 'This action will be logged in the audit trail. You have 5 minutes to undo after confirming.',
+        rejectionReason: 'Reason required:',
+        selectReason: 'Select rejection reason',
+        reasonExperience: 'Insufficient experience',
+        reasonSkills: 'Skills mismatch',
+        reasonCulture: 'Culture fit',
+        reasonCommunication: 'Poor communication',
+        suppressNotifications: '🔕 Suppress notifications:',
+        confirmRejection: 'Confirm Rejection',
+        candidate1Name: 'Nguyễn Thị Thu',
+        candidate1Details: '3 năm · Backend',
+        candidate1Score: '82% ●blue badge',
+        appliedDate: 'Applied: 10 Tháng 3',
+        source: 'Source: Portal',
+        candidate2Name: 'Trần Văn Bình',
+        candidate2Details: '2 năm · Fullstack',
+        candidate2Score: '71% badge',
+        candidate3Name: 'Lê Văn Cường',
+        candidate3Details: '4 năm · Backend',
+        candidate3Score: '91% badge',
+        candidate4Name: 'Phạm Thị Mai',
+        candidate4Details: '3 năm · Frontend',
+        candidate4Score: '78% badge',
+        candidate5Name: 'Hoàng Nam',
+        candidate5Details: '5 năm · Fullstack',
+        candidate5Score: '85% badge',
+        candidate6Name: 'Võ Thị Thu',
+        candidate6Details: '6 năm · Backend',
+        candidate6Score: '94% badge',
+        candidate7Name: 'Đỗ Nam',
+        candidate7Details: '4 năm · DevOps',
+        candidate7Score: '88% badge',
+        candidate8Name: 'Trần Kim',
+        candidate8Details: '7 năm · Backend',
+        candidate8Score: '96% badge',
+        candidate9Name: 'Lâm Quang',
+        candidate9Details: '5 năm · Backend',
+        candidate9Score: '92% badge',
+        candidate10Name: 'Phạm Tuấn',
+        candidate10Details: '8 năm · Backend',
+        candidate10Score: '98% badge',
+        candidate11Name: 'Nguyễn Văn',
+        candidate11Details: '6 năm · Backend',
+        candidate11Score: '95% badge',
+        candidate12Name: 'Hoàng Thị',
+        candidate12Details: '1 năm · Backend',
+        candidate12Score: '45% badge',
+        candidate13Name: 'Quốc Luân',
+        candidate13Details: '2 năm · Frontend',
+        candidate13Score: '52% badge',
+        candidate14Name: 'Trần Nam',
+        candidate14Details: '3 năm · Backend',
+        candidate14Score: '58% badge',
+        reasonExperience: 'Insufficient experience',
+        reasonSkills: 'Skills mismatch',
+        reasonCulture: 'Culture fit',
+        reasonCommunication: 'Poor communication',
+        moveToScreening: '→ Screening',
+        moveToShortlisted: '→ Shortlisted',
+        moveToInterview: '→ Interview',
+        moveToOffer: '→ Offer',
+        moveToHired: '→ Hired',
+        moveToRejected: '→ Rejected',
+        moveToApplied: '→ Applied'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        pageTitle: 'Candidate Pipeline',
+        jobSelectorLabel: 'Job:',
+        selectedJob: 'Senior Backend Engineer (23 apps)',
+        job2: 'UI/UX Designer (15 apps)',
+        job3: 'Product Manager (31 apps)',
+        aiScreenBtn: '✦ AI Screen Candidates',
+        addStageBtn: '+ Add Stage',
+        configureStagesBtn: '⚙ Configure Stages',
+        stageFilter: 'Stage:',
+        dateFilter: 'Date:',
+        aiScoreFilter: 'AI Score:',
+        experienceFilter: 'Experience:',
+        educationFilter: 'Education:',
+        allStages: 'All',
+        applied: 'Applied',
+        screening: 'Screening',
+        shortlisted: 'Shortlisted',
+        newest: 'Newest',
+        oldest: 'Oldest',
+        anyScore: 'Any',
+        highScore: 'High (80%+)',
+        mediumScore: 'Medium (60-79%)',
+        lowScore: 'Low (below 60%)',
+        anyExperience: 'Any',
+        exp0to1: '0-1 years',
+        exp1to3: '1-3 years',
+        exp3to5: '3-5 years',
+        exp5plus: '5+ years',
+        anyEducation: 'Any',
+        highSchool: 'High School',
+        bachelor: "Bachelor's",
+        master: "Master's",
+        phd: 'PhD',
+        searchPlaceholder: '🔍 Search candidates...',
+        moveTo: 'Move to ▾',
+        viewProfile: 'View Profile →',
+        showMore: 'Show 10 more ↓',
+        contactInfo: '📞 0912345678',
+        contactEmail: '✉️ le.cuong@email.com',
+        interview: 'Interview',
+        offer: 'Offer',
+        hired: 'Hired',
+        rejected: 'Rejected',
+        interviewDate: 'Interview: March 15, 14:00',
+        offerDate: 'Offer: March 12',
+        hiredDate: 'Hired: March 5',
+        rejectedDate: 'Rejected: March 8',
+        rejectReason: 'Reason: Not enough experience',
+        appliedMobile: 'Applied(12)',
+        screeningMobile: 'Screening(8)',
+        shortlistedMobile: 'Shortlisted(4)',
+        interviewMobile: 'Interview(2)',
+        offerMobile: 'Offer(1)',
+        hiredMobile: 'Hired(1)',
+        rejectedMobile: 'Rejected(3)',
+        aiPanelTitle: 'AI Candidate Screening — Senior Backend Engineer',
+        aiTransparencyBadge: 'AI Transparency Badge',
+        aiPanelDescription: 'AI has analysed 23 resumes against job requirements. Review results and confirm before moving any candidate.',
+        aiRank: 'Rank',
+        aiName: 'Name',
+        aiScore: 'AI Score',
+        aiRationale: 'Rationale',
+        aiAction: 'Your Action',
+        aiCandidate1: 'Nguyen Thi Thu',
+        aiCandidate2: 'Le Van Cuong',
+        aiCandidate3: 'Pham Thi Mai',
+        aiRationale1: 'Strong Node.js + 3yr exp',
+        aiRationale2: 'Good backend, lacks Docker',
+        aiRationale3: 'Solid skills, junior exp',
+        selectAction: 'Select action',
+        moveToShortlisted: 'Move to Shortlisted',
+        moveToInterview: 'Move to Interview',
+        aiOverride: 'Override ↺',
+        aiDisclaimer: 'AI screening must not be the sole basis for rejection. All stage changes require HR confirmation.',
+        moveModalTitle: 'Move Nguyen Thi Thu to Shortlisted?',
+        addNote: 'Add a note (optional)',
+        notifyCandidate: '🔔 Notify candidate:',
+        cancel: 'Cancel',
+        confirmMove: 'Confirm Move',
+        bulkRejectTitle: '⚠ Reject 3 candidates?',
+        bulkRejectMessage: 'This action will be logged in the audit trail. You have 5 minutes to undo after confirming.',
+        rejectionReason: 'Reason required:',
+        selectReason: 'Select rejection reason',
+        reasonExperience: 'Insufficient experience',
+        reasonSkills: 'Skills mismatch',
+        reasonCulture: 'Culture fit',
+        reasonCommunication: 'Poor communication',
+        suppressNotifications: '🔕 Suppress notifications:',
+        confirmRejection: 'Confirm Rejection',
+        candidate1Name: 'Nguyen Thi Thu',
+        candidate1Details: '3 years · Backend',
+        candidate1Score: '82% ●blue badge',
+        appliedDate: 'Applied: March 10',
+        source: 'Source: Portal',
+        candidate2Name: 'Tran Van Binh',
+        candidate2Details: '2 years · Fullstack',
+        candidate2Score: '71% badge',
+        candidate3Name: 'Le Van Cuong',
+        candidate3Details: '4 years · Backend',
+        candidate3Score: '91% badge',
+        candidate4Name: 'Pham Thi Mai',
+        candidate4Details: '3 years · Frontend',
+        candidate4Score: '78% badge',
+        candidate5Name: 'Hoang Nam',
+        candidate5Details: '5 years · Fullstack',
+        candidate5Score: '85% badge',
+        candidate6Name: 'Vo Thi Thu',
+        candidate6Details: '6 years · Backend',
+        candidate6Score: '94% badge',
+        candidate7Name: 'Do Nam',
+        candidate7Details: '4 years · DevOps',
+        candidate7Score: '88% badge',
+        candidate8Name: 'Tran Kim',
+        candidate8Details: '7 years · Backend',
+        candidate8Score: '96% badge',
+        candidate9Name: 'Lam Quang',
+        candidate9Details: '5 years · Backend',
+        candidate9Score: '92% badge',
+        candidate10Name: 'Pham Tuan',
+        candidate10Details: '8 years · Backend',
+        candidate10Score: '98% badge',
+        candidate11Name: 'Nguyen Van',
+        candidate11Details: '6 years · Backend',
+        candidate11Score: '95% badge',
+        candidate12Name: 'Hoang Thi',
+        candidate12Details: '1 year · Backend',
+        candidate12Score: '45% badge',
+        candidate13Name: 'Quoc Luan',
+        candidate13Details: '2 years · Frontend',
+        candidate13Score: '52% badge',
+        candidate14Name: 'Tran Nam',
+        candidate14Details: '3 years · Backend',
+        candidate14Score: '58% badge',
+        reasonExperience: 'Insufficient experience',
+        reasonSkills: 'Skills mismatch',
+        reasonCulture: 'Culture fit',
+        reasonCommunication: 'Poor communication',
+        moveToScreening: '→ Screening',
+        moveToShortlisted: '→ Shortlisted',
+        moveToInterview: '→ Interview',
+        moveToOffer: '→ Offer',
+        moveToHired: '→ Hired',
+        moveToRejected: '→ Rejected',
+        moveToApplied: '→ Applied'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Candidate Pipeline | TechCorp Vietnam JSC' : 'LàmViệc360 — Candidate Pipeline | TechCorp Vietnam JSC';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE SIDEBAR ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    function openMobileSidebar() {
+      sidebar.classList.add('open');
+      mobileOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      mobileOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    mobileMenuToggle.addEventListener('click', openMobileSidebar);
+    mobileOverlay.addEventListener('click', closeMobileSidebar);
+
+    // Close sidebar when clicking nav links on mobile
+    document.querySelectorAll('.nav-item').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 767) {
+          closeMobileSidebar();
+        }
+      });
+    });
+
+    // ========== KANBAN FUNCTIONALITY ==========
+    const bulkActionBar = document.getElementById('bulkActionBar');
+    const bulkActionText = document.getElementById('bulkActionText');
+    const bulkCancel = document.getElementById('bulkCancel');
+    const selectedCheckboxes = new Set();
+
+    // Checkbox management
+    document.querySelectorAll('.candidate-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const card = e.target.closest('.candidate-card');
+        const candidateId = card.querySelector('.candidate-name').textContent;
+        
+        if (e.target.checked) {
+          selectedCheckboxes.add(candidateId);
+        } else {
+          selectedCheckboxes.delete(candidateId);
+        }
+        
+        updateBulkActionBar();
+      });
+    });
+
+    function updateBulkActionBar() {
+      const count = selectedCheckboxes.size;
+      
+      if (count > 0) {
+        bulkActionBar.classList.add('show');
+        bulkActionText.textContent = `${count} candidates selected`;
+      } else {
+        bulkActionBar.classList.remove('show');
+      }
+    }
+
+    bulkCancel.addEventListener('click', () => {
+      document.querySelectorAll('.candidate-checkbox:checked').forEach(cb => {
+        cb.checked = false;
+      });
+      selectedCheckboxes.clear();
+      updateBulkActionBar();
+    });
+
+    // Dropdown menus
+    document.querySelectorAll('.move-dropdown').forEach(dropdown => {
+      const button = dropdown.querySelector('.move-button');
+      const menu = dropdown.querySelector('.dropdown-menu');
+      
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.dropdown-menu').forEach(m => {
+          if (m !== menu) m.classList.remove('open');
+        });
+        
+        menu.classList.toggle('open');
+      });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('open');
+      });
+    });
+
+    // Stage move functionality
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const stage = item.getAttribute('data-stage');
+        const candidateName = item.closest('.candidate-card').querySelector('.candidate-name').textContent;
+        
+        // Show move confirmation modal
+        showMoveModal(candidateName, stage);
+      });
+    });
+
+    // ========== AI SCREENING PANEL ==========
+    const aiScreenBtn = document.getElementById('aiScreenBtn');
+    const aiScreeningPanel = document.getElementById('aiScreeningPanel');
+    const aiPanelClose = document.getElementById('aiPanelClose');
+
+    aiScreenBtn.addEventListener('click', () => {
+      aiScreeningPanel.classList.add('show');
+    });
+
+    aiPanelClose.addEventListener('click', () => {
+      aiScreeningPanel.classList.remove('show');
+    });
+
+    // ========== MODALS ==========
+    const moveModal = document.getElementById('moveModal');
+    const moveModalTitle = document.getElementById('moveModalTitle');
+    const moveCancel = document.getElementById('moveCancel');
+    const moveConfirm = document.getElementById('moveConfirm');
+    const notifyToggle = document.getElementById('notifyToggle');
+
+    function showMoveModal(candidateName, stage) {
+      moveModalTitle.textContent = `Move ${candidateName} to ${stage.charAt(0).toUpperCase() + stage.slice(1)}?`;
+      moveModal.classList.add('open');
+      
+      moveCancel.onclick = () => {
+        moveModal.classList.remove('open');
+      };
+      
+      moveConfirm.onclick = () => {
+        // In real app, would move candidate and log to audit trail
+        console.log(`Moving ${candidateName} to ${stage}`);
+        moveModal.classList.remove('open');
+        
+        // Show toast for demo
+        showToast(`${candidateName} moved to ${stage}`);
+      };
+    }
+
+    // Toggle switches
+    notifyToggle.addEventListener('click', () => {
+      notifyToggle.classList.toggle('active');
+    });
+
+    // ========== BULK REJECT MODAL ==========
+    const bulkRejectModal = document.getElementById('bulkRejectModal');
+    const bulkRejectCancel = document.getElementById('bulkRejectCancel');
+    const bulkRejectConfirm = document.getElementById('bulkRejectConfirm');
+    const suppressToggle = document.getElementById('suppressToggle');
+
+    document.querySelector('.bulk-btn.danger').addEventListener('click', () => {
+      bulkRejectModal.classList.add('open');
+    });
+
+    bulkRejectCancel.addEventListener('click', () => {
+      bulkRejectModal.classList.remove('open');
+    });
+
+    bulkRejectConfirm.addEventListener('click', () => {
+      // In real app, would reject candidates and log to audit trail
+      console.log('Bulk rejecting candidates');
+      bulkRejectModal.classList.remove('open');
+      
+      // Show toast with undo
+      showToast('3 candidates moved to Rejected.', true);
+    });
+
+    suppressToggle.addEventListener('click', () => {
+      suppressToggle.classList.toggle('active');
+    });
+
+    // ========== TOAST NOTIFICATION ==========
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const toastUndo = document.getElementById('toastUndo');
+    const toastClose = document.getElementById('toastClose');
+    let undoTimeout;
+
+    function showToast(message, showUndo = false) {
+      toastText.textContent = message;
+      
+      if (showUndo) {
+        toastUndo.style.display = 'inline-block';
+        toastUndo.textContent = 'Undo (4:52)';
+        
+        // Start countdown
+        let secondsLeft = 292; // 4 minutes 52 seconds
+        undoTimeout = setInterval(() => {
+          secondsLeft--;
+          const minutes = Math.floor(secondsLeft / 60);
+          const secs = secondsLeft % 60;
+          toastUndo.textContent = `Undo (${minutes}:${secs.toString().padStart(2, '0')})`;
+          
+          if (secondsLeft <= 0) {
+            clearInterval(undoTimeout);
+            toastUndo.style.display = 'none';
+          }
+        }, 1000);
+        
+        toastUndo.onclick = () => {
+          clearInterval(undoTimeout);
+          toast.classList.remove('show');
+          // In real app, would undo the action
+          console.log('Undo action');
+        };
+      } else {
+        toastUndo.style.display = 'none';
+      }
+      
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 5000);
+    }
+
+    toastClose.addEventListener('click', () => {
+      toast.classList.remove('show');
+      if (undoTimeout) {
+        clearInterval(undoTimeout);
+      }
+    });
+
+    // ========== MOBILE VIEW ==========
+    const mobileStageTabs = document.querySelectorAll('.mobile-stage-tab');
+    const mobileCandidateList = document.getElementById('mobileCandidateList');
+    const desktopView = document.querySelector('.desktop-view');
+    const mobileView = document.querySelector('.mobile-view');
+
+    function updateMobileView() {
+      if (window.innerWidth <= 767) {
+        desktopView.style.display = 'none';
+        mobileView.style.display = 'block';
+      } else {
+        desktopView.style.display = 'block';
+        mobileView.style.display = 'none';
+      }
+    }
+
+    mobileStageTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const stage = tab.getAttribute('data-stage');
+        
+        // Update active tab
+        mobileStageTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Update candidate list
+        updateMobileCandidateList(stage);
+      });
+    });
+
+    function updateMobileCandidateList(stage) {
+      // In real app, would filter candidates by stage
+      // For demo, just show a message
+      mobileCandidateList.innerHTML = `
+        <div class="mobile-candidate-card">
+          <div class="candidate-header">
+            <div class="candidate-avatar">NT</div>
+            <div class="candidate-info">
+              <h3 class="candidate-name">Nguyễn Thị Thu</h3>
+              <p class="candidate-details">3 năm · Backend</p>
+            </div>
+          </div>
+          <div class="ai-score">82% ●blue badge</div>
+          <div class="candidate-meta">
+            <span>Applied: 10 Tháng 3</span>
+            <span>Source: Portal</span>
+          </div>
+          <div class="candidate-actions">
+            <div class="move-dropdown">
+              <button class="move-button">Move to ▾</button>
+              <div class="dropdown-menu">
+                <a href="#" class="dropdown-item">→ Screening</a>
+                <a href="#" class="dropdown-item">→ Shortlisted</a>
+                <a href="#" class="dropdown-item danger">→ Rejected</a>
+              </div>
+            </div>
+            <a href="e07-candidate-detail.html" class="view-profile">View Profile →</a>
+          </div>
+        </div>
+      `;
+    }
+
+    // Initialize mobile view
+    updateMobileView();
+    updateMobileCandidateList('applied');
+
+    // ========== RESPONSIVE HANDLING ==========
+    window.addEventListener('resize', () => {
+      updateMobileView();
+      if (window.innerWidth > 767) {
+        closeMobileSidebar();
+      }
+    });
+
+    // ========== SHOW MORE FUNCTIONALITY ==========
+    document.querySelectorAll('.show-more').forEach(showMore => {
+      showMore.addEventListener('click', () => {
+        // In real app, would load more candidates
+        showMore.textContent = 'Loading...';
+        setTimeout(() => {
+          showMore.textContent = 'No more candidates';
+        }, 1000);
+      });
+    });
+  </script>
+</body>
+</html>

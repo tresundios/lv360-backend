@@ -1,0 +1,1317 @@
+<!doctype html>
+<!--
+  SCREEN: js05 Application Detail
+  PRD REFS: JSP-FR-007, JSP-FR-007b, JSP-FR-008, JSP-FR-009, JSP-FR-012, BR-014
+  FLOW: js04-tracker.html → THIS → js11-ai-prep.html
+  PERSONA: Job Seeker
+  STAGE: Phase 1 MVP
+  NOTE: Single application detail with full status timeline
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Application Detail | Job Seeker</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Job Seeker (teal) */
+      --color-seeker-bg:     #F0FDF4;
+      --color-seeker-accent: #10B981;
+      --color-seeker-light:  #D1FAE5;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-seeker-bg);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 16px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .nav-logo {
+      height: 32px;
+      width: auto;
+    }
+
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-grey-700);
+      text-decoration: none;
+      font-size: var(--text-base);
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .nav-back:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: var(--space-6) var(--space-4) var(--space-8) var(--space-4);
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Application Header Card */
+    .app-header-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .company-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-500);
+    }
+
+    .company-info {
+      flex: 1;
+    }
+
+    .company-name {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .verified-badge {
+      color: var(--color-success);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .job-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-3) 0;
+    }
+
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .job-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .app-id {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      margin-bottom: var(--space-3);
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-base);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .stage-badge.shortlisted {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .app-dates {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-top: var(--space-4);
+    }
+
+    /* Stage Progress Timeline */
+    .timeline-container {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+    }
+
+    .timeline-header {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .progress-timeline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      min-width: 600px;
+      padding: var(--space-4) 0;
+    }
+
+    .timeline-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--color-grey-200);
+      z-index: 1;
+    }
+
+    .timeline-fill {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 2px;
+      background: var(--color-success);
+      z-index: 2;
+      width: 60%;
+    }
+
+    .timeline-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      z-index: 3;
+      width: 100%;
+    }
+
+    .timeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      min-width: 80px;
+    }
+
+    .timeline-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-full);
+      background: var(--color-grey-200);
+      border: 3px solid white;
+      transition: all 0.2s;
+    }
+
+    .timeline-dot.completed {
+      background: var(--color-success);
+    }
+
+    .timeline-dot.current {
+      background: var(--color-success);
+      animation: pulse 2s infinite;
+    }
+
+    .timeline-dot.future {
+      background: var(--color-grey-200);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(21, 128, 61, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0); }
+    }
+
+    .timeline-label {
+      font-size: var(--text-xs);
+      color: var(--color-grey-600);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .timeline-date {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .timeline-estimate {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      margin-top: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-info);
+      line-height: 1.5;
+    }
+
+    /* Good News Panel */
+    .good-news-panel {
+      background: linear-gradient(135deg, var(--color-success-bg) 0%, #DCFCE7 100%);
+      border: 1px solid var(--color-success);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      text-align: center;
+    }
+
+    .good-news-icon {
+      font-size: var(--text-3xl);
+      margin-bottom: var(--space-3);
+    }
+
+    .good-news-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-success);
+      margin: 0 0 var(--space-3) 0;
+    }
+
+    .good-news-message {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      line-height: 1.6;
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    /* Interview Details Card */
+    .interview-card {
+      background: var(--color-primary-light);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .interview-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-primary);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .interview-details {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .interview-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+    }
+
+    .interview-link {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .interview-link:hover {
+      text-decoration: underline;
+    }
+
+    .interview-actions {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    /* Sections */
+    .section {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .section-item {
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--color-grey-100);
+    }
+
+    .section-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-2);
+    }
+
+    .item-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .item-meta {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+    }
+
+    .item-content {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      line-height: 1.6;
+    }
+
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .collapsible-content.show {
+      max-height: 500px;
+    }
+
+    .expand-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: none;
+    }
+
+    .expand-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* Document Access Note */
+    .access-note {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-info);
+      line-height: 1.5;
+    }
+
+    /* Notification History */
+    .notification-item {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-grey-100);
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-icon {
+      font-size: var(--text-lg);
+      color: var(--color-primary);
+      margin-top: 2px;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-text {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      line-height: 1.5;
+    }
+
+    .notification-time {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      margin-top: var(--space-1);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+    .btn-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #991B1B;
+      text-decoration: none;
+    }
+    .btn-danger-outline {
+      background: transparent;
+      color: var(--color-danger);
+      border: 1px solid var(--color-danger);
+    }
+    .btn-danger-outline:hover {
+      background: var(--color-danger);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-lg {
+      padding: var(--space-4) var(--space-8);
+      font-size: var(--text-lg);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      max-width: 400px;
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .modal-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .modal-message {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      line-height: 1.6;
+      margin: 0 0 var(--space-6) 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: flex-end;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .main-content {
+        padding: var(--space-4) var(--space-4) var(--space-8) var(--space-4);
+      }
+
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+
+      .company-logo {
+        width: 40px;
+        height: 40px;
+      }
+
+      .job-title {
+        font-size: var(--text-xl);
+      }
+
+      .job-meta {
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .app-dates {
+        flex-direction: column;
+        gap: var(--space-1);
+      }
+
+      .progress-timeline {
+        min-width: 500px;
+      }
+
+      .timeline-step {
+        min-width: 60px;
+      }
+
+      .timeline-label {
+        font-size: 10px;
+      }
+
+      .interview-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .timeline-dot.current {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Top Navigation -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
+        <a href="js04-tracker.html" class="nav-back">
+          ← <span data-i18n="navBack">My Applications</span>
+        </a>
+      </div>
+      
+      <div class="nav-right">
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Application Header Card -->
+      <div class="app-header-card">
+        <div class="app-header">
+          <div class="company-logo">TC</div>
+          <div class="company-info">
+            <h2 class="company-name">
+              TechCorp Vietnam JSC
+              <span class="verified-badge">✓ Verified</span>
+            </h2>
+            <h1 class="job-title">Senior Backend Engineer</h1>
+          </div>
+        </div>
+        
+        <div class="job-meta">
+          <span class="job-meta-item">📍 Hà Nội</span>
+          <span class="job-meta-item">🏷 Full-time</span>
+          <span class="job-meta-item">💰 25–40tr VND</span>
+        </div>
+        
+        <div class="app-id" data-i18n="appId">Application ID: APP-0847</div>
+        
+        <div class="stage-badge shortlisted">
+          🎉 <span data-i18n="stageShortlisted">Shortlisted</span> ●
+        </div>
+        
+        <div class="app-dates">
+          <span data-i18n="appliedDate">Applied: 10 Tháng 3, 2026</span>
+          <span data-i18n="lastUpdated">Last updated: 13 Tháng 3, 2026 at 10:00</span>
+        </div>
+      </div>
+
+      <!-- Stage Progress Timeline -->
+      <div class="timeline-container">
+        <h2 class="timeline-header" data-i18n="timelineHeader">Application Progress</h2>
+        
+        <div class="progress-timeline">
+          <div class="timeline-line"></div>
+          <div class="timeline-fill"></div>
+          <div class="timeline-steps">
+            <div class="timeline-step">
+              <div class="timeline-dot completed"></div>
+              <div class="timeline-label" data-i18n="stepApplied">Applied</div>
+              <div class="timeline-date">10 Mar</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot completed"></div>
+              <div class="timeline-label" data-i18n="stepUnderReview">Under Review</div>
+              <div class="timeline-date">11 Mar</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot current"></div>
+              <div class="timeline-label" data-i18n="stepShortlisted">Shortlisted</div>
+              <div class="timeline-date">13 Mar</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot future"></div>
+              <div class="timeline-label" data-i18n="stepInterview">Interview</div>
+              <div class="timeline-date"></div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot future"></div>
+              <div class="timeline-label" data-i18n="stepOffer">Offer</div>
+              <div class="timeline-date"></div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot future"></div>
+              <div class="timeline-label" data-i18n="stepHired">Hired</div>
+              <div class="timeline-date"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-estimate">
+          ⏱ <span data-i18n="stageEstimate">Hầu hết ứng viên ở giai đoạn này 3–5 ngày</span><br>
+          <span data-i18n="stageEstimateEn">Most candidates are at this stage for 3–5 days</span>
+        </div>
+      </div>
+
+      <!-- Good News Panel -->
+      <div class="good-news-panel">
+        <div class="good-news-icon">🎉</div>
+        <h2 class="good-news-title" data-i18n="goodNewsTitle">Tin vui! Bạn đã được shortlist!</h2>
+        <p class="good-news-message" data-i18n="goodNewsMessage">
+          TechCorp Vietnam JSC đang xem xét bạn cho vòng tiếp theo. Hãy chuẩn bị cho buổi phỏng vấn!
+        </p>
+        <p class="good-news-message" data-i18n="goodNewsMessageEn">
+          TechCorp Vietnam JSC is considering you for the next round. Prepare for your interview!
+        </p>
+        <a href="js11-ai-prep.html" class="btn btn-primary btn-lg">
+          ✦ <span data-i18n="aiPrepBtn">Bắt đầu luyện phỏng vấn AI</span>
+        </a>
+      </div>
+
+      <!-- What You Submitted -->
+      <div class="section">
+        <h2 class="section-title" data-i18n="submissionTitle">Đơn ứng tuyển của bạn</h2>
+        
+        <div class="section-item">
+          <div class="item-header">
+            <h3 class="item-title" data-i18n="resumeTitle">Resume</h3>
+            <span class="item-meta" data-i18n="resumeSubmitted">Submitted: 10 Tháng 3, 2026</span>
+          </div>
+          <div class="item-content">
+            📄 resume-le-thi-thuy-2026.pdf
+          </div>
+          <button class="btn btn-sm btn-secondary" data-i18n="downloadResume">Download your copy</button>
+        </div>
+        
+        <div class="section-item">
+          <div class="item-header">
+            <h3 class="item-title" data-i18n="coverLetterTitle">Cover Letter</h3>
+          </div>
+          <div class="item-content">
+            <span data-i18n="coverLetterPreview">Kính gửi TechCorp Vietnam JSC, Tôi rất hào hứng với cơ hội ứng tuyển...</span>
+          </div>
+          <button class="expand-btn" id="expandCoverLetter" data-i18n="viewFullCoverLetter">View full cover letter ▾</button>
+          <div class="collapsible-content" id="coverLetterContent">
+            <p data-i18n="coverLetterFull">
+              Kính gửi TechCorp Vietnam JSC,<br><br>
+              Tôi viết thư này để bày tỏ sự quan tâm sâu sắc đến vị trí Senior Backend Engineer tại công ty quý vị. Với hơn 3 năm kinh nghiệm trong lĩnh vực phát triển backend, đặc biệt là với Node.js và các công nghệ liên quan, tôi tin rằng mình có đủ kỹ năng và kinh nghiệm để đóng góp vào sự thành công của đội ngũ kỹ thuật tại TechCorp Vietnam JSC.<br><br>
+              Trong suốt quá trình làm việc, tôi đã tham gia vào nhiều dự án phức tạp, từ việc thiết kế kiến trúc microservices đến triển khai và tối ưu hóa hệ thống. Tôi có kinh nghiệm làm việc với các cơ sở dữ liệu như MongoDB, PostgreSQL và MySQL, cũng như các hệ thống cache như Redis. Ngoài ra, tôi cũng có kiến thức về DevOps và đã từng làm việc với Docker, Kubernetes và các nền tảng cloud như AWS.<br><br>
+              Tôi đặc biệt ấn tượng với văn hóa làm việc và các dự án mà TechCorp Vietnam JSC đang thực hiện. Tôi tin rằng môi trường chuyên nghiệp và cơ hội phát triển tại công ty sẽ giúp tôi tiếp tục nâng cao kỹ năng và đóng góp nhiều hơn cho ngành công nghệ.<br><br>
+              Tôi rất mong có cơ hội được trao đổi thêm về vị trí này và cách tôi có thể đóng góp vào sự phát triển của TechCorp Vietnam JSC.<br><br>
+              Trân trọng,<br>
+              Lê Thị Thuy
+            </p>
+          </div>
+        </div>
+        
+        <div class="section-item">
+          <div class="item-header">
+            <h3 class="item-title" data-i18n="documentsTitle">Documents attached</h3>
+          </div>
+          <div class="item-content">
+            📄 Relieving Letter — DataVN Ltd (280KB)
+          </div>
+          <div class="access-note">
+            <span data-i18n="documentAccessNote">Shared with employer from Shortlisted stage — BR-014</span>
+          </div>
+        </div>
+        
+        <div class="section-item">
+          <div class="item-header">
+            <h3 class="item-title" data-i18n="questionsTitle">Employer additional questions</h3>
+          </div>
+          <div class="item-content">
+            <p><strong data-i18n="question1">Q: Years of experience with Node.js?</strong></p>
+            <p data-i18n="answer1">A: 1–3 years</p>
+            <br>
+            <p><strong data-i18n="question2">Q: Open to working overtime?</strong></p>
+            <p data-i18n="answer2">A: Yes, when required</p>
+          </div>
+        </div>
+        
+        <div class="section-item">
+          <div class="item-header">
+            <h3 class="item-title" data-i18n="consentTitle">Consent given</h3>
+          </div>
+          <div class="item-content">
+            ✓ <span data-i18n="consentDetails">Data consent provided on 10 Tháng 3, 2026 at 09:47 (BR-011)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Access Note -->
+      <div class="section">
+        <div class="access-note">
+          ✓ <span data-i18n="documentAccessStatus">Your documents are accessible to TechCorp Vietnam JSC</span>
+        </div>
+      </div>
+
+      <!-- Job Description Reference -->
+      <div class="section">
+        <h2 class="section-title">
+          <span data-i18n="jobDescriptionTitle">Mô tả công việc ▾</span>
+        </h2>
+        <button class="expand-btn" id="expandJobDesc" data-i18n="expandJobDesc">Job Description ▾</button>
+        <div class="collapsible-content" id="jobDescContent">
+          <div data-i18n="jobDescription">
+            <h3>Về vị trí</h3>
+            <p>Chúng tôi đang tìm kiếm một Senior Backend Engineer có kinh nghiệm để tham gia vào đội ngũ phát triển sản phẩm của TechCorp Vietnam JSC. Bạn sẽ chịu trách nhiệm thiết kế, phát triển và bảo trì các hệ thống backend cho các ứng dụng web và di động.</p>
+            
+            <h3>Yêu cầu</h3>
+            <ul>
+              <li>Tối thiểu 3 năm kinh nghiệm phát triển backend</li>
+              <li>Thành thạo Node.js, Express.js và các framework liên quan</li>
+              <li>Kinh nghiệm làm việc với MongoDB, PostgreSQL, MySQL</li>
+              <li>Hiểu biết về RESTful API và GraphQL</li>
+              <li>Kinh nghiệm với Docker và Kubernetes</li>
+              <li>Có khả năng tự học và thích ứng công nghệ mới</li>
+            </ul>
+            
+            <h3>Quyền lợi</h3>
+            <ul>
+              <li>Mức lương cạnh tranh: 25-40 triệu VNĐ/tháng</li>
+              <li>Làm việc tại văn phòng hiện đại ở Hà Nội</li>
+              <li>Bảo hiểm sức khỏe đầy đủ</li>
+              <li>14 ngày nghỉ phép/năm</li>
+              <li>Cơ hội đào tạo và phát triển chuyên môn</li>
+              <li>Môi trường làm việc năng động, chuyên nghiệp</li>
+            </ul>
+          </div>
+        </div>
+        <div style="margin-top: var(--space-4);">
+          <a href="../public/p03-job-detail.html" class="btn btn-ghost" data-i18n="viewOriginalListing">View original listing →</a>
+        </div>
+      </div>
+
+      <!-- Notification History -->
+      <div class="section">
+        <h2 class="section-title" data-i18n="notificationHistoryTitle">Lịch sử thông báo</h2>
+        
+        <div class="notification-item">
+          <div class="notification-icon">📧</div>
+          <div class="notification-content">
+            <div class="notification-text" data-i18n="notification1">
+              Bạn đã được shortlist cho Senior Backend Engineer tại TechCorp Vietnam JSC
+            </div>
+            <div class="notification-time">13 Mar 10:00</div>
+          </div>
+        </div>
+        
+        <div class="notification-item">
+          <div class="notification-icon">📧</div>
+          <div class="notification-content">
+            <div class="notification-text" data-i18n="notification2">CV của bạn đang được xem xét</div>
+            <div class="notification-time">11 Mar 09:00</div>
+          </div>
+        </div>
+        
+        <div class="notification-item">
+          <div class="notification-icon">📧</div>
+          <div class="notification-content">
+            <div class="notification-text" data-i18n="notification3">Xác nhận: Đơn ứng tuyển đã nhận</div>
+            <div class="notification-time">10 Mar 09:47</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="section">
+        <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+          <a href="js11-ai-prep.html" class="btn btn-primary">
+            ✦ <span data-i18n="aiPrepAction">AI Interview Prep</span>
+          </a>
+          <button class="btn btn-danger-outline" id="withdrawBtn" data-i18n="withdrawBtn">Withdraw Application</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div class="modal-overlay" id="withdrawModal">
+    <div class="modal">
+      <h2 class="modal-title" data-i18n="withdrawModalTitle">Rút đơn ứng tuyển?</h2>
+      <p class="modal-message" data-i18n="withdrawModalMessage">
+        Bạn có chắc muốn rút đơn không? Bạn sẽ không thể ứng tuyển lại vị trí này.
+      </p>
+      <p class="modal-message" data-i18n="withdrawModalMessageEn">
+        Are you sure? You cannot re-apply for this position.
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelWithdraw" data-i18n="cancelBtn">Cancel</button>
+        <button class="btn btn-danger" id="confirmWithdraw" data-i18n="withdrawBtn">Withdraw</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#10B981; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#93C5FD;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 js05: Application Detail
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="js11-ai-prep.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ js11: AI Prep</a>
+    <a href="../public/p03-job-detail.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ p03: Job Detail</a>
+    <a href="js04-tracker.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← js04: Tracker</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        navBack: 'My Applications',
+        appId: 'Application ID: APP-0847',
+        appliedDate: 'Applied: 10 Tháng 3, 2026',
+        lastUpdated: 'Last updated: 13 Tháng 3, 2026 at 10:00',
+        stageShortlisted: 'Shortlisted',
+        timelineHeader: 'Application Progress',
+        stepApplied: 'Applied',
+        stepUnderReview: 'Under Review',
+        stepShortlisted: 'Shortlisted',
+        stepInterview: 'Interview',
+        stepOffer: 'Offer',
+        stepHired: 'Hired',
+        stageEstimate: 'Hầu hết ứng viên ở giai đoạn này 3–5 ngày',
+        stageEstimateEn: 'Most candidates are at this stage for 3–5 days',
+        goodNewsTitle: 'Tin vui! Bạn đã được shortlist!',
+        goodNewsMessage: 'TechCorp Vietnam JSC đang xem xét bạn cho vòng tiếp theo. Hãy chuẩn bị cho buổi phỏng vấn!',
+        goodNewsMessageEn: 'TechCorp Vietnam JSC is considering you for the next round. Prepare for your interview!',
+        aiPrepBtn: 'Bắt đầu luyện phỏng vấn AI',
+        submissionTitle: 'Đơn ứng tuyển của bạn',
+        resumeTitle: 'Resume',
+        resumeSubmitted: 'Submitted: 10 Tháng 3, 2026',
+        downloadResume: 'Download your copy',
+        coverLetterTitle: 'Cover Letter',
+        coverLetterPreview: 'Kính gửi TechCorp Vietnam JSC, Tôi rất hào hứng với cơ hội ứng tuyển...',
+        viewFullCoverLetter: 'View full cover letter ▾',
+        coverLetterFull: 'Kính gửi TechCorp Vietnam JSC,<br><br>Tôi viết thư này để bày tỏ sự quan tâm sâu sắc đến vị trí Senior Backend Engineer tại công ty quý vị. Với hơn 3 năm kinh nghiệm trong lĩnh vực phát triển backend, đặc biệt là với Node.js và các công nghệ liên quan, tôi tin rằng mình có đủ kỹ năng và kinh nghiệm để đóng góp vào sự thành công của đội ngũ kỹ thuật tại TechCorp Vietnam JSC.<br><br>Trong suốt quá trình làm việc, tôi đã tham gia vào nhiều dự án phức tạp, từ việc thiết kế kiến trúc microservices đến triển khai và tối ưu hóa hệ thống. Tôi có kinh nghiệm làm việc với các cơ sở dữ liệu như MongoDB, PostgreSQL và MySQL, cũng như các hệ thống cache như Redis. Ngoài ra, tôi cũng có kiến thức về DevOps và đã từng làm việc với Docker, Kubernetes và các nền tảng cloud như AWS.<br><br>Tôi đặc biệt ấn tượng với văn hóa làm việc và các dự án mà TechCorp Vietnam JSC đang thực hiện. Tôi tin rằng môi trường chuyên nghiệp và cơ hội phát triển tại công ty sẽ giúp tôi tiếp tục nâng cao kỹ năng và đóng góp nhiều hơn cho ngành công nghệ.<br><br>Tôi rất mong có cơ hội được trao đổi thêm về vị trí này và cách tôi có thể đóng góp vào sự phát triển của TechCorp Vietnam JSC.<br><br>Trân trọng,<br>Lê Thị Thuy',
+        documentsTitle: 'Documents attached',
+        documentAccessNote: 'Shared with employer from Shortlisted stage — BR-014',
+        questionsTitle: 'Employer additional questions',
+        question1: 'Q: Years of experience with Node.js?',
+        answer1: 'A: 1–3 years',
+        question2: 'Q: Open to working overtime?',
+        answer2: 'A: Yes, when required',
+        consentTitle: 'Consent given',
+        consentDetails: 'Data consent provided on 10 Tháng 3, 2026 at 09:47 (BR-011)',
+        documentAccessStatus: 'Your documents are accessible to TechCorp Vietnam JSC',
+        jobDescriptionTitle: 'Mô tả công việc ▾',
+        expandJobDesc: 'Job Description ▾',
+        jobDescription: '<h3>Về vị trí</h3><p>Chúng tôi đang tìm kiếm một Senior Backend Engineer có kinh nghiệm để tham gia vào đội ngũ phát triển sản phẩm của TechCorp Vietnam JSC. Bạn sẽ chịu trách nhiệm thiết kế, phát triển và bảo trì các hệ thống backend cho các ứng dụng web và di động.</p><h3>Yêu cầu</h3><ul><li>Tối thiểu 3 năm kinh nghiệm phát triển backend</li><li>Thành thạo Node.js, Express.js và các framework liên quan</li><li>Kinh nghiệm làm việc với MongoDB, PostgreSQL, MySQL</li><li>Hiểu biết về RESTful API và GraphQL</li><li>Kinh nghiệm với Docker và Kubernetes</li><li>Có khả năng tự học và thích ứng công nghệ mới</li></ul><h3>Quyền lợi</h3><ul><li>Mức lương cạnh tranh: 25-40 triệu VNĐ/tháng</li><li>Làm việc tại văn phòng hiện đại ở Hà Nội</li><li>Bảo hiểm sức khỏe đầy đủ</li><li>14 ngày nghỉ phép/năm</li><li>Cơ hội đào tạo và phát triển chuyên môn</li><li>Môi trường làm việc năng động, chuyên nghiệp</li></ul>',
+        viewOriginalListing: 'View original listing →',
+        notificationHistoryTitle: 'Lịch sử thông báo',
+        notification1: 'Bạn đã được shortlist cho Senior Backend Engineer tại TechCorp Vietnam JSC',
+        notification2: 'CV của bạn đang được xem xét',
+        notification3: 'Xác nhận: Đơn ứng tuyển đã nhận',
+        aiPrepAction: 'AI Interview Prep',
+        withdrawBtn: 'Withdraw Application',
+        withdrawModalTitle: 'Rút đơn ứng tuyển?',
+        withdrawModalMessage: 'Bạn có chắc muốn rút đơn không? Bạn sẽ không thể ứng tuyển lại vị trí này.',
+        withdrawModalMessageEn: 'Are you sure? You cannot re-apply for this position.',
+        cancelBtn: 'Cancel'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        navBack: 'My Applications',
+        appId: 'Application ID: APP-0847',
+        appliedDate: 'Applied: 10 Mar, 2026',
+        lastUpdated: 'Last updated: 13 Mar, 2026 at 10:00',
+        stageShortlisted: 'Shortlisted',
+        timelineHeader: 'Application Progress',
+        stepApplied: 'Applied',
+        stepUnderReview: 'Under Review',
+        stepShortlisted: 'Shortlisted',
+        stepInterview: 'Interview',
+        stepOffer: 'Offer',
+        stepHired: 'Hired',
+        stageEstimate: 'Hầu hết ứng viên ở giai đoạn này 3–5 ngày',
+        stageEstimateEn: 'Most candidates are at this stage for 3–5 days',
+        goodNewsTitle: 'Great news! You\'ve been shortlisted!',
+        goodNewsMessage: 'TechCorp Vietnam JSC is considering you for the next round. Prepare for your interview!',
+        goodNewsMessageEn: 'TechCorp Vietnam JSC is considering you for the next round. Prepare for your interview!',
+        aiPrepBtn: 'Start AI Interview Prep',
+        submissionTitle: 'Your Submission',
+        resumeTitle: 'Resume',
+        resumeSubmitted: 'Submitted: 10 Mar, 2026',
+        downloadResume: 'Download your copy',
+        coverLetterTitle: 'Cover Letter',
+        coverLetterPreview: 'Dear TechCorp Vietnam JSC, I am very excited about the opportunity to apply...',
+        viewFullCoverLetter: 'View full cover letter ▾',
+        coverLetterFull: 'Dear TechCorp Vietnam JSC,<br><br>I am writing to express my strong interest in the Senior Backend Engineer position at your esteemed company. With over 3 years of experience in backend development, particularly with Node.js and related technologies, I believe I have the skills and experience necessary to contribute to the success of the engineering team at TechCorp Vietnam JSC.<br><br>Throughout my career, I have been involved in numerous complex projects, from designing microservices architecture to deploying and optimizing systems. I have experience working with databases like MongoDB, PostgreSQL, and MySQL, as well as caching systems like Redis. Additionally, I have knowledge of DevOps and have worked with Docker, Kubernetes, and cloud platforms like AWS.<br><br>I am particularly impressed with the work culture and projects that TechCorp Vietnam JSC is undertaking. I believe the professional environment and growth opportunities at your company will help me continue to enhance my skills and contribute more to the technology industry.<br><br>I look forward to the opportunity to discuss this position further and how I can contribute to TechCorp Vietnam JSC\'s development.<br><br>Sincerely,<br>Le Thi Thuy',
+        documentsTitle: 'Documents attached',
+        documentAccessNote: 'Shared with employer from Shortlisted stage — BR-014',
+        questionsTitle: 'Employer additional questions',
+        question1: 'Q: Years of experience with Node.js?',
+        answer1: 'A: 1–3 years',
+        question2: 'Q: Open to working overtime?',
+        answer2: 'A: Yes, when required',
+        consentTitle: 'Consent given',
+        consentDetails: 'Data consent provided on 10 Mar, 2026 at 09:47 (BR-011)',
+        documentAccessStatus: 'Your documents are accessible to TechCorp Vietnam JSC',
+        jobDescriptionTitle: 'Job Description ▾',
+        expandJobDesc: 'Job Description ▾',
+        jobDescription: '<h3>About the position</h3><p>We are looking for an experienced Senior Backend Engineer to join our product development team at TechCorp Vietnam JSC. You will be responsible for designing, developing, and maintaining backend systems for web and mobile applications.</p><h3>Requirements</h3><ul><li>Minimum 3 years of backend development experience</li><li>Proficient in Node.js, Express.js and related frameworks</li><li>Experience with MongoDB, PostgreSQL, MySQL</li><li>Knowledge of RESTful API and GraphQL</li><li>Experience with Docker and Kubernetes</li><li>Ability to self-learn and adapt to new technologies</li></ul><h3>Benefits</h3><ul><li>Competitive salary: 25-40 million VND/month</li><li>Modern office in Hanoi</li><li>Full health insurance</li><li>14 days paid leave/year</li><li>Training and professional development opportunities</li><li>Dynamic and professional work environment</li></ul>',
+        viewOriginalListing: 'View original listing →',
+        notificationHistoryTitle: 'Notifications Received',
+        notification1: 'You\'ve been shortlisted for Senior Backend Engineer at TechCorp Vietnam JSC',
+        notification2: 'Your CV is under review',
+        notification3: 'Confirmation: Application received',
+        aiPrepAction: 'AI Interview Prep',
+        withdrawBtn: 'Withdraw Application',
+        withdrawModalTitle: 'Withdraw Application?',
+        withdrawModalMessage: 'Are you sure you want to withdraw? You cannot re-apply for this position.',
+        withdrawModalMessageEn: 'Are you sure? You cannot re-apply for this position.',
+        cancelBtn: 'Cancel'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Application Detail | Job Seeker' : 'LàmViệc360 — Application Detail | Job Seeker';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.innerHTML = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== EXPANDABLE SECTIONS ==========
+    const expandCoverLetter = document.getElementById('expandCoverLetter');
+    const coverLetterContent = document.getElementById('coverLetterContent');
+    
+    expandCoverLetter.addEventListener('click', () => {
+      coverLetterContent.classList.toggle('show');
+      expandCoverLetter.textContent = coverLetterContent.classList.contains('show') 
+        ? t('viewFullCoverLetter').replace('▾', '▲') 
+        : t('viewFullCoverLetter');
+    });
+
+    const expandJobDesc = document.getElementById('expandJobDesc');
+    const jobDescContent = document.getElementById('jobDescContent');
+    
+    expandJobDesc.addEventListener('click', () => {
+      jobDescContent.classList.toggle('show');
+      expandJobDesc.textContent = jobDescContent.classList.contains('show') 
+        ? t('expandJobDesc').replace('▾', '▲') 
+        : t('expandJobDesc');
+    });
+
+    // ========== WITHDRAW MODAL ==========
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const withdrawModal = document.getElementById('withdrawModal');
+    const cancelWithdraw = document.getElementById('cancelWithdraw');
+    const confirmWithdraw = document.getElementById('confirmWithdraw');
+
+    withdrawBtn.addEventListener('click', () => {
+      withdrawModal.classList.add('show');
+    });
+
+    cancelWithdraw.addEventListener('click', () => {
+      withdrawModal.classList.remove('show');
+    });
+
+    confirmWithdraw.addEventListener('click', () => {
+      // In real app, this would make an API call
+      console.log('Application withdrawn');
+      withdrawModal.classList.remove('show');
+      alert('Application withdrawn successfully');
+      // Redirect back to tracker
+      window.location.href = 'js04-tracker.html';
+    });
+
+    // Close modal on overlay click
+    withdrawModal.addEventListener('click', (e) => {
+      if (e.target === withdrawModal) {
+        withdrawModal.classList.remove('show');
+      }
+    });
+  </script>
+</body>
+</html>

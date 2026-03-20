@@ -1,0 +1,1279 @@
+<!doctype html>
+<!--
+  SCREEN: js10 Upload Document
+  PRD REFS: JSP-FR-004, JSP-FR-012
+  FLOW: js09-documents.html → THIS → js09-documents.html
+  PERSONA: Job Seeker
+  STAGE: Phase 1 MVP
+  NOTE: Document upload with type selection and encryption
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Upload Document | Job Seeker</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Job Seeker (teal) */
+      --color-seeker-bg:     #F0FDF4;
+      --color-seeker-accent: #10B981;
+      --color-seeker-light:  #D1FAE5;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-seeker-bg);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 16px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .nav-logo {
+      height: 32px;
+      width: auto;
+    }
+
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-grey-700);
+      text-decoration: none;
+      font-size: var(--text-base);
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .nav-back:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: var(--space-6) var(--space-4) var(--space-8) var(--space-4);
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Upload Card */
+    .upload-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Page Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: var(--space-8);
+    }
+
+    .page-title {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-3) 0;
+    }
+
+    .page-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .required {
+      color: var(--color-danger);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-help {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-top: var(--space-1);
+    }
+
+    /* Upload Area */
+    .upload-area {
+      border: 2px dashed var(--color-grey-300);
+      border-radius: var(--radius-lg);
+      padding: var(--space-12) var(--space-6);
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+      background: var(--color-white);
+    }
+
+    .upload-area:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .upload-area.dragover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .upload-icon {
+      font-size: var(--text-5xl);
+      color: var(--color-grey-400);
+      margin-bottom: var(--space-4);
+    }
+
+    .upload-text {
+      font-size: var(--text-xl);
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .upload-subtext {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-4);
+    }
+
+    .upload-hint {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .choose-file-btn {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-6);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .choose-file-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* File Preview */
+    .file-preview {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--space-4);
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .file-icon {
+      font-size: var(--text-2xl);
+      color: var(--color-primary);
+    }
+
+    .file-details {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: var(--color-grey-900);
+    }
+
+    .remove-file-btn {
+      background: var(--color-danger);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .remove-file-btn:hover {
+      background: #991B1B;
+    }
+
+    /* Encryption Notice */
+    .encryption-notice {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-top: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .encryption-icon {
+      font-size: var(--text-xl);
+      color: var(--color-info);
+    }
+
+    .encryption-text {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      line-height: 1.5;
+    }
+
+    /* Upload Button */
+    .upload-btn-container {
+      text-align: center;
+      margin-top: var(--space-8);
+    }
+
+    .upload-btn {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-8);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 200px;
+    }
+
+    .upload-btn:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
+    .upload-btn:disabled {
+      background: var(--color-grey-300);
+      cursor: not-allowed;
+    }
+
+    /* Progress State */
+    .progress-state {
+      display: none;
+      text-align: center;
+    }
+
+    .progress-state.active {
+      display: block;
+    }
+
+    .progress-title {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin-bottom: var(--space-4);
+    }
+
+    .progress-bar-container {
+      background: var(--color-grey-200);
+      border-radius: var(--radius-full);
+      height: 12px;
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: var(--radius-full);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-details {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-4);
+    }
+
+    .cancel-btn {
+      background: var(--color-danger);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-6);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cancel-btn:hover {
+      background: #991B1B;
+    }
+
+    /* Success State */
+    .success-state {
+      display: none;
+      text-align: center;
+    }
+
+    .success-state.active {
+      display: block;
+    }
+
+    .success-icon {
+      font-size: var(--text-5xl);
+      color: var(--color-success);
+      margin-bottom: var(--space-4);
+    }
+
+    .success-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-success);
+      margin-bottom: var(--space-3);
+    }
+
+    .success-message {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .success-details {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-6);
+    }
+
+    .success-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Storage Info */
+    .storage-info {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .storage-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-1);
+    }
+
+    .storage-row:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Error Messages */
+    .error-message {
+      background: var(--color-danger-bg);
+      border: 1px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      margin-top: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-danger);
+    }
+
+    .warning-message {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      margin-top: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-warning);
+    }
+
+    .warning-actions {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+
+    /* Dev Navigator Tabs */
+    .dev-tabs {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--color-navy);
+      border-radius: var(--radius-md);
+      padding: var(--space-2);
+      display: flex;
+      gap: var(--space-1);
+      z-index: 1000;
+    }
+
+    .dev-tab {
+      background: transparent;
+      color: var(--color-grey-400);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dev-tab.active {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .dev-tab:hover:not(.active) {
+      color: white;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .main-content {
+        padding: var(--space-4) var(--space-4) var(--space-8) var(--space-4);
+      }
+
+      .upload-card {
+        padding: var(--space-6);
+      }
+
+      .upload-area {
+        padding: var(--space-8) var(--space-4);
+      }
+
+      .success-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Top Navigation -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
+        <a href="js09-documents.html" class="nav-back">
+          ← <span data-i18n="navBack">Document Archive</span>
+        </a>
+      </div>
+      
+      <div class="nav-right">
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <div class="upload-card">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title" data-i18n="pageTitle">Tải lên tài liệu mới</h1>
+          <p class="page-subtitle" data-i18n="pageSubtitle">Tài liệu được mã hoá và lưu trữ an toàn.</p>
+        </div>
+
+        <!-- Storage Info -->
+        <div class="storage-info">
+          <div class="storage-row">
+            <span data-i18n="currentStorage">Storage:</span>
+            <span>2.1MB / 50MB used</span>
+          </div>
+          <div class="storage-row">
+            <span data-i18n="afterUpload">After upload:</span>
+            <span>2.55MB / 50MB</span>
+          </div>
+        </div>
+
+        <!-- Form State -->
+        <div class="form-state" id="formState">
+          <!-- Document Type -->
+          <div class="form-section">
+            <label class="form-label" data-i18n="docTypeLabel">Document Type <span class="required">*</span></label>
+            <select class="form-select" id="docTypeSelect">
+              <option value="" selected data-i18n="selectDocType">Select document type ▾</option>
+              
+              <optgroup label="Employment" data-i18n="employmentGroup">
+                <option value="employment-contract" data-i18n="employmentContract">Employment Contract</option>
+                <option value="relieving-letter" data-i18n="relievingLetter">Relieving Letter / Experience Letter</option>
+                <option value="offer-letter" data-i18n="offerLetter">Offer Letter</option>
+                <option value="payslip" data-i18n="payslip">Payslip / Salary Slip</option>
+                <option value="appointment-letter" data-i18n="appointmentLetter">Appointment Letter</option>
+              </optgroup>
+              
+              <optgroup label="Education" data-i18n="educationGroup">
+                <option value="degree-certificate" data-i18n="degreeCertificate">Degree Certificate</option>
+                <option value="diploma" data-i18n="diploma">Diploma</option>
+                <option value="transcript" data-i18n="transcript">Transcript</option>
+                <option value="course-certificate" data-i18n="courseCertificate">Course Certificate</option>
+              </optgroup>
+              
+              <optgroup label="Identity" data-i18n="identityGroup">
+                <option value="government-id" data-i18n="governmentId">Government ID (CCCD/CMND)</option>
+                <option value="passport" data-i18n="passport">Passport copy</option>
+              </optgroup>
+              
+              <optgroup label="Other" data-i18n="otherGroup">
+                <option value="reference-letter" data-i18n="referenceLetter">Reference Letter</option>
+                <option value="portfolio" data-i18n="portfolio">Portfolio</option>
+                <option value="other" data-i18n="other">Other</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Document Name -->
+          <div class="form-section">
+            <label class="form-label" data-i18n="docNameLabel">Document Name / Label <span class="required">*</span></label>
+            <input type="text" class="form-input" id="docNameInput" placeholder="e.g. Employment Contract — VinaTech 2023" data-i18n-placeholder="docNamePlaceholder">
+            <div class="form-help" data-i18n="docNameHelp">A label to identify this document in your archive</div>
+          </div>
+
+          <!-- File Upload -->
+          <div class="form-section">
+            <label class="form-label" data-i18n="fileUploadLabel">File Upload <span class="required">*</span></label>
+            
+            <div class="upload-area" id="uploadArea">
+              <div class="upload-icon">📎</div>
+              <div class="upload-text" data-i18n="uploadText">Kéo thả tệp vào đây</div>
+              <div class="upload-subtext" data-i18n="uploadSubtext">hoặc</div>
+              <button type="button" class="choose-file-btn" id="chooseFileBtn">Chọn tệp / Choose File</button>
+              <div class="upload-hint" data-i18n="uploadHint">PDF, DOC, DOCX, JPG, PNG<br>Tối đa 10MB (JSP-FR-004)</div>
+            </div>
+            
+            <input type="file" class="file-input" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+            
+            <!-- File Preview (hidden initially) -->
+            <div class="file-preview" id="filePreview" style="display: none;">
+              <div class="file-info">
+                <div class="file-icon">📄</div>
+                <div class="file-details">
+                  <div class="file-name" id="fileName">employment-contract.pdf</div>
+                  <div id="fileSize">450KB</div>
+                </div>
+              </div>
+              <button type="button" class="remove-file-btn" id="removeFileBtn">Remove ×</button>
+            </div>
+            
+            <!-- Encryption Notice -->
+            <div class="encryption-notice">
+              <div class="encryption-icon">🔒</div>
+              <div class="encryption-text" data-i18n="encryptionNotice">
+                Tệp này sẽ được mã hoá AES-256 trước khi lưu trữ.
+                <br>
+                This file will be AES-256 encrypted before storage.
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Messages -->
+          <div id="errorContainer"></div>
+
+          <!-- Upload Button -->
+          <div class="upload-btn-container">
+            <button type="button" class="upload-btn" id="uploadBtn" disabled data-i18n="uploadBtn">Upload Document</button>
+          </div>
+        </div>
+
+        <!-- Progress State -->
+        <div class="progress-state" id="progressState">
+          <div class="progress-title" data-i18n="progressTitle">Đang tải lên và mã hoá...</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="progress-details" id="progressDetails">employment-contract.pdf · 338KB / 450KB</div>
+          <button type="button" class="cancel-btn" id="cancelBtn" data-i18n="cancelBtn">Cancel</button>
+        </div>
+
+        <!-- Success State -->
+        <div class="success-state" id="successState">
+          <div class="success-icon">✅</div>
+          <div class="success-title" data-i18n="successTitle">Tải lên thành công!</div>
+          <div class="success-message" id="successFileName">employment-contract-vinatech-2023.pdf</div>
+          <div class="success-details" data-i18n="successDetails">Đã mã hoá và lưu trữ an toàn.</div>
+          <div class="success-actions">
+            <button type="button" class="btn btn-secondary" id="uploadAnotherBtn" data-i18n="uploadAnotherBtn">+ Upload Another Document</button>
+            <a href="js09-documents.html" class="btn btn-primary" data-i18n="backToArchiveBtn">← Back to Archive</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div class="dev-tabs">
+    <button class="dev-tab active" data-state="form" data-i18n="formTab">Form</button>
+    <button class="dev-tab" data-state="progress" data-i18n="progressTab">Uploading</button>
+    <button class="dev-tab" data-state="success" data-i18n="successTab">Success</button>
+  </div>
+
+  <div id="dev-nav" style="
+    position:fixed; bottom:60px; right:16px; z-index:9999;
+    background:#10B981; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#93C5FD;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 js10: Upload Doc
+    </div>
+    <a href="js09-documents.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← js09: Documents</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        navBack: 'Document Archive',
+        pageTitle: 'Tải lên tài liệu mới',
+        pageSubtitle: 'Tài liệu được mã hoá và lưu trữ an toàn.',
+        currentStorage: 'Storage:',
+        afterUpload: 'After upload:',
+        docTypeLabel: 'Document Type',
+        selectDocType: 'Select document type ▾',
+        employmentGroup: 'Employment',
+        employmentContract: 'Employment Contract',
+        relievingLetter: 'Relieving Letter / Experience Letter',
+        offerLetter: 'Offer Letter',
+        payslip: 'Payslip / Salary Slip',
+        appointmentLetter: 'Appointment Letter',
+        educationGroup: 'Education',
+        degreeCertificate: 'Degree Certificate',
+        diploma: 'Diploma',
+        transcript: 'Transcript',
+        courseCertificate: 'Course Certificate',
+        identityGroup: 'Identity',
+        governmentId: 'Government ID (CCCD/CMND)',
+        passport: 'Passport copy',
+        otherGroup: 'Other',
+        referenceLetter: 'Reference Letter',
+        portfolio: 'Portfolio',
+        other: 'Other',
+        docNameLabel: 'Document Name / Label',
+        docNamePlaceholder: 'e.g. Employment Contract — VinaTech 2023',
+        docNameHelp: 'A label to identify this document in your archive',
+        fileUploadLabel: 'File Upload',
+        uploadText: 'Kéo thả tệp vào đây',
+        uploadSubtext: 'hoặc',
+        uploadHint: 'PDF, DOC, DOCX, JPG, PNG\nTối đa 10MB (JSP-FR-004)',
+        encryptionNotice: 'Tệp này sẽ được mã hoá AES-256 trước khi lưu trữ.\nThis file will be AES-256 encrypted before storage.',
+        uploadBtn: 'Upload Document',
+        progressTitle: 'Đang tải lên và mã hoá...',
+        cancelBtn: 'Cancel',
+        successTitle: 'Tải lên thành công!',
+        successDetails: 'Đã mã hoá và lưu trữ an toàn.',
+        uploadAnotherBtn: '+ Upload Another Document',
+        backToArchiveBtn: '← Back to Archive',
+        formTab: 'Form',
+        progressTab: 'Uploading',
+        successTab: 'Success',
+        fileTooLarge: 'Tệp vượt quá 10MB. Vui lòng chọn tệp nhỏ hơn.',
+        wrongFileType: 'Định dạng không được hỗ trợ. Chấp nhận: PDF, DOC, DOCX, JPG, PNG',
+        duplicateWarning: 'Bạn đã có tài liệu tên tương tự. Bạn muốn thay thế hay lưu cả hai?',
+        replaceExisting: 'Replace Existing',
+        saveBoth: 'Save Both'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        navBack: 'Document Archive',
+        pageTitle: 'Upload New Document',
+        pageSubtitle: 'Documents are encrypted and stored securely.',
+        currentStorage: 'Storage:',
+        afterUpload: 'After upload:',
+        docTypeLabel: 'Document Type',
+        selectDocType: 'Select document type ▾',
+        employmentGroup: 'Employment',
+        employmentContract: 'Employment Contract',
+        relievingLetter: 'Relieving Letter / Experience Letter',
+        offerLetter: 'Offer Letter',
+        payslip: 'Payslip / Salary Slip',
+        appointmentLetter: 'Appointment Letter',
+        educationGroup: 'Education',
+        degreeCertificate: 'Degree Certificate',
+        diploma: 'Diploma',
+        transcript: 'Transcript',
+        courseCertificate: 'Course Certificate',
+        identityGroup: 'Identity',
+        governmentId: 'Government ID (CCCD/CMND)',
+        passport: 'Passport copy',
+        otherGroup: 'Other',
+        referenceLetter: 'Reference Letter',
+        portfolio: 'Portfolio',
+        other: 'Other',
+        docNameLabel: 'Document Name / Label',
+        docNamePlaceholder: 'e.g. Employment Contract — VinaTech 2023',
+        docNameHelp: 'A label to identify this document in your archive',
+        fileUploadLabel: 'File Upload',
+        uploadText: 'Drag & drop file here',
+        uploadSubtext: 'or',
+        uploadHint: 'PDF, DOC, DOCX, JPG, PNG\nMax 10MB (JSP-FR-004)',
+        encryptionNotice: 'This file will be AES-256 encrypted before storage.\nTệp này sẽ được mã hoá AES-256 trước khi lưu trữ.',
+        uploadBtn: 'Upload Document',
+        progressTitle: 'Uploading and encrypting...',
+        cancelBtn: 'Cancel',
+        successTitle: 'Upload successful!',
+        successDetails: 'Encrypted and stored securely.',
+        uploadAnotherBtn: '+ Upload Another Document',
+        backToArchiveBtn: '← Back to Archive',
+        formTab: 'Form',
+        progressTab: 'Uploading',
+        successTab: 'Success',
+        fileTooLarge: 'File exceeds 10MB. Please choose a smaller file.',
+        wrongFileType: 'Format not supported. Accepted: PDF, DOC, DOCX, JPG, PNG',
+        duplicateWarning: 'You have a document with a similar name. Do you want to replace or save both?',
+        replaceExisting: 'Replace Existing',
+        saveBoth: 'Save Both'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Upload Document | Job Seeker' : 'LàmViệc360 — Upload Document | Job Seeker';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== STATE MANAGEMENT ==========
+    const states = {
+      form: document.getElementById('formState'),
+      progress: document.getElementById('progressState'),
+      success: document.getElementById('successState')
+    };
+
+    function showState(stateName) {
+      Object.keys(states).forEach(key => {
+        states[key].classList.remove('active');
+      });
+      states[stateName].classList.add('active');
+      
+      // Update dev tabs
+      document.querySelectorAll('.dev-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-state') === stateName);
+      });
+    }
+
+    // ========== DEV NAVIGATOR TABS ==========
+    document.querySelectorAll('.dev-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const stateName = tab.getAttribute('data-state');
+        showState(stateName);
+        
+        if (stateName === 'progress') {
+          startProgressAnimation();
+        }
+      });
+    });
+
+    // ========== FORM VALIDATION ==========
+    const docTypeSelect = document.getElementById('docTypeSelect');
+    const docNameInput = document.getElementById('docNameInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+    const chooseFileBtn = document.getElementById('chooseFileBtn');
+    const errorContainer = document.getElementById('errorContainer');
+
+    let selectedFile = null;
+
+    function validateForm() {
+      const isValid = docTypeSelect.value && 
+                     docNameInput.value.trim() && 
+                     selectedFile;
+      uploadBtn.disabled = !isValid;
+    }
+
+    // Document type change
+    docTypeSelect.addEventListener('change', validateForm);
+
+    // Document name change
+    docNameInput.addEventListener('input', validateForm);
+
+    // File selection
+    chooseFileBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    uploadArea.addEventListener('click', (e) => {
+      if (e.target !== chooseFileBtn) {
+        fileInput.click();
+      }
+    });
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    function handleFileSelect(file) {
+      // Clear previous errors
+      errorContainer.innerHTML = '';
+      
+      // Validate file type
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        showError(t('wrongFileType'));
+        return;
+      }
+      
+      // Validate file size (10MB)
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        showError(t('fileTooLarge'));
+        return;
+      }
+      
+      selectedFile = file;
+      
+      // Show file preview
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      filePreview.style.display = 'flex';
+      uploadArea.style.display = 'none';
+      
+      validateForm();
+    }
+
+    function removeFileBtnHandler() {
+      selectedFile = null;
+      filePreview.style.display = 'none';
+      uploadArea.style.display = 'block';
+      fileInput.value = '';
+      errorContainer.innerHTML = '';
+      validateForm();
+    }
+
+    removeFileBtn.addEventListener('click', removeFileBtnHandler);
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + 'B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + 'KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + 'MB';
+    }
+
+    function showError(message) {
+      errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+
+    function showWarning(message) {
+      errorContainer.innerHTML = `
+        <div class="warning-message">${message}</div>
+        <div class="warning-actions">
+          <button class="btn btn-danger" onclick="handleReplace()">${t('replaceExisting')}</button>
+          <button class="btn btn-secondary" onclick="handleSaveBoth()">${t('saveBoth')}</button>
+        </div>
+      `;
+    }
+
+    // ========== UPLOAD PROCESS ==========
+    uploadBtn.addEventListener('click', () => {
+      // Check for duplicate (simulation)
+      if (docNameInput.value.toLowerCase().includes('employment contract')) {
+        showWarning(t('duplicateWarning'));
+        return;
+      }
+      
+      startUpload();
+    });
+
+    function startUpload() {
+      showState('progress');
+      startProgressAnimation();
+    }
+
+    function handleReplace() {
+      console.log('Replace existing document');
+      startUpload();
+    }
+
+    function handleSaveBoth() {
+      console.log('Save both documents');
+      startUpload();
+    }
+
+    function startProgressAnimation() {
+      let progress = 0;
+      const progressBar = document.getElementById('progressBar');
+      const progressDetails = document.getElementById('progressDetails');
+      
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          setTimeout(() => {
+            showSuccess();
+          }, 500);
+        }
+        
+        progressBar.style.width = progress + '%';
+        
+        const uploadedBytes = Math.round((progress / 100) * selectedFile.size);
+        progressDetails.textContent = `${selectedFile.name} · ${formatFileSize(uploadedBytes)} / ${formatFileSize(selectedFile.size)}`;
+      }, 300);
+    }
+
+    function showSuccess() {
+      showState('success');
+      
+      // Update success filename with document name
+      const successFileName = document.getElementById('successFileName');
+      successFileName.textContent = docNameInput.value + '.pdf';
+    }
+
+    // ========== CANCEL UPLOAD ==========
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      if (confirm('Are you sure you want to cancel the upload?')) {
+        showState('form');
+        // Reset progress
+        document.getElementById('progressBar').style.width = '0%';
+      }
+    });
+
+    // ========== UPLOAD ANOTHER DOCUMENT ==========
+    document.getElementById('uploadAnotherBtn').addEventListener('click', () => {
+      // Reset form
+      docTypeSelect.value = '';
+      docNameInput.value = '';
+      removeFileBtnHandler();
+      errorContainer.innerHTML = '';
+      showState('form');
+    });
+
+    // Initialize
+    validateForm();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1131 @@
+<!doctype html>
+<!--
+  SCREEN: ow01 Company Info
+  PRD REFS: EMP-FR-001, EMP-FR-004, AUTH-FR-008, AC-001
+  FLOW: a04-otp-verify.html → THIS → ow02-plan-confirm.html
+  PERSONA: Company Admin (new user)
+  STAGE: Phase 1 MVP
+  NOTE: Onboarding wizard Step 1 of 3
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Company Information | Onboarding</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      background-image: url('https://images.unsplash.com/photo-1600880292203-757bb62b7af?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.92);
+      z-index: -1;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-6) var(--space-10);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      height: 36px;
+      width: auto;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: var(--space-10) var(--space-6);
+    }
+
+    /* Wizard Card */
+    .wizard-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .wizard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    /* Progress Stepper */
+    .stepper-container {
+      margin-bottom: var(--space-8);
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex: 1;
+    }
+
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .step.active .step-circle {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .step.inactive .step-circle {
+      background: var(--color-grey-200);
+      color: var(--color-grey-500);
+    }
+
+    .step-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+    }
+
+    .step.active .step-label {
+      color: var(--color-primary);
+    }
+
+    .step.inactive .step-label {
+      color: var(--color-grey-500);
+    }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--color-grey-200);
+      margin: 0 var(--space-2);
+    }
+
+    .step-line.completed {
+      background: var(--color-primary);
+    }
+
+    .step-subtitle {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      text-align: center;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      text-align: center;
+      margin-bottom: var(--space-8);
+    }
+
+    .welcome-title {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-2) 0;
+      color: var(--color-grey-900);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Form Elements */
+    .form-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .required-asterisk {
+      color: var(--color-danger);
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(5px);
+      transition: all 0.2s;
+    }
+    
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), 0 4px 20px rgba(37, 99, 235, 0.05);
+    }
+
+    .form-input.error,
+    .form-textarea.error {
+      border-color: var(--color-danger);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-helper {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin-top: var(--space-1);
+    }
+
+    .validation-icon {
+      position: absolute;
+      right: var(--space-3);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: var(--text-lg);
+      color: var(--color-success);
+    }
+
+    .char-count {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      text-align: right;
+      margin-top: var(--space-1);
+    }
+
+    .char-count.error {
+      color: var(--color-danger);
+    }
+
+    .char-count.success {
+      color: var(--color-success);
+    }
+
+    /* File Upload */
+    .file-upload {
+      border: 2px dashed rgba(203, 213, 225, 0.8);
+      border-radius: var(--radius-md);
+      padding: var(--space-8);
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(5px);
+    }
+    
+    .file-upload:hover {
+      border-color: var(--color-primary);
+      background: rgba(37, 99, 235, 0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.1);
+    }
+
+    .file-upload.has-file {
+      border-style: solid;
+      border-color: var(--color-success);
+      background: var(--color-success-bg);
+    }
+
+    .upload-icon {
+      font-size: var(--text-2xl);
+      color: var(--color-grey-400);
+      margin-bottom: var(--space-2);
+    }
+
+    .upload-text {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-1);
+    }
+
+    .upload-helper {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+    }
+
+    .logo-preview {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3);
+      background: white;
+      border-radius: var(--radius-md);
+      margin-top: var(--space-3);
+    }
+
+    .logo-thumbnail {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+    }
+
+    .remove-logo {
+      font-size: var(--text-sm);
+      color: var(--color-danger);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .remove-logo:hover {
+      text-decoration: underline;
+    }
+
+    /* Validation Summary */
+    .validation-summary {
+      background: var(--color-danger-bg);
+      border: 1px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+      display: none;
+    }
+
+    .validation-summary.show {
+      display: block;
+    }
+
+    .validation-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--color-danger);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .validation-list {
+      margin: 0;
+      padding-left: var(--space-6);
+      color: var(--color-danger);
+    }
+
+    .validation-list li {
+      margin-bottom: var(--space-1);
+    }
+
+    /* Action Buttons */
+    .form-actions {
+      margin-top: var(--space-8);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 48px;
+      user-select: none;
+      text-decoration: none;
+      width: 100%;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      color: white;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4);
+      text-decoration: none;
+    }
+    .btn-primary:disabled { background: var(--color-grey-300); color: var(--color-grey-500); cursor: not-allowed; }
+    .btn-primary:disabled:hover { background: var(--color-grey-300); }
+
+    /* Footer Notes */
+    .footer-notes {
+      text-align: center;
+      margin-top: var(--space-6);
+    }
+
+    .save-note {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-2);
+    }
+
+    .privacy-note {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+    }
+
+    /* Input Container */
+    .input-container {
+      position: relative;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .top-bar {
+        padding: var(--space-4) var(--space-6);
+      }
+
+      .main-container {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .wizard-card {
+        padding: var(--space-6);
+      }
+
+      .stepper {
+        flex-direction: column;
+        gap: var(--space-4);
+      }
+
+      .step-line {
+        display: none;
+      }
+
+      .step {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .welcome-title {
+        font-size: var(--text-2xl);
+      }
+
+      .form-actions {
+        margin-top: var(--space-6);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <!-- Logo (RULE G-003) -->
+    <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo">
+    
+    <!-- Language Toggle (RULE G-002) -->
+    <div class="lang-toggle" role="group" aria-label="Language selector">
+      <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+      <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container" id="main-content">
+    <!-- Wizard Card -->
+    <div class="wizard-card">
+      <!-- Progress Stepper -->
+      <div class="stepper-container">
+        <div class="stepper">
+          <div class="step active">
+            <div class="step-circle">1</div>
+            <div class="step-label" data-i18n="step1Label">Company Info</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step inactive">
+            <div class="step-circle">2</div>
+            <div class="step-label" data-i18n="step2Label">Plan</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step inactive">
+            <div class="step-circle">3</div>
+            <div class="step-label" data-i18n="step3Label">Team</div>
+          </div>
+        </div>
+        <div class="step-subtitle" data-i18n="stepSubtitle">Step 1 of 3 — Tell us about your company</div>
+      </div>
+
+      <!-- Welcome Section -->
+      <div class="welcome-section">
+        <h1 class="welcome-title" data-i18n="welcomeTitle">Welcome to LàmViệc360! 👋</h1>
+        <p class="welcome-subtitle" data-i18n="welcomeSubtitle">Set up your company workspace in under 5 minutes.</p>
+      </div>
+
+      <!-- Validation Summary -->
+      <div class="validation-summary" id="validationSummary">
+        <h3 class="validation-title" data-i18n="validationTitle">Please fix 2 errors before continuing:</h3>
+        <ul class="validation-list" id="validationList">
+          <li data-i18n="error1">Company name is required</li>
+          <li data-i18n="error2">Description must be at least 50 characters</li>
+        </ul>
+      </div>
+
+      <!-- Company Information Form -->
+      <form id="companyForm">
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label" for="companyName" data-i18n="companyNameLabel">
+              Company Name <span class="required-asterisk">*</span>
+            </label>
+            <div class="input-container">
+              <input type="text" class="form-input" id="companyName" value="TechCorp Vietnam JSC" data-i18n-placeholder="companyNamePlaceholder">
+            </div>
+            <div class="form-helper" data-i18n="companyNameHelper">This appears on all job listings and your public profile</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="businessReg" data-i18n="businessRegLabel">
+              Business Registration Number <span class="required-asterisk">*</span>
+            </label>
+            <div class="input-container">
+              <input type="text" class="form-input" id="businessReg" value="0101234567" data-i18n-placeholder="businessRegPlaceholder">
+              <span class="validation-icon" id="regValidation" style="display: none;">✓</span>
+            </div>
+            <div class="form-helper" data-i18n="businessRegHelper">10-digit Vietnam business registration number</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="industry" data-i18n="industryLabel">
+              Industry <span class="required-asterisk">*</span>
+            </label>
+            <select class="form-select" id="industry">
+              <option value="it-saas" selected data-i18n="itSaaS">IT / SaaS</option>
+              <option value="finance" data-i18n="finance">Finance / Fintech</option>
+              <option value="marketing" data-i18n="marketing">Marketing / Advertising</option>
+              <option value="manufacturing" data-i18n="manufacturing">Manufacturing</option>
+              <option value="healthcare" data-i18n="healthcare">Healthcare</option>
+              <option value="education" data-i18n="education">Education</option>
+              <option value="ecommerce" data-i18n="ecommerce">E-commerce</option>
+              <option value="logistics" data-i18n="logistics">Logistics</option>
+              <option value="realestate" data-i18n="realestate">Real Estate</option>
+              <option value="other" data-i18n="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="companySize" data-i18n="companySizeLabel">
+              Company Size <span class="required-asterisk">*</span>
+            </label>
+            <select class="form-select" id="companySize">
+              <option value="1-10" data-i18n="size1_10">1–10</option>
+              <option value="11-50" data-i18n="size11_50">11–50</option>
+              <option value="51-200" selected data-i18n="size51_200">51–200</option>
+              <option value="201-500" data-i18n="size201_500">201–500</option>
+              <option value="500+" data-i18n="size500_plus">500+</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="province" data-i18n="provinceLabel">
+              Province / City <span class="required-asterisk">*</span>
+            </label>
+            <select class="form-select" id="province">
+              <option value="hanoi" selected data-i18n="hanoi">Hà Nội</option>
+              <option value="hcmc" data-i18n="hcmc">TP. Hồ Chí Minh</option>
+              <option value="danang" data-i18n="danang">Đà Nẵng</option>
+              <option value="haiphong" data-i18n="haiphong">Hải Phòng</option>
+              <option value="cantho" data-i18n="cantho">Cần Thơ</option>
+              <option value="all" data-i18n="allLocations">All locations</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="website" data-i18n="websiteLabel">Website URL</label>
+            <input type="url" class="form-input" id="website" value="https://techcorp.vn" data-i18n-placeholder="websitePlaceholder">
+            <div class="form-helper" data-i18n="websiteHelper">Optional — shown on your public company profile</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="description" data-i18n="descriptionLabel">
+              Company Description <span class="required-asterisk">*</span>
+            </label>
+            <textarea class="form-textarea" id="description" data-i18n-placeholder="descriptionPlaceholder"></textarea>
+            <div class="char-count" id="charCount" data-i18n="charCount">0 / 1000 (min 50)</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="logoLabel">Company Logo (optional)</label>
+            <div class="file-upload" id="fileUpload">
+              <div class="upload-icon">📎</div>
+              <div class="upload-text" data-i18n="uploadText">Drag & drop your logo here or click to upload</div>
+              <div class="upload-helper" data-i18n="uploadHelper">PNG or JPG · Max 2MB · Recommended 200×200px</div>
+            </div>
+            <div class="logo-preview" id="logoPreview" style="display: none;">
+              <div class="logo-thumbnail" id="logoThumbnail">LOGO</div>
+              <a href="#" class="remove-logo" id="removeLogo" data-i18n="removeLogo">Remove</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="continueBtn" disabled data-i18n="continueBtn">Continue →</button>
+        </div>
+      </form>
+
+      <!-- Footer Notes -->
+      <div class="footer-notes">
+        <div class="save-note" data-i18n="saveNote">💾 Your progress is automatically saved.</div>
+        <div class="privacy-note" data-i18n="privacyNote">Your information is protected under Decree 13/2023</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 ow01: Company Info
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="../auth/a04-otp-verify.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← a04: OTP Verify</a>
+    <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="ow02-plan-confirm.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ ow02: Plan Confirm</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        step1Label: 'Company Info',
+        step2Label: 'Plan',
+        step3Label: 'Team',
+        stepSubtitle: 'Step 1 of 3 — Tell us about your company',
+        welcomeTitle: 'Welcome to LàmViệc360! 👋',
+        welcomeSubtitle: 'Set up your company workspace in under 5 minutes.',
+        validationTitle: 'Please fix 2 errors before continuing:',
+        error1: 'Company name is required',
+        error2: 'Description must be at least 50 characters',
+        companyNameLabel: 'Company Name',
+        companyNamePlaceholder: 'Enter company name',
+        companyNameHelper: 'This appears on all job listings and your public profile',
+        businessRegLabel: 'Business Registration Number',
+        businessRegPlaceholder: 'Enter 10-digit business registration number',
+        businessRegHelper: '10-digit Vietnam business registration number',
+        industryLabel: 'Industry',
+        itSaaS: 'IT / SaaS',
+        finance: 'Finance / Fintech',
+        marketing: 'Marketing / Advertising',
+        manufacturing: 'Manufacturing',
+        healthcare: 'Healthcare',
+        education: 'Education',
+        ecommerce: 'E-commerce',
+        logistics: 'Logistics',
+        realestate: 'Real Estate',
+        other: 'Other',
+        companySizeLabel: 'Company Size',
+        size1_10: '1–10',
+        size11_50: '11–50',
+        size51_200: '51–200',
+        size201_500: '201–500',
+        size500_plus: '500+',
+        provinceLabel: 'Province / City',
+        hanoi: 'Hà Nội',
+        hcmc: 'TP. Hồ Chí Minh',
+        danang: 'Đà Nẵng',
+        haiphong: 'Hải Phòng',
+        cantho: 'Cần Thơ',
+        allLocations: 'All locations',
+        websiteLabel: 'Website URL',
+        websitePlaceholder: 'https://example.com',
+        websiteHelper: 'Optional — shown on your public company profile',
+        descriptionLabel: 'Company Description',
+        descriptionPlaceholder: 'Describe your company — what you do, your culture, and why people love working here...',
+        logoLabel: 'Company Logo (optional)',
+        uploadText: 'Drag & drop your logo here or click to upload',
+        uploadHelper: 'PNG or JPG · Max 2MB · Recommended 200×200px',
+        removeLogo: 'Remove',
+        continueBtn: 'Continue →',
+        saveNote: '💾 Your progress is automatically saved.',
+        privacyNote: 'Your information is protected under Decree 13/2023',
+        charCount: '0 / 1000 (min 50)',
+        need: 'need',
+        more: 'more',
+        exceeded: 'exceeded'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        step1Label: 'Company Info',
+        step2Label: 'Plan',
+        step3Label: 'Team',
+        stepSubtitle: 'Step 1 of 3 — Tell us about your company',
+        welcomeTitle: 'Welcome to LàmViệc360! 👋',
+        welcomeSubtitle: 'Set up your company workspace in under 5 minutes.',
+        validationTitle: 'Please fix 2 errors before continuing:',
+        error1: 'Company name is required',
+        error2: 'Description must be at least 50 characters',
+        companyNameLabel: 'Company Name',
+        companyNamePlaceholder: 'Enter company name',
+        companyNameHelper: 'This appears on all job listings and your public profile',
+        businessRegLabel: 'Business Registration Number',
+        businessRegPlaceholder: 'Enter 10-digit business registration number',
+        businessRegHelper: '10-digit Vietnam business registration number',
+        industryLabel: 'Industry',
+        itSaaS: 'IT / SaaS',
+        finance: 'Finance / Fintech',
+        marketing: 'Marketing / Advertising',
+        manufacturing: 'Manufacturing',
+        healthcare: 'Healthcare',
+        education: 'Education',
+        ecommerce: 'E-commerce',
+        logistics: 'Logistics',
+        realestate: 'Real Estate',
+        other: 'Other',
+        companySizeLabel: 'Company Size',
+        size1_10: '1–10',
+        size11_50: '11–50',
+        size51_200: '51–200',
+        size201_500: '201–500',
+        size500_plus: '500+',
+        provinceLabel: 'Province / City',
+        hanoi: 'Hanoi',
+        hcmc: 'Ho Chi Minh City',
+        danang: 'Da Nang',
+        haiphong: 'Hai Phong',
+        cantho: 'Can Tho',
+        allLocations: 'All locations',
+        websiteLabel: 'Website URL',
+        websitePlaceholder: 'https://example.com',
+        websiteHelper: 'Optional — shown on your public company profile',
+        descriptionLabel: 'Company Description',
+        descriptionPlaceholder: 'Describe your company — what you do, your culture, and why people love working here...',
+        logoLabel: 'Company Logo (optional)',
+        uploadText: 'Drag & drop your logo here or click to upload',
+        uploadHelper: 'PNG or JPG · Max 2MB · Recommended 200×200px',
+        removeLogo: 'Remove',
+        continueBtn: 'Continue →',
+        saveNote: '💾 Your progress is automatically saved.',
+        privacyNote: 'Your information is protected under Decree 13/2023',
+        charCount: '0 / 1000 (min 50)',
+        need: 'need',
+        more: 'more',
+        exceeded: 'exceeded'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Company Information | Onboarding' : 'LàmViệc360 — Company Information | Onboarding';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update character count
+      const charCountEl = document.getElementById('charCount');
+      if (charCountEl && LANG[lang].charCount) {
+        charCountEl.textContent = LANG[lang].charCount;
+      }
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== FORM VALIDATION ==========
+    const form = document.getElementById('companyForm');
+    const companyNameInput = document.getElementById('companyName');
+    const businessRegInput = document.getElementById('businessReg');
+    const descriptionTextarea = document.getElementById('description');
+    const charCount = document.getElementById('charCount');
+    const continueBtn = document.getElementById('continueBtn');
+    const validationSummary = document.getElementById('validationSummary');
+    const validationList = document.getElementById('validationList');
+    const regValidation = document.getElementById('regValidation');
+
+    // Business registration validation
+    businessRegInput.addEventListener('input', () => {
+      const value = businessRegInput.value;
+      const isValid = /^\d{10}$/.test(value);
+      
+      if (isValid) {
+        regValidation.style.display = 'block';
+        businessRegInput.classList.remove('error');
+      } else {
+        regValidation.style.display = 'none';
+        businessRegInput.classList.add('error');
+      }
+      
+      validateForm();
+    });
+
+    // Character count validation
+    descriptionTextarea.addEventListener('input', () => {
+      const length = descriptionTextarea.value.length;
+      const charCountText = t('charCount');
+      
+      if (length < 50) {
+        const needed = 50 - length;
+        charCount.textContent = `${length} / 1000 (${t('need')} ${needed} ${t('more')})`;
+        charCount.classList.add('error');
+        charCount.classList.remove('success');
+        descriptionTextarea.classList.add('error');
+      } else if (length > 1000) {
+        charCount.textContent = `1000 / 1000 (${t('exceeded')})`;
+        charCount.classList.add('error');
+        charCount.classList.remove('success');
+        descriptionTextarea.classList.add('error');
+        // Truncate to 1000
+        descriptionTextarea.value = descriptionTextarea.value.substring(0, 1000);
+      } else {
+        charCount.textContent = `${length} / 1000 ✓`;
+        charCount.classList.remove('error');
+        charCount.classList.add('success');
+        descriptionTextarea.classList.remove('error');
+      }
+      
+      validateForm();
+    });
+
+    // Company name validation
+    companyNameInput.addEventListener('input', () => {
+      const value = companyNameInput.value.trim();
+      if (!value) {
+        companyNameInput.classList.add('error');
+      } else {
+        companyNameInput.classList.remove('error');
+      }
+      validateForm();
+    });
+
+    // Form validation function
+    function validateForm() {
+      const companyName = companyNameInput.value.trim();
+      const businessReg = businessRegInput.value;
+      const industry = document.getElementById('industry').value;
+      const companySize = document.getElementById('companySize').value;
+      const province = document.getElementById('province').value;
+      const description = descriptionTextarea.value.trim();
+      
+      const errors = [];
+      
+      if (!companyName) errors.push(t('error1'));
+      if (!/^\d{10}$/.test(businessReg)) errors.push('Business registration number must be 10 digits');
+      if (!industry) errors.push('Industry is required');
+      if (!companySize) errors.push('Company size is required');
+      if (!province) errors.push('Province is required');
+      if (description.length < 50) errors.push(t('error2'));
+      
+      if (errors.length > 0) {
+        validationSummary.classList.add('show');
+        validationList.innerHTML = errors.map(error => `<li>${error}</li>`).join('');
+        continueBtn.disabled = true;
+      } else {
+        validationSummary.classList.remove('show');
+        continueBtn.disabled = false;
+      }
+    }
+
+    // File upload handling
+    const fileUpload = document.getElementById('fileUpload');
+    const logoPreview = document.getElementById('logoPreview');
+    const logoThumbnail = document.getElementById('logoThumbnail');
+    const removeLogo = document.getElementById('removeLogo');
+
+    fileUpload.addEventListener('click', (e) => {
+      e.preventDefault();
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/png,image/jpeg';
+      input.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          if (file.size > 2 * 1024 * 1024) {
+            alert('File size must be less than 2MB');
+            return;
+          }
+          
+          // Show preview
+          logoPreview.style.display = 'flex';
+          fileUpload.classList.add('has-file');
+          logoThumbnail.textContent = file.name.substring(0, 8).toUpperCase();
+        }
+      };
+      input.click();
+    });
+
+    removeLogo.addEventListener('click', (e) => {
+      e.preventDefault();
+      logoPreview.style.display = 'none';
+      fileUpload.classList.remove('has-file');
+    });
+
+    // Form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // In real app, would save to database and navigate to next step
+      console.log('Form submitted:', {
+        companyName: companyNameInput.value,
+        businessReg: businessRegInput.value,
+        industry: document.getElementById('industry').value,
+        companySize: document.getElementById('companySize').value,
+        province: document.getElementById('province').value,
+        website: document.getElementById('website').value,
+        description: descriptionTextarea.value
+      });
+      
+      // Navigate to next step
+      window.location.href = 'ow02-plan-confirm.html';
+    });
+
+    // Initialize validation
+    validateForm();
+  </script>
+</body>
+</html>

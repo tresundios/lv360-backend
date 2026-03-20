@@ -1,0 +1,1103 @@
+<!doctype html>
+<!--
+  SCREEN: ow04 Pending Approval
+  PRD REFS: EMP-FR-002, AUTH-FR-008, BR-001, BR-008, AC-010
+  FLOW: ow03-team-invite.html → THIS → e01-dashboard.html (approved) or ow01-company-info.html (rejected)
+  PERSONA: Company Admin (new user)
+  STAGE: Phase 1 MVP
+  NOTE: Post-onboarding waiting screen with 3 states
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Pending Approval | Onboarding</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      background-image: url('https://images.unsplash.com/photo-1600880292203-757bb62b7af?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.92);
+      z-index: -1;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-6) var(--space-10);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      height: 36px;
+      width: auto;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: var(--space-10) var(--space-6);
+      min-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Content Card */
+    .content-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-xl);
+      padding: var(--space-10);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
+      text-align: center;
+    }
+
+    /* Illustration */
+    .illustration {
+      width: 200px;
+      height: 160px;
+      margin: 0 auto var(--space-8) auto;
+      border-radius: var(--radius-lg);
+      background: var(--color-grey-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-4xl);
+      color: var(--color-grey-400);
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-full);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-6);
+    }
+
+    .status-badge.success {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .status-badge.danger {
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+    }
+
+    /* Headings */
+    .main-title {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-2) 0;
+      color: var(--color-grey-900);
+    }
+
+    .company-name {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .description {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-8) 0;
+      line-height: 1.6;
+    }
+
+    /* Step List */
+    .step-list {
+      margin: var(--space-8) 0;
+      text-align: left;
+    }
+
+    .step-item {
+      display: flex;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+      position: relative;
+    }
+
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 48px;
+      width: 2px;
+      height: 40px;
+      background: var(--color-grey-200);
+    }
+
+    .step-indicator {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-indicator.completed {
+      background: var(--color-success);
+      color: white;
+    }
+
+    .step-indicator.active {
+      background: var(--color-warning);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+
+    .step-indicator.pending {
+      background: var(--color-grey-200);
+      color: var(--color-grey-500);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(201, 146, 42, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(201, 146, 42, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(201, 146, 42, 0); }
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .step-description {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .step-status {
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .step-status.completed {
+      color: var(--color-success);
+    }
+
+    .step-status.active {
+      color: var(--color-warning);
+    }
+
+    .step-status.pending {
+      color: var(--color-grey-500);
+    }
+
+    /* Warning Box */
+    .warning-box {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-8) 0;
+      text-align: left;
+    }
+
+    .warning-content {
+      font-size: var(--text-sm);
+      color: var(--color-warning);
+      line-height: 1.5;
+    }
+
+    /* Action Cards */
+    .action-cards {
+      display: flex;
+      gap: var(--space-4);
+      margin: var(--space-8) 0;
+    }
+
+    .action-card {
+      flex: 1;
+      background: var(--color-white);
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .action-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .action-icon {
+      font-size: var(--text-2xl);
+      margin-bottom: var(--space-2);
+    }
+
+    .action-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .action-description {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Collapsible Section */
+    .collapsible-section {
+      margin: var(--space-8) 0;
+      text-align: left;
+    }
+
+    .collapsible-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3);
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .collapsible-header:hover {
+      background: var(--color-grey-100);
+    }
+
+    .collapsible-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+    }
+
+    .collapsible-arrow {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      transition: transform 0.2s;
+    }
+
+    .collapsible-header.open .collapsible-arrow {
+      transform: rotate(180deg);
+    }
+
+    .collapsible-content {
+      padding: var(--space-4);
+      border: var(--border-default);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      background: var(--color-white);
+      display: none;
+    }
+
+    .collapsible-content.show {
+      display: block;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--color-grey-100);
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .summary-value {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-900);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 48px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      color: white;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4);
+      text-decoration: none;
+    }
+    .btn-large {
+      padding: 16px 32px;
+      font-size: var(--text-lg);
+      min-height: 56px;
+    }
+
+    /* Rejection Box */
+    .rejection-box {
+      background: var(--color-danger-bg);
+      border: 1px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-6) 0;
+      text-align: left;
+    }
+
+    .rejection-content {
+      font-size: var(--text-sm);
+      color: var(--color-danger);
+      line-height: 1.5;
+    }
+
+    /* State Containers */
+    .state-content {
+      display: none;
+    }
+
+    .state-content.active {
+      display: block;
+    }
+
+    /* Dev Navigator */
+    .dev-navigator {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 9999;
+      background: var(--color-navy);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 11px;
+      color: white;
+      min-width: 200px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .dev-title {
+      font-size: 10px;
+      color: #60A5FA;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .dev-current {
+      color: #93C5FD;
+      margin-bottom: 6px;
+    }
+
+    .dev-tabs {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: 8px;
+    }
+
+    .dev-tab {
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 10px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s;
+    }
+
+    .dev-tab.active {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .dev-links {
+      margin-top: 8px;
+    }
+
+    .dev-link {
+      display: block;
+      color: #5B9BD5;
+      padding: 2px 0;
+      text-decoration: none;
+      font-size: 10px;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .top-bar {
+        padding: var(--space-4) var(--space-6);
+      }
+
+      .main-container {
+        padding: var(--space-6) var(--space-4);
+      }
+
+      .content-card {
+        padding: var(--space-6);
+      }
+
+      .action-cards {
+        flex-direction: column;
+      }
+
+      .step-item:not(:last-child)::after {
+        left: 16px;
+        top: 40px;
+        height: 32px;
+      }
+
+      .step-indicator {
+        width: 32px;
+        height: 32px;
+        font-size: var(--text-base);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .step-indicator.active { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <!-- Logo (RULE G-003) -->
+    <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo">
+    
+    <!-- Language Toggle (RULE G-002) -->
+    <div class="lang-toggle" role="group" aria-label="Language selector">
+      <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+      <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container" id="main-content">
+    <div class="content-card">
+      <!-- State 1: Pending -->
+      <div class="state-content active" id="pending-state">
+        <!-- Illustration -->
+        <div class="illustration">⏰</div>
+
+        <!-- Status Badge -->
+        <div class="status-badge" data-i18n="underReview">⏳ Under Review</div>
+
+        <!-- Headings -->
+        <h1 class="main-title" data-i18n="beingReviewed">Your company is being reviewed</h1>
+        <div class="company-name">TechCorp Vietnam JSC</div>
+        <p class="description" data-i18n="reviewDescription">
+          Our team is verifying your company registration details. You'll receive an email notification as soon as your workspace is approved.
+        </p>
+
+        <!-- Step List -->
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-indicator completed">✓</div>
+            <div class="step-content">
+              <div class="step-title" data-i18n="step1Title">Registration complete</div>
+              <div class="step-description" data-i18n="step1Description">Your company information has been submitted.</div>
+              <div class="step-status completed" data-i18n="completed">✓ Completed</div>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-indicator active">⏳</div>
+            <div class="step-content">
+              <div class="step-title" data-i18n="step2Title">Admin review</div>
+              <div class="step-description" data-i18n="step2Description">
+                Our team verifies your Business Registration Number and company details.
+              </div>
+              <div class="step-status active" data-i18n="inProgress">⏳ In progress — Usually within 1 business day</div>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-indicator pending">○</div>
+            <div class="step-content">
+              <div class="step-title" data-i18n="step3Title">Workspace activated</div>
+              <div class="step-description" data-i18n="step3Description">
+                You'll receive an email at haanh@techcorp.vn and can start posting jobs immediately.
+              </div>
+              <div class="step-status pending" data-i18n="awaitingApproval">Awaiting approval</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locked Workspace Notice -->
+        <div class="warning-box">
+          <div class="warning-content" data-i18n="lockedWorkspace">
+            🔒 Your workspace features are locked until approval. You cannot post jobs or access the pipeline yet.
+          </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="action-cards">
+          <div class="action-card">
+            <div class="action-icon">📧</div>
+            <div class="action-title" data-i18n="checkEmail">Check your email</div>
+            <div class="action-description" data-i18n="checkEmailDescription">
+              Watch for the approval notification at haanh@techcorp.vn
+            </div>
+          </div>
+
+          <div class="action-card">
+            <div class="action-icon">📋</div>
+            <div class="action-title" data-i18n="reviewPRD">Review the PRD</div>
+            <div class="action-description" data-i18n="reviewPRDDescription">
+              Explore platform features at lamviec360.vn/help
+            </div>
+          </div>
+
+          <div class="action-card">
+            <div class="action-icon">👥</div>
+            <div class="action-title" data-i18n="inviteTeam">Invite your team</div>
+            <div class="action-description" data-i18n="inviteTeamDescription">
+              Pending invites are already active while you wait for approval.
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsible Summary -->
+        <div class="collapsible-section">
+          <div class="collapsible-header" id="summaryHeader">
+            <div class="collapsible-title" data-i18n="submittedInfo">Your submitted information ▾</div>
+            <div class="collapsible-arrow">▼</div>
+          </div>
+          <div class="collapsible-content" id="summaryContent">
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="companyLabel">Company</span>
+              <span class="summary-value">TechCorp Vietnam JSC</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="businessRegLabel">Business Reg</span>
+              <span class="summary-value">0101234567</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="industryLabel">Industry</span>
+              <span class="summary-value">IT / SaaS</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="provinceLabel">Province</span>
+              <span class="summary-value">Hà Nội</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" data-i18n="submittedLabel">Submitted</span>
+              <span class="summary-value">14 Tháng 3, 2026 at 09:30</span>
+            </div>
+            <div style="margin-top: var(--space-3); text-align: center;">
+              <a href="#" class="action-link" data-i18n="contactSupport">Not correct? Contact support →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- State 2: Approved -->
+      <div class="state-content" id="approved-state">
+        <!-- Illustration -->
+        <div class="illustration">✅</div>
+
+        <!-- Status Badge -->
+        <div class="status-badge success" data-i18n="approved">✓ Approved</div>
+
+        <!-- Headings -->
+        <h1 class="main-title" data-i18n="workspaceReady">Your workspace is ready! 🎉</h1>
+        <div class="company-name">TechCorp Vietnam JSC</div>
+        <p class="description" data-i18n="approvedDescription">
+          TechCorp Vietnam JSC has been approved. Your verified badge has been granted.
+        </p>
+
+        <!-- Feature Unlocks -->
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-indicator completed">✓</div>
+            <div class="step-content">
+              <div class="step-title" data-i18n="feature1">Post unlimited jobs</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-indicator completed">✓</div>
+            <div class="step-content">
+              <div class="step-title" data-i18n="feature2">Manage candidate pipeline</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-indicator completed">✓</div>
+            <div class="step-content">
+              <div class="step-title" data-i18n="feature3">Invite team members</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-indicator completed">✓✓</div>
+            <div class="step-content">
+              <div class="step-title" data-i18n="feature4">Verified Company badge active</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <a href="../employer/e01-dashboard.html" class="btn btn-primary btn-large" data-i18n="goToDashboard">Go to Dashboard →</a>
+      </div>
+
+      <!-- State 3: Rejected -->
+      <div class="state-content" id="rejected-state">
+        <!-- Illustration -->
+        <div class="illustration">❌</div>
+
+        <!-- Status Badge -->
+        <div class="status-badge danger" data-i18n="notApproved">✕ Not Approved</div>
+
+        <!-- Headings -->
+        <h1 class="main-title" data-i18n="couldNotVerify">We could not verify your company</h1>
+        <div class="company-name">TechCorp Vietnam JSC</div>
+
+        <!-- Rejection Box -->
+        <div class="rejection-box">
+          <div class="rejection-content">
+            <div data-i18n="rejectionReason">Reason from Super Admin:</div>
+            <div data-i18n="rejectionDetails">
+              'Business registration number 0101234567 could not be verified against Vietnam business registry. Please resubmit with correct registration details.'
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <a href="ow01-company-info.html" class="btn btn-primary" data-i18n="updateResubmit">Update & Resubmit</a>
+
+        <!-- Help Link -->
+        <div style="margin-top: var(--space-4);">
+          <a href="#" class="action-link" data-i18n="needHelp">Need help? Contact support →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div class="dev-navigator">
+    <div class="dev-title">DEV NAVIGATOR</div>
+    <div class="dev-current">📍 ow04: Pending Approval</div>
+    
+    <div class="dev-tabs">
+      <div class="dev-tab active" data-state="pending">Pending</div>
+      <div class="dev-tab" data-state="approved">Approved</div>
+      <div class="dev-tab" data-state="rejected">Rejected</div>
+    </div>
+    
+    <div class="dev-links">
+      <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+      <a href="ow03-team-invite.html" class="dev-link">← ow03: Team Invite</a>
+      <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+      <a href="../employer/e01-dashboard.html" class="dev-link" id="nextLink">→ e01: Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        underReview: '⏳ Under Review',
+        beingReviewed: 'Your company is being reviewed',
+        reviewDescription: 'Our team is verifying your company registration details. You\'ll receive an email notification as soon as your workspace is approved.',
+        step1Title: 'Registration complete',
+        step1Description: 'Your company information has been submitted.',
+        completed: '✓ Completed',
+        step2Title: 'Admin review',
+        step2Description: 'Our team verifies your Business Registration Number and company details.',
+        inProgress: '⏳ In progress — Usually within 1 business day',
+        step3Title: 'Workspace activated',
+        step3Description: 'You\'ll receive an email at haanh@techcorp.vn and can start posting jobs immediately.',
+        awaitingApproval: 'Awaiting approval',
+        lockedWorkspace: '🔒 Your workspace features are locked until approval. You cannot post jobs or access the pipeline yet.',
+        checkEmail: 'Check your email',
+        checkEmailDescription: 'Watch for the approval notification at haanh@techcorp.vn',
+        reviewPRD: 'Review the PRD',
+        reviewPRDDescription: 'Explore platform features at lamviec360.vn/help',
+        inviteTeam: 'Invite your team',
+        inviteTeamDescription: 'Pending invites are already active while you wait for approval.',
+        submittedInfo: 'Your submitted information ▾',
+        companyLabel: 'Company',
+        businessRegLabel: 'Business Reg',
+        industryLabel: 'Industry',
+        provinceLabel: 'Province',
+        submittedLabel: 'Submitted',
+        contactSupport: 'Not correct? Contact support →',
+        approved: '✓ Approved',
+        workspaceReady: 'Your workspace is ready! 🎉',
+        approvedDescription: 'TechCorp Vietnam JSC has been approved. Your verified badge has been granted.',
+        feature1: 'Post unlimited jobs',
+        feature2: 'Manage candidate pipeline',
+        feature3: 'Invite team members',
+        feature4: 'Verified Company badge active',
+        goToDashboard: 'Go to Dashboard →',
+        notApproved: '✕ Not Approved',
+        couldNotVerify: 'We could not verify your company',
+        rejectionReason: 'Reason from Super Admin:',
+        rejectionDetails: '\'Business registration number 0101234567 could not be verified against Vietnam business registry. Please resubmit with correct registration details.\'',
+        updateResubmit: 'Update & Resubmit',
+        needHelp: 'Need help? Contact support →'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        underReview: '⏳ Under Review',
+        beingReviewed: 'Your company is being reviewed',
+        reviewDescription: 'Our team is verifying your company registration details. You\'ll receive an email notification as soon as your workspace is approved.',
+        step1Title: 'Registration complete',
+        step1Description: 'Your company information has been submitted.',
+        completed: '✓ Completed',
+        step2Title: 'Admin review',
+        step2Description: 'Our team verifies your Business Registration Number and company details.',
+        inProgress: '⏳ In progress — Usually within 1 business day',
+        step3Title: 'Workspace activated',
+        step3Description: 'You\'ll receive an email at haanh@techcorp.vn and can start posting jobs immediately.',
+        awaitingApproval: 'Awaiting approval',
+        lockedWorkspace: '🔒 Your workspace features are locked until approval. You cannot post jobs or access the pipeline yet.',
+        checkEmail: 'Check your email',
+        checkEmailDescription: 'Watch for the approval notification at haanh@techcorp.vn',
+        reviewPRD: 'Review the PRD',
+        reviewPRDDescription: 'Explore platform features at lamviec360.vn/help',
+        inviteTeam: 'Invite your team',
+        inviteTeamDescription: 'Pending invites are already active while you wait for approval.',
+        submittedInfo: 'Your submitted information ▾',
+        companyLabel: 'Company',
+        businessRegLabel: 'Business Reg',
+        industryLabel: 'Industry',
+        provinceLabel: 'Province',
+        submittedLabel: 'Submitted',
+        contactSupport: 'Not correct? Contact support →',
+        approved: '✓ Approved',
+        workspaceReady: 'Your workspace is ready! 🎉',
+        approvedDescription: 'TechCorp Vietnam JSC has been approved. Your verified badge has been granted.',
+        feature1: 'Post unlimited jobs',
+        feature2: 'Manage candidate pipeline',
+        feature3: 'Invite team members',
+        feature4: 'Verified Company badge active',
+        goToDashboard: 'Go to Dashboard →',
+        notApproved: '✕ Not Approved',
+        couldNotVerify: 'We could not verify your company',
+        rejectionReason: 'Reason from Super Admin:',
+        rejectionDetails: '\'Business registration number 0101234567 could not be verified against Vietnam business registry. Please resubmit with correct registration details.\'',
+        updateResubmit: 'Update & Resubmit',
+        needHelp: 'Need help? Contact support →'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Pending Approval | Onboarding' : 'LàmViệc360 — Pending Approval | Onboarding';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== STATE SWITCHING ==========
+    const stateContents = {
+      pending: document.getElementById('pending-state'),
+      approved: document.getElementById('approved-state'),
+      rejected: document.getElementById('rejected-state')
+    };
+
+    const devTabs = document.querySelectorAll('.dev-tab');
+    const nextLink = document.getElementById('nextLink');
+
+    function switchState(stateName) {
+      // Hide all states
+      Object.values(stateContents).forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Show selected state
+      stateContents[stateName].classList.add('active');
+      
+      // Update dev tabs
+      devTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-state') === stateName);
+      });
+      
+      // Update next link based on state
+      if (stateName === 'approved') {
+        nextLink.href = '../employer/e01-dashboard.html';
+        nextLink.textContent = '→ e01: Dashboard';
+      } else if (stateName === 'rejected') {
+        nextLink.href = 'ow01-company-info.html';
+        nextLink.textContent = '→ ow01: Company Info';
+      } else {
+        nextLink.href = '../employer/e01-dashboard.html';
+        nextLink.textContent = '→ e01: Dashboard';
+      }
+    }
+
+    // Dev tab switching
+    devTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchState(tab.getAttribute('data-state'));
+      });
+    });
+
+    // ========== COLLAPSIBLE SUMMARY ==========
+    const summaryHeader = document.getElementById('summaryHeader');
+    const summaryContent = document.getElementById('summaryContent');
+
+    summaryHeader.addEventListener('click', () => {
+      const isOpen = summaryContent.classList.contains('show');
+      
+      if (isOpen) {
+        summaryContent.classList.remove('show');
+        summaryHeader.classList.remove('open');
+      } else {
+        summaryContent.classList.add('show');
+        summaryHeader.classList.add('open');
+      }
+    });
+
+    // ========== LINK HANDLERS ==========
+    document.querySelectorAll('.action-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (link.textContent.includes('Contact support')) {
+          e.preventDefault();
+          alert('Support contact: support@lamviec360.vn');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,942 @@
+<!doctype html>
+<!--
+  SCREEN: a07 Social Login
+  PRD REFS: AUTH-FR-002 (Google + Zalo social login), AUTH-FR-003 (OTP after social auth), AUTH-FR-005 (role assignment)
+  FLOW: a01-login.html → THIS → e01-dashboard.html OR a04-otp-verify.html
+  PERSONA: All users (social authentication)
+  STAGE: Phase 1 MVP
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Đăng nhập mạng xã hội</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(37, 99, 235, 0.14), rgba(255,255,255,0) 60%),
+        radial-gradient(900px 450px at 90% 0%, rgba(2, 132, 199, 0.12), rgba(255,255,255,0) 55%),
+        var(--color-grey-100);
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .page {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--color-white);
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-6);
+      position: relative;
+    }
+
+    .lang-toggle {
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Logo styles (RULE G-003) */
+    .logo-img {
+      height: 44px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+    @media (max-width: 767px) {
+      .logo-img { height: 28px; }
+    }
+
+    .logo-placeholder {
+      color: var(--color-primary);
+      font-weight: 700;
+      font-size: 24px;
+      text-align: center;
+    }
+    .logo-placeholder span {
+      color: var(--color-navy);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-4);
+      user-select: none;
+    }
+    .brand a {
+      text-decoration: none;
+    }
+
+    .title {
+      margin: 0;
+      font-size: var(--text-2xl);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+    .subtitle {
+      margin: var(--space-2) 0 0 0;
+      color: var(--color-grey-500);
+      font-size: var(--text-sm);
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    /* State tabs (dev only) */
+    .state-tabs {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+      border-bottom: 2px solid var(--color-grey-300);
+    }
+
+    .state-tab {
+      padding: var(--space-3) var(--space-4);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-grey-500);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+    }
+
+    .state-tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .state-tab:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    /* Tab content */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active { display: block; }
+
+    /* Social buttons (as specified) */
+    .btn-google {
+      background: #ffffff;
+      border: 1px solid #E2E8F0;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      min-height: 44px;
+    }
+    .btn-google:hover {
+      background: #F9FAFB;
+      text-decoration: none;
+      color: #374151;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-google:active { transform: scale(0.98); }
+
+    .btn-zalo {
+      background: #0068FF;
+      border: none;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.15s;
+      text-decoration: none;
+      min-height: 44px;
+    }
+    .btn-zalo:hover {
+      background: #0056E6;
+      text-decoration: none;
+      color: #ffffff;
+      box-shadow: var(--shadow-md);
+    }
+    .btn-zalo:active { transform: scale(0.98); }
+
+    .social-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .divider {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: var(--space-3);
+      margin: var(--space-5) 0;
+      color: var(--color-grey-500);
+      font-size: var(--text-xs);
+    }
+    .divider:before, .divider:after {
+      content: "";
+      height: 1px;
+      background: var(--color-grey-300);
+    }
+
+    /* Form elements */
+    .field-group { margin-top: var(--space-5); }
+    .field-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+      color: var(--color-grey-700);
+    }
+    .field-label .required { color: var(--color-danger); }
+
+    .field-input {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      padding: 12px 12px;
+      font-size: var(--text-base);
+      background: white;
+    }
+    .field-input:focus { 
+      border-color: var(--color-primary); 
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15); 
+      outline: none;
+    }
+    .field-input:disabled {
+      background: var(--color-grey-100);
+      color: var(--color-grey-500);
+      cursor: not-allowed;
+    }
+
+    .field-error-text {
+      display: none;
+      margin-top: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--color-danger);
+      line-height: 1.4;
+    }
+
+    .field-input.field-error {
+      border-color: var(--color-danger);
+      box-shadow: 0 0 0 3px rgba(185,28,28,0.12);
+    }
+
+    .field-hint {
+      display: block;
+      margin-top: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      line-height: 1.4;
+    }
+
+    /* Radio buttons for role selection */
+    .role-selection {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-3);
+    }
+
+    .role-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      cursor: pointer;
+    }
+
+    .role-option input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-primary);
+    }
+
+    .role-option label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 44px;
+      min-width: 44px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-primary:disabled { 
+      background: var(--color-grey-300); 
+      color: var(--color-grey-500);
+      cursor: not-allowed;
+    }
+    .btn-primary:disabled:active { transform: none; }
+
+    .btn-full { width: 100%; margin-top: var(--space-5); }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin-top: var(--space-4);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--color-primary); text-decoration: none; }
+
+    .note {
+      margin-top: var(--space-4);
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .note-highlight {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* Responsive: tablet */
+    @media (min-width: 768px) {
+      .card { 
+        padding: var(--space-8);
+        max-width: 440px;
+      }
+      .title { font-size: var(--text-3xl); }
+    }
+
+    /* Responsive: desktop */
+    @media (min-width: 1024px) {
+      .page {
+        padding: var(--space-12) var(--space-6);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="page">
+    <main id="main-content" class="card" aria-label="Social login">
+      <!-- Language toggle -->
+      <div class="lang-toggle" role="group" aria-label="Language selector">
+        <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+        <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+      </div>
+
+      <!-- Logo (RULE G-003) -->
+      <div class="brand">
+        <a href="../public/p01-homepage.html" aria-label="Go to LàmViệc360 homepage">
+          <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo-img">
+        </a>
+      </div>
+
+      <!-- State tabs (dev only) -->
+      <div class="state-tabs" role="tablist" aria-label="State selection">
+        <button class="state-tab active" data-state="returning" role="tab" aria-selected="true" aria-controls="returning-tab" data-i18n="returningTab">Returning User</button>
+        <button class="state-tab" data-state="new" role="tab" aria-selected="false" aria-controls="new-tab" data-i18n="newTab">New User</button>
+      </div>
+
+      <!-- RETURNING USER FLOW -->
+      <div id="returning-tab" class="tab-content active" role="tabpanel" aria-labelledby="returning-tab">
+        <h1 class="title" data-i18n="quickSignInTitle">Đăng nhập nhanh</h1>
+        <p class="subtitle" data-i18n="quickSignInSubtitle">Sử dụng tài khoản hiện có của bạn</p>
+
+        <!-- Social login buttons -->
+        <a href="#" class="btn-google" id="btn-google-returning" aria-label="Continue with Google">
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.2-1.4 3.5-5.4 3.5-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.2.8 3.9 1.5l2.6-2.5C17.9 3.9 15.3 2.7 12 2.7 6.9 2.7 2.8 6.8 2.8 12s4.1 9.3 9.2 9.3c5.3 0 8.8-3.7 8.8-8.9 0-.6-.1-1.1-.2-1.6H12z"/>
+          </svg>
+          <span data-i18n="continueGoogle">Tiếp tục với Google</span>
+        </a>
+
+        <a href="#" class="btn-zalo" id="btn-zalo-returning" aria-label="Continue with Zalo">
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2.5" y="2.5" width="19" height="19" rx="5" fill="#0068FF" />
+            <path fill="#fff" d="M7.4 16.8h9.2v-1.7H10.2l6.2-6.1V7.2H7.6V9h6.1l-6.3 6.2v1.6z"/>
+          </svg>
+          <span data-i18n="continueZalo">Tiếp tục với Zalo</span>
+        </a>
+
+        <div class="note">
+          <span data-i18n="zaloPreferred">Zalo là phương pháp được ưu tiên cho người dùng Việt Nam</span>
+          <span class="note-highlight" data-i18n="zaloHighlight">— làm cho nó nổi bật hơn Google</span>
+        </div>
+
+        <div class="divider" aria-hidden="true">
+          <span data-i18n="orSignInWithEmail">hoặc đăng nhập bằng email</span>
+        </div>
+
+        <!-- Email + Password fields (compact) -->
+        <form id="returning-form" novalidate>
+          <div class="field-group">
+            <label class="field-label" for="returning-email" data-i18n="emailLabel">Email</label>
+            <input class="field-input" id="returning-email" name="email" type="email" autocomplete="email"
+                   data-i18n-placeholder="emailPlaceholder"
+                   placeholder="vd: haanh.nguyen@techcorp.vn"
+                   aria-describedby="returning-email-error" required />
+            <span class="field-error-text" id="returning-email-error" role="alert" data-i18n="emailError">Vui lòng nhập email hợp lệ.</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="returning-password" data-i18n="passwordLabel">Mật khẩu</label>
+            <input class="field-input" id="returning-password" name="password" type="password" autocomplete="current-password"
+                   placeholder="••••••••"
+                   aria-describedby="returning-password-error" required />
+            <span class="field-error-text" id="returning-password-error" role="alert" data-i18n="passwordError">Vui lòng nhập mật khẩu.</span>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="btn-sign-in" type="submit" aria-label="Sign in" data-i18n="signInButton">Đăng nhập</button>
+        </form>
+
+        <a href="a01-login.html" class="back-link" aria-label="Back to main login">
+          <span aria-hidden="true">←</span> <span data-i18n="backToMainLogin">Quay lại Đăng nhập chính</span>
+        </a>
+      </div>
+
+      <!-- NEW USER FLOW -->
+      <div id="new-tab" class="tab-content" role="tabpanel" aria-labelledby="new-tab">
+        <h1 class="title" data-i18n="almostThereTitle">Sắp xong!</h1>
+        <p class="subtitle" data-i18n="almostThereSubtitle">Chúng tôi tìm thấy tài khoản <span id="social-provider">Google</span> của bạn. Chỉ cần thêm một vài chi tiết để hoàn tất thiết lập.</p>
+
+        <form id="new-user-form" novalidate>
+          <!-- Pre-filled read-only fields -->
+          <div class="field-group">
+            <label class="field-label" for="social-name" data-i18n="nameLabel">Tên</label>
+            <input class="field-input" id="social-name" name="name" type="text" value="Nguyễn Thị Thu" disabled readonly />
+            <span class="field-hint" data-i18n="nameHint">Từ hồ sơ mạng xã hội của bạn</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="social-email" data-i18n="emailLabel">Email</label>
+            <input class="field-input" id="social-email" name="email" type="email" value="thu@gmail.com" disabled readonly />
+            <span class="field-hint" data-i18n="emailHint">Từ hồ sơ mạng xã hội của bạn</span>
+          </div>
+
+          <!-- Phone Number (required) -->
+          <div class="field-group">
+            <label class="field-label" for="social-phone">
+              <span data-i18n="phoneLabel">Số điện thoại</span> <span class="required">*</span>
+            </label>
+            <input class="field-input" id="social-phone" name="phone" type="tel" autocomplete="tel"
+                   data-i18n-placeholder="phonePlaceholder"
+                   placeholder="+84 912 345 678"
+                   aria-describedby="social-phone-hint social-phone-error" required />
+            <span class="field-hint" id="social-phone-hint" data-i18n="phoneHint">Bắt buộc để bảo mật tài khoản và xác minh OTP</span>
+            <span class="field-error-text" id="social-phone-error" role="alert" data-i18n="phoneError">Vui lòng nhập số điện thoại hợp lệ (định dạng +84).</span>
+          </div>
+
+          <!-- Account type selection -->
+          <div class="field-group">
+            <label class="field-label" data-i18n="accountTypeLabel">Loại tài khoản</label>
+            <div class="role-selection" role="group" aria-label="Account type selection">
+              <div class="role-option">
+                <input type="radio" id="role-jobseeker" name="role" value="jobseeker" />
+                <label for="role-jobseeker" data-i18n="jobseekerRole">Người tìm việc</label>
+              </div>
+              <div class="role-option">
+                <input type="radio" id="role-employer" name="role" value="employer" checked />
+                <label for="role-employer" data-i18n="employerRole">Nhà tuyển dụng / HR</label>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="btn-continue-setup" type="submit" aria-label="Continue to OTP" data-i18n="continueButton">Tiếp tục →</button>
+        </form>
+
+        <div class="note">
+          <span data-i18n="prefilledNote">Thông tin của bạn được điền sẵn từ tài khoản</span>
+          <span id="social-provider-note">Google</span>
+          <span data-i18n="prefilledNote2">của bạn. Bạn có thể cập nhật sau.</span>
+        </div>
+
+        <a href="a01-login.html" class="back-link" aria-label="Back to main login">
+          <span aria-hidden="true">←</span> <span data-i18n="backToMainLogin">Quay lại Đăng nhập chính</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 a07: Social Login
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="a01-login.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← a01: Login</a>
+    <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="../employer/e01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e01: Dashboard (Employer)</a>
+    <a href="a04-otp-verify.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ a04: OTP Verify (New User)</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        returningTab: 'Returning User',
+        newTab: 'New User',
+        quickSignInTitle: 'Đăng nhập nhanh',
+        quickSignInSubtitle: 'Sử dụng tài khoản hiện có của bạn',
+        continueGoogle: 'Tiếp tục với Google',
+        continueZalo: 'Tiếp tục với Zalo',
+        zaloPreferred: 'Zalo là phương pháp được ưu tiên cho người dùng Việt Nam',
+        zaloHighlight: '- lam cho nó nổi bật hơn Google',
+        orSignInWithEmail: 'hoặc đăng nhập bằng email',
+        emailLabel: 'Email',
+        emailPlaceholder: 'vd: haanh.nguyen@techcorp.vn',
+        emailError: 'Vui lòng nhập email hợp lệ.',
+        passwordLabel: 'Mật khẩu',
+        passwordError: 'Vui lòng nhập mật khẩu.',
+        signInButton: 'Đăng nhập',
+        backToMainLogin: 'Quay lại Đăng nhập chính',
+        almostThereTitle: 'Sắp xong!',
+        almostThereSubtitle: 'Chúng tôi tìm thấy tài khoản Google của bạn. Chỉ cần thêm một vài chi tiết để hoàn tất thiết lập.',
+        nameLabel: 'Tên',
+        nameHint: 'Từ hồ sơ mạng xã hội của bạn',
+        emailHint: 'Từ hồ sơ mạng xã hội của bạn',
+        phoneLabel: 'Số điện thoại',
+        phonePlaceholder: '+84 912 345 678',
+        phoneHint: 'Bắt buộc để bảo mật tài khoản và xác minh OTP',
+        phoneError: 'Vui lòng nhập số điện thoại hợp lệ (định dạng +84).',
+        accountTypeLabel: 'Loại tài khoản',
+        jobseekerRole: 'Người tìm việc',
+        employerRole: 'Nhà tuyển dụng / HR',
+        continueButton: 'Tiếp tục →',
+        prefilledNote: 'Thông tin của bạn được điền sẵn từ tài khoản',
+        prefilledNote2: 'của bạn. Bạn có thể cập nhật sau.',
+        loginSuccess: '✓ Đăng nhập thành công! Đang chuyển hướng...',
+        setupSuccess: '✓ Thiết lập hoàn tất! Đang chuyển hướng đến OTP...',
+        validationError: 'Vui lòng kiểm tra lại thông tin.'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        returningTab: 'Returning User',
+        newTab: 'New User',
+        quickSignInTitle: 'Quick sign in',
+        quickSignInSubtitle: 'Use your existing account',
+        continueGoogle: 'Continue with Google',
+        continueZalo: 'Continue with Zalo',
+        zaloPreferred: 'Zalo is the preferred method for Vietnamese users',
+        zaloHighlight: '- style it slightly more prominent than Google',
+        orSignInWithEmail: 'or sign in with email',
+        emailLabel: 'Email',
+        emailPlaceholder: 'e.g. haanh.nguyen@techcorp.vn',
+        emailError: 'Please enter a valid email.',
+        passwordLabel: 'Password',
+        passwordError: 'Please enter your password.',
+        signInButton: 'Sign In',
+        backToMainLogin: 'Back to main login',
+        almostThereTitle: 'Almost there!',
+        almostThereSubtitle: 'We found your Google account. Just a few more details to finish setting up.',
+        nameLabel: 'Name',
+        nameHint: 'From your social profile',
+        emailHint: 'From your social profile',
+        phoneLabel: 'Phone Number',
+        phonePlaceholder: '+84 912 345 678',
+        phoneHint: 'Required for account security and OTP verification',
+        phoneError: 'Please enter a valid phone number (+84 format).',
+        accountTypeLabel: 'Account type',
+        jobseekerRole: 'Job Seeker',
+        employerRole: 'Employer / HR',
+        continueButton: 'Continue →',
+        prefilledNote: 'Your details are pre-filled from your',
+        prefilledNote2: 'account. You can update them later.',
+        loginSuccess: '✓ Sign in successful! Redirecting...',
+        setupSuccess: '✓ Setup complete! Redirecting to OTP...',
+        validationError: 'Please check your information.'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Đăng nhập mạng xã hội' : 'LàmViệc360 — Social Login';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== STATE SWITCHING (DEV ONLY) ==========
+    function switchState(state) {
+      // Update tab buttons
+      document.querySelectorAll('.state-tab').forEach(tab => {
+        const isActive = tab.getAttribute('data-state') === state;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.toggle('active', content.id === `${state}-tab`);
+      });
+    }
+
+    // Tab switching
+    document.querySelectorAll('.state-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchState(tab.getAttribute('data-state'));
+      });
+    });
+
+    // ========== FORM VALIDATION ==========
+    function qs(sel) { return document.querySelector(sel); }
+
+    function setFieldError(inputEl, errorEl, hasError) {
+      if (!inputEl || !errorEl) return;
+      inputEl.classList.toggle('field-error', hasError);
+      inputEl.setAttribute('aria-invalid', hasError ? 'true' : 'false');
+      errorEl.style.display = hasError ? 'block' : 'none';
+    }
+
+    function validateEmail(inputId, errorId) {
+      const input = qs(`#${inputId}`);
+      const error = qs(`#${errorId}`);
+      const value = (input.value || '').trim();
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      setFieldError(input, error, !isValid);
+      return isValid;
+    }
+
+    function validatePassword(inputId, errorId) {
+      const input = qs(`#${inputId}`);
+      const error = qs(`#${errorId}`);
+      const value = input.value || '';
+      const isValid = value.length > 0;
+      setFieldError(input, error, !isValid);
+      return isValid;
+    }
+
+    function validatePhone(inputId, errorId) {
+      const input = qs(`#${inputId}`);
+      const error = qs(`#${errorId}`);
+      const value = (input.value || '').trim();
+      const isValid = /^\+84\s?\d{9,10}$/.test(value.replace(/\s/g, ''));
+      setFieldError(input, error, !isValid);
+      return isValid;
+    }
+
+    // ========== RETURNING USER FLOW ==========
+    qs('#returning-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const isEmailValid = validateEmail('returning-email', 'returning-email-error');
+      const isPasswordValid = validatePassword('returning-password', 'returning-password-error');
+
+      if (isEmailValid && isPasswordValid) {
+        // Simulate login success
+        alert(t('loginSuccess'));
+        // In real app, would redirect to dashboard based on user role
+        window.location.href = '../employer/e01-dashboard.html';
+      } else {
+        alert(t('validationError'));
+      }
+    });
+
+    qs('#returning-email').addEventListener('blur', () => validateEmail('returning-email', 'returning-email-error'));
+    qs('#returning-password').addEventListener('blur', () => validatePassword('returning-password', 'returning-password-error'));
+
+    // ========== SOCIAL LOGIN HANDLERS ==========
+    function handleSocialLogin(provider) {
+      // Simulate checking if user exists
+      const userExists = Math.random() > 0.5; // 50% chance for demo
+      
+      if (userExists) {
+        // Returning user - simulate login
+        alert(t('loginSuccess'));
+        window.location.href = '../employer/e01-dashboard.html';
+      } else {
+        // New user - switch to new user flow
+        updateSocialProvider(provider);
+        switchState('new');
+      }
+    }
+
+    function updateSocialProvider(provider) {
+      const providerName = provider === 'google' ? 'Google' : 'Zalo';
+      qs('#social-provider').textContent = providerName;
+      qs('#social-provider-note').textContent = providerName;
+      
+      // Update pre-filled data based on provider
+      if (provider === 'google') {
+        qs('#social-name').value = 'Nguyễn Thị Thu';
+        qs('#social-email').value = 'thu@gmail.com';
+      } else {
+        qs('#social-name').value = 'Trần Minh Đức';
+        qs('#social-email').value = 'duc.tran@zalo.me';
+      }
+    }
+
+    qs('#btn-google-returning').addEventListener('click', (e) => {
+      e.preventDefault();
+      handleSocialLogin('google');
+    });
+
+    qs('#btn-zalo-returning').addEventListener('click', (e) => {
+      e.preventDefault();
+      handleSocialLogin('zalo');
+    });
+
+    // ========== NEW USER FLOW ==========
+    qs('#new-user-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const isPhoneValid = validatePhone('social-phone', 'social-phone-error');
+      
+      if (isPhoneValid) {
+        // Store new user data for OTP step
+        const formData = {
+          name: qs('#social-name').value,
+          email: qs('#social-email').value,
+          phone: qs('#social-phone').value.trim(),
+          role: qs('input[name="role"]:checked').value,
+          provider: qs('#social-provider').textContent
+        };
+        sessionStorage.setItem('lv360_social_registration', JSON.stringify(formData));
+        
+        // Show success and redirect to OTP
+        alert(t('setupSuccess'));
+        window.location.href = 'a04-otp-verify.html';
+      } else {
+        alert(t('validationError'));
+      }
+    });
+
+    qs('#social-phone').addEventListener('blur', () => validatePhone('social-phone', 'social-phone-error'));
+
+    // Auto-format phone number
+    qs('#social-phone').addEventListener('input', (e) => {
+      let value = e.target.value.replace(/[^\d+]/g, '');
+      if (!value.startsWith('+84')) {
+        if (value.startsWith('84')) {
+          value = '+' + value;
+        } else if (value.startsWith('0')) {
+          value = '+84' + value.substring(1);
+        } else if (value.length > 0 && !value.startsWith('+')) {
+          value = '+84' + value;
+        }
+      }
+      e.target.value = value;
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Focus email field in returning user tab
+      if (document.getElementById('returning-tab').classList.contains('active')) {
+        qs('#returning-email').focus();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1673 @@
+<!doctype html>
+<!--
+  SCREEN: Flow Map - Visual User Journey Diagram
+  PURPOSE: Shows how all 54 screens connect across 5 user journeys
+  NOTE: Developer reference tool for understanding screen connectivity
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Screen Flow Map</title>
+  <style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0F172A;
+  color: #E2E8F0;
+  font-family: -apple-system, BlinkMacSystemFont, 
+               'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+    /* ── TOP HEADER ─────────────────────────────── */
+.page-header {
+  background: #1E293B;
+  border-bottom: 1px solid #334155;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #F1F5F9;
+}
+.header-sub {
+  font-size: 12px;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+/* ── JOURNEY TABS ───────────────────────────── */
+.journey-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 16px 24px 0;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #334155;
+}
+.journey-tab {
+  padding: 7px 14px;
+  border-radius: 6px 6px 0 0;
+  border: 1px solid #334155;
+  border-bottom: none;
+  background: #1E293B;
+  color: #94A3B8;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.journey-tab:hover {
+  background: #293548;
+  color: #CBD5E1;
+}
+.journey-tab.active {
+  background: #0F172A;
+  color: #60A5FA;
+  border-color: #3B82F6;
+  border-bottom-color: #0F172A;
+}
+
+/* ── COLOUR LEGEND ──────────────────────────── */
+.legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+  background: #1E293B;
+  border-bottom: 1px solid #334155;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94A3B8;
+}
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── MAIN CONTENT ───────────────────────────── */
+.page-content {
+  padding: 24px;
+  overflow-x: auto;
+}
+
+/* ── JOURNEY SECTION ────────────────────────── */
+.journey-section {
+  margin-bottom: 48px;
+}
+.journey-section.hidden {
+  display: none;
+}
+.journey-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: #F1F5F9;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.journey-heading .journey-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.journey-sub {
+  font-size: 12px;
+  color: #64748B;
+  margin-bottom: 20px;
+}
+
+/* ── FLOW DIAGRAM CANVAS ────────────────────── */
+.flow-canvas {
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: max-content;
+  margin-bottom: 12px;
+}
+.flow-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── SCREEN NODE ────────────────────────────── */
+.node {
+  background: #1E293B;
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 130px;
+  max-width: 160px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  display: block;
+  position: relative;
+}
+.node:hover {
+  border-color: #60A5FA;
+  background: #1a2744;
+  transform: translateY(-1px);
+}
+.node-id {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+.node-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #E2E8F0;
+  line-height: 1.3;
+}
+.node-sub {
+  font-size: 10px;
+  color: #64748B;
+  margin-top: 3px;
+}
+.node-states {
+  font-size: 10px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+/* Module colour coding */
+.node-public   { border-color: #3B82F6; }
+.node-public .node-id { background:#1D4ED8;color:#BFDBFE; }
+.node-public:hover { border-color:#60A5FA; }
+
+.node-auth     { border-color: #8B5CF6; }
+.node-auth .node-id { background:#6D28D9;color:#EDE9FE; }
+.node-auth:hover { border-color:#A78BFA; }
+
+.node-onboard  { border-color: #F59E0B; }
+.node-onboard .node-id { background:#B45309;color:#FEF3C7; }
+.node-onboard:hover { border-color:#FCD34D; }
+
+.node-employer { border-color: #10B981; }
+.node-employer .node-id { background:#047857;color:#D1FAE5; }
+.node-employer:hover { border-color:#34D399; }
+
+.node-admin    { border-color: #EF4444; }
+.node-admin .node-id { background:#B91C1C;color:#FEE2E2; }
+.node-admin:hover { border-color:#F87171; }
+
+.node-seeker   { border-color: #06B6D4; }
+.node-seeker .node-id { background:#0E7490;color:#CFFAFE; }
+.node-seeker:hover { border-color:#22D3EE; }
+
+/* ── ARROWS ─────────────────────────────────── */
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0 6px;
+  min-width: 60px;
+}
+.arrow-line {
+  height: 1.5px;
+  flex: 1;
+  background: #334155;
+  position: relative;
+}
+.arrow-line::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 8px solid #334155;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+.arrow-label {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #64748B;
+  white-space: nowrap;
+  background: #0F172A;
+  padding: 0 4px;
+}
+.arrow-down {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  position: relative;
+  min-height: 40px;
+}
+.arrow-down-line {
+  width: 1.5px;
+  flex: 1;
+  background: #334155;
+  min-height: 24px;
+}
+.arrow-down-line::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top: 8px solid #334155;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+.arrow-down-label {
+  font-size: 10px;
+  color: #64748B;
+  white-space: nowrap;
+  margin: 2px 0;
+}
+
+/* ── BRANCH ─────────────────────────────────── */
+.branch-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  min-width: max-content;
+}
+.branch-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px;
+}
+.branch-label {
+  font-size: 10px;
+  color: #64748B;
+  margin-bottom: 6px;
+  text-align: center;
+}
+.branch-line {
+  width: 1.5px;
+  height: 24px;
+  background: #334155;
+}
+
+/* ── GROUP BOX ───────────────────────────────── */
+.flow-group {
+  border: 1px dashed #334155;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 8px 0;
+  position: relative;
+}
+.flow-group-label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: #0F172A;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* ── SIDE PATHS ──────────────────────────────── */
+.side-paths {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #1E293B;
+  border-radius: 8px;
+  border: 1px solid #334155;
+}
+.side-paths-title {
+  font-size: 11px;
+  color: #64748B;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.side-path-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.side-path-from {
+  font-size: 11px;
+  font-family: monospace;
+  color: #94A3B8;
+}
+.side-path-arrow {
+  color: #475569;
+  font-size: 12px;
+}
+.side-path-to {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.side-path-node {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #0F172A;
+  border: 1px solid #334155;
+  color: #94A3B8;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.side-path-node:hover {
+  border-color: #60A5FA;
+  color: #60A5FA;
+}
+
+/* ── CROSS-REFERENCE TABLE ───────────────────── */
+.ref-table-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 700px;
+}
+.ref-table th {
+  background: #1E293B;
+  color: #94A3B8;
+  font-weight: 600;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.ref-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid #1E293B;
+  color: #CBD5E1;
+  vertical-align: top;
+}
+.ref-table tr:hover td {
+  background: #1E293B;
+}
+.ref-table .screen-id-cell {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 11px;
+}
+.ref-table .link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ref-table .link-chip {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #1E293B;
+  border: 1px solid #334155;
+  color: #94A3B8;
+  text-decoration: none;
+}
+.ref-table .link-chip:hover {
+  border-color: #60A5FA;
+  color: #60A5FA;
+}
+
+/* ── PHASE 2 SECTION ─────────────────────────── */
+.phase2-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.phase2-card {
+  border: 1.5px dashed #334155;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  opacity: 0.5;
+}
+.phase2-card-name {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+.phase2-card-badge {
+  font-size: 10px;
+  color: #475569;
+  margin-top: 4px;
+}
+
+/* ── LANGUAGE TOGGLE ─────────────────────────── */
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lang-btn {
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #334155;
+  background: transparent;
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lang-btn.active {
+  background: #1E40AF;
+  border-color: #3B82F6;
+  color: #BFDBFE;
+}
+.lang-btn:hover:not(.active) {
+  border-color: #475569;
+  color: #94A3B8;
+}
+.lang-divider {
+  color: #334155;
+  font-size: 12px;
+}
+
+/* ── SECTION DIVIDER ─────────────────────────── */
+.section-divider {
+  border: none;
+  border-top: 1px solid #1E293B;
+  margin: 40px 0 32px;
+}
+.section-heading {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F1F5F9;
+  margin-bottom: 4px;
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-heading-badge {
+  font-size: 11px;
+  background: #1E293B;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 2px 10px;
+  color: #64748B;
+  font-weight: 500;
+}
+.section-sub {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 20px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 767px) {
+  .page-content { padding: 16px; }
+  .journey-tabs { padding: 12px 16px 0; }
+  .legend { padding: 10px 16px; gap: 12px; }
+  .flow-canvas { overflow-x: scroll; }
+  .ref-table-wrap { overflow-x: scroll; }
+  .page-header { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
+}
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div class="header-left">
+      <img src="../assets/images/logo.png" alt="LàmViệc360" style="height:28px;width:auto;display:block;filter:brightness(0) invert(1);">
+      <div>
+        <div class="header-title">LàmViệc360 — Screen Flow Map</div>
+        <div class="header-sub">5 user journeys · 54 screens · navigation paths</div>
+      </div>
+    </div>
+    
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="lang-vi" onclick="setLang('vi')">VI</button>
+      <span class="lang-divider">|</span>
+      <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <div class="journey-tabs">
+    <div class="journey-tab active" onclick="switchJourney('all')">All Flows</div>
+    <div class="journey-tab" onclick="switchJourney('j1')">Registration</div>
+    <div class="journey-tab" onclick="switchJourney('j2')">Post Job</div>
+    <div class="journey-tab" onclick="switchJourney('j3')">Apply</div>
+    <div class="journey-tab" onclick="switchJourney('j4')">Pipeline</div>
+    <div class="journey-tab" onclick="switchJourney('j5')">Admin</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #3B82F6;"></div>
+      <span>Blue line — Registration & Auth flow</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #10B981;"></div>
+      <span>Green line — Job Seeker apply flow</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #7C3AED;"></div>
+      <span>Purple line — Employer pipeline flow</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #F59E0B;"></div>
+      <span>Orange line — Onboarding wizard flow</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background: #EF4444;"></div>
+      <span>Red line — Super Admin flow</span>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- JOURNEY 1: REGISTRATION -->
+    <div class="journey-section" id="j1">
+      <div class="journey-heading">
+        Journey 1 — Registration & Auth (all user types)
+        <span class="journey-badge" style="background:#1D4ED8;color:#BFDBFE;">Blue</span>
+      </div>
+      <div class="journey-sub">4-step registration flow for all user types</div>
+      
+      <div class="flow-canvas">
+        <div class="flow-col">
+          <div class="flow-row">
+            <a href="public/p01-homepage.html" class="node node-public">
+              <div class="node-id">[p01]</div>
+              <div class="node-name">Homepage</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Sign Up</div>
+            </div>
+            <a href="auth/a02-register-role.html" class="node node-auth">
+              <div class="node-id">[a02]</div>
+              <div class="node-name">Role Select</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Employer/Seeker</div>
+            </div>
+            <a href="auth/a03-register-profile.html" class="node node-auth">
+              <div class="node-id">[a03]</div>
+              <div class="node-name">Profile Form</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+            </div>
+            <a href="auth/a04-otp-verify.html" class="node node-auth">
+              <div class="node-id">[a04]</div>
+              <div class="node-name">OTP Verify</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+            </div>
+            <a href="auth/a06-first-login-onboarding.html" class="node node-auth">
+              <div class="node-id">[a06]</div>
+              <div class="node-name">First Login</div>
+            </a>
+          </div>
+          
+          <div class="branch-row">
+            <div class="branch-col">
+              <div class="branch-label">Company Admin</div>
+              <div class="branch-line"></div>
+              <a href="onboarding/ow01-company-info.html" class="node node-onboard">
+                <div class="node-id">[ow01]</div>
+                <div class="node-name">Company Info</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+              </div>
+              <a href="onboarding/ow02-plan-confirm.html" class="node node-onboard">
+                <div class="node-id">[ow02]</div>
+                <div class="node-name">Plan Confirm</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+              </div>
+              <a href="onboarding/ow03-team-invite.html" class="node node-onboard">
+                <div class="node-id">[ow03]</div>
+                <div class="node-name">Team Invite</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+              </div>
+              <a href="onboarding/ow04-pending-approval.html" class="node node-onboard">
+                <div class="node-id">[ow04]</div>
+                <div class="node-name">Pending</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">Approved</div>
+              </div>
+              <a href="employer/e01-dashboard.html" class="node node-employer">
+                <div class="node-id">[e01]</div>
+                <div class="node-name">Dashboard</div>
+              </a>
+            </div>
+            
+            <div class="branch-col">
+              <div class="branch-label">Job Seeker</div>
+              <div class="branch-line"></div>
+              <a href="job-seeker/js07-profile.html" class="node node-seeker">
+                <div class="node-id">[js07]</div>
+                <div class="node-name">Profile</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">Complete</div>
+              </div>
+              <a href="job-seeker/js01-dashboard.html" class="node node-seeker">
+                <div class="node-id">[js01]</div>
+                <div class="node-name">Dashboard</div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="side-paths">
+        <div class="side-paths-title">Side Paths</div>
+        <div class="side-path-row">
+          <span class="side-path-from">a01 Login</span>
+          <span class="side-path-arrow">→</span>
+          <div class="side-path-to">
+            <a href="employer/e01-dashboard.html" class="side-path-node">e01 Dashboard</a>
+            <a href="job-seeker/js01-dashboard.html" class="side-path-node">js01 Dashboard</a>
+            <a href="admin/sa01-dashboard.html" class="side-path-node">sa01 Dashboard</a>
+          </div>
+        </div>
+        <div class="side-path-row">
+          <span class="side-path-from">a07 Social Login</span>
+          <span class="side-path-arrow">→</span>
+          <div class="side-path-to">
+            <a href="auth/a04-otp-verify.html" class="side-path-node">a04 OTP</a>
+          </div>
+        </div>
+        <div class="side-path-row">
+          <span class="side-path-from">a05 Forgot Password</span>
+          <span class="side-path-arrow">→</span>
+          <div class="side-path-to">
+            <a href="auth/a01-login.html" class="side-path-node">a01 Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNEY 2: POST A JOB -->
+    <div class="journey-section" id="j2">
+      <div class="journey-heading">
+        Journey 2 — Post a Job with AI JD (HR/Recruiter)
+        <span class="journey-badge" style="background:#7C3AED;color:#EDE9FE;">Purple</span>
+      </div>
+      <div class="journey-sub">AI-powered job description generation workflow</div>
+      
+      <div class="flow-canvas">
+        <div class="flow-col">
+          <div class="flow-row">
+            <a href="employer/e01-dashboard.html" class="node node-employer">
+              <div class="node-id">[e01]</div>
+              <div class="node-name">Dashboard</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Post New Job</div>
+            </div>
+            <a href="employer/e03-create-job.html" class="node node-employer">
+              <div class="node-id">[e03]</div>
+              <div class="node-name">Create Job</div>
+            </a>
+          </div>
+          
+          <div class="branch-row">
+            <div class="branch-col">
+              <div class="branch-label">AI Generate</div>
+              <div class="branch-line"></div>
+              <a href="employer/e05-ai-jd-generator.html" class="node node-employer">
+                <div class="node-id">[e05]</div>
+                <div class="node-name">AI Generator</div>
+                <div class="node-states">4 states</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">Confirm</div>
+              </div>
+              <a href="employer/e03-create-job.html" class="node node-employer">
+                <div class="node-id">[e03]</div>
+                <div class="node-name">Create Job</div>
+                <div class="node-sub">JD filled</div>
+              </a>
+            </div>
+            
+            <div class="branch-col">
+              <div class="branch-label">Write Manually</div>
+              <div class="branch-line"></div>
+              <a href="employer/e03-create-job.html" class="node node-employer">
+                <div class="node-id">[e03]</div>
+                <div class="node-name">Create Job</div>
+                <div class="node-sub">Manual entry</div>
+              </a>
+            </div>
+          </div>
+          
+          <div class="flow-row">
+            <div style="width: 260px;"></div>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Publish</div>
+            </div>
+            <a href="employer/e02-job-list.html" class="node node-employer">
+              <div class="node-id">[e02]</div>
+              <div class="node-name">Job List</div>
+              <div class="node-sub">Published ✓</div>
+            </a>
+          </div>
+          
+          <div class="flow-row">
+            <div style="width: 520px;"></div>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Edit</div>
+            </div>
+            <a href="employer/e04-edit-job.html" class="node node-employer">
+              <div class="node-id">[e04]</div>
+              <div class="node-name">Edit Job</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNEY 3: JOB SEEKER APPLY -->
+    <div class="journey-section" id="j3">
+      <div class="journey-heading">
+        Journey 3 — Job Seeker Finds and Applies (Thuy)
+        <span class="journey-badge" style="background:#10B981;color:#D1FAE5;">Green</span>
+      </div>
+      <div class="journey-sub">Job discovery and application workflow</div>
+      
+      <div class="flow-canvas">
+        <div class="flow-col">
+          <div class="flow-row">
+            <a href="public/p01-homepage.html" class="node node-public">
+              <div class="node-id">[p01]</div>
+              <div class="node-name">Homepage</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Search</div>
+            </div>
+            <a href="public/p02-job-search.html" class="node node-public">
+              <div class="node-id">[p02]</div>
+              <div class="node-name">Job Search</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Click job</div>
+            </div>
+            <a href="public/p03-job-detail.html" class="node node-public">
+              <div class="node-id">[p03]</div>
+              <div class="node-name">Job Detail</div>
+            </a>
+          </div>
+          
+          <div class="branch-row">
+            <div class="branch-col">
+              <div class="branch-label">Save Job</div>
+              <div class="branch-line"></div>
+              <a href="job-seeker/js06-saved-jobs.html" class="node node-seeker">
+                <div class="node-id">[js06]</div>
+                <div class="node-name">Saved Jobs</div>
+              </a>
+            </div>
+            
+            <div class="branch-col">
+              <div class="branch-label">Apply Now</div>
+              <div class="branch-line"></div>
+              <a href="auth/a01-login.html" class="node node-auth">
+                <div class="node-id">[a01]</div>
+                <div class="node-name">Login</div>
+                <div class="node-sub">if not logged in</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">authenticated</div>
+              </div>
+              <a href="job-seeker/js03-apply.html" class="node node-seeker">
+                <div class="node-id">[js03]</div>
+                <div class="node-name">Apply Form</div>
+                <div class="node-states">2 states</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">consent ✓ + submit</div>
+              </div>
+              <a href="job-seeker/js04-tracker.html" class="node node-seeker">
+                <div class="node-id">[js04]</div>
+                <div class="node-name">Tracker</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">View</div>
+              </div>
+              <a href="job-seeker/js05-app-detail.html" class="node node-seeker">
+                <div class="node-id">[js05]</div>
+                <div class="node-name">App Detail</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">Shortlisted</div>
+              </div>
+              <a href="job-seeker/js11-ai-prep.html" class="node node-seeker">
+                <div class="node-id">[js11]</div>
+                <div class="node-name">AI Prep</div>
+                <div class="node-states">3 states</div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="side-paths">
+        <div class="side-paths-title">Dashboard Access Points</div>
+        <div class="side-path-row">
+          <span class="side-path-from">js01 Dashboard</span>
+          <span class="side-path-arrow">→</span>
+          <div class="side-path-to">
+            <a href="job-seeker/js04-tracker.html" class="side-path-node">js04 Tracker</a>
+            <a href="job-seeker/js06-saved-jobs.html" class="side-path-node">js06 Saved Jobs</a>
+            <a href="job-seeker/js09-documents.html" class="side-path-node">js09 Documents</a>
+            <a href="job-seeker/js12-notifications.html" class="side-path-node">js12 Notifications</a>
+            <a href="job-seeker/js07-profile.html" class="side-path-node">js07 Profile</a>
+            <a href="job-seeker/js13-settings.html" class="side-path-node">js13 Settings</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNEY 4: PIPELINE MANAGEMENT -->
+    <div class="journey-section" id="j4">
+      <div class="journey-heading">
+        Journey 4 — Manage Candidate Pipeline (Minh)
+        <span class="journey-badge" style="background:#F59E0B;color:#FEF3C7;">Orange</span>
+      </div>
+      <div class="journey-sub">Hiring workflow and candidate management</div>
+      
+      <div class="flow-canvas">
+        <div class="flow-col">
+          <div class="flow-row">
+            <a href="employer/e01-dashboard.html" class="node node-employer">
+              <div class="node-id">[e01]</div>
+              <div class="node-name">Dashboard</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">View Pipeline</div>
+            </div>
+            <a href="employer/e06-pipeline-kanban.html" class="node node-employer">
+              <div class="node-id">[e06]</div>
+              <div class="node-name">Pipeline Kanban</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Click candidate</div>
+            </div>
+            <a href="employer/e07-candidate-detail.html" class="node node-employer">
+              <div class="node-id">[e07]</div>
+              <div class="node-name">Candidate Detail</div>
+              <div class="node-states">5 tabs</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Move stage</div>
+            </div>
+            <a href="employer/e08-move-stage-modal.html" class="node node-employer">
+              <div class="node-id">[e08]</div>
+              <div class="node-name">Move Stage Modal</div>
+              <div class="node-states">3 states</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Reject</div>
+            </div>
+            <a href="employer/e09-reject-notify.html" class="node node-employer">
+              <div class="node-id">[e09]</div>
+              <div class="node-name">Reject & Notify</div>
+            </a>
+          </div>
+          
+          <div class="flow-row">
+            <div style="width: 520px;"></div>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Template</div>
+            </div>
+            <a href="employer/e13-rejection-templates.html" class="node node-employer">
+              <div class="node-id">[e13]</div>
+              <div class="node-name">Templates</div>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="side-paths">
+        <div class="side-paths-title">Pipeline Features</div>
+        <div class="side-path-row">
+          <span class="side-path-from">e06 Kanban</span>
+          <span class="side-path-arrow">→</span>
+          <div class="side-path-to">
+            <a href="employer/e10-candidate-notes.html" class="side-path-node">e10 Notes</a>
+            <a href="employer/e11-view-documents.html" class="side-path-node">e11 Documents</a>
+            <a href="employer/e12-stage-config.html" class="side-path-node">e12 Stage Config</a>
+          </div>
+        </div>
+        <div class="side-path-row">
+          <span class="side-path-from">e01 Dashboard</span>
+          <span class="side-path-arrow">→</span>
+          <div class="side-path-to">
+            <a href="employer/e02-job-list.html" class="side-path-node">e02 Job List</a>
+            <a href="employer/e14-team-list.html" class="side-path-node">e14 Team List</a>
+            <a href="employer/e15-invite-member.html" class="side-path-node">e15 Invite</a>
+            <a href="employer/e16-edit-role.html" class="side-path-node">e16 Edit Role</a>
+            <a href="employer/e17-notifications.html" class="side-path-node">e17 Notifications</a>
+            <a href="employer/e18-account-settings.html" class="side-path-node">e18 Settings</a>
+            <a href="employer/e19-company-profile.html" class="side-path-node">e19 Company Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNEY 5: SUPER ADMIN -->
+    <div class="journey-section" id="j5">
+      <div class="journey-heading">
+        Journey 5 — Super Admin Approves Company (Admin)
+        <span class="journey-badge" style="background:#EF4444;color:#FEE2E2;">Red</span>
+      </div>
+      <div class="journey-sub">Platform control and company approval workflow</div>
+      
+      <div class="flow-canvas">
+        <div class="flow-col">
+          <div class="flow-row">
+            <a href="admin/sa01-dashboard.html" class="node node-admin">
+              <div class="node-id">[sa01]</div>
+              <div class="node-name">Admin Dashboard</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">Pending alert</div>
+            </div>
+            <a href="admin/sa02-company-list.html" class="node node-admin">
+              <div class="node-id">[sa02]</div>
+              <div class="node-name">Companies</div>
+              <div class="node-sub">Pending filter</div>
+            </a>
+            <div class="arrow-down">
+              <div class="arrow-down-line"></div>
+              <div class="arrow-down-label">View company</div>
+            </div>
+            <a href="admin/sa03-company-detail.html" class="node node-admin">
+              <div class="node-id">[sa03]</div>
+              <div class="node-name">Company Detail</div>
+              <div class="node-states">3 states</div>
+            </a>
+          </div>
+          
+          <div class="branch-row">
+            <div class="branch-col">
+              <div class="branch-label">Approve</div>
+              <div class="branch-line"></div>
+              <a href="onboarding/ow04-pending-approval.html" class="node node-onboard">
+                <div class="node-id">[ow04]</div>
+                <div class="node-name">Pending</div>
+                <div class="node-sub">→ Approved</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">Unlocked</div>
+              </div>
+              <a href="employer/e01-dashboard.html" class="node node-employer">
+                <div class="node-id">[e01]</div>
+                <div class="node-name">Dashboard</div>
+              </a>
+            </div>
+            
+            <div class="branch-col">
+              <div class="branch-label">Reject</div>
+              <div class="branch-line"></div>
+              <a href="onboarding/ow04-pending-approval.html" class="node node-onboard">
+                <div class="node-id">[ow04]</div>
+                <div class="node-name">Pending</div>
+                <div class="node-sub">→ Rejected</div>
+              </a>
+              <div class="arrow-down">
+                <div class="arrow-down-line"></div>
+                <div class="arrow-down-label">Resubmit</div>
+              </div>
+              <a href="onboarding/ow01-company-info.html" class="node node-onboard">
+                <div class="node-id">[ow01]</div>
+                <div class="node-name">Company Info</div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="side-paths">
+        <div class="side-paths-title">Admin Tools</div>
+        <div class="side-path-row">
+          <span class="side-path-from">sa01 Dashboard</span>
+          <span class="side-path-arrow">→</span>
+          <div class="side-path-to">
+            <a href="admin/sa04-user-management.html" class="side-path-node">sa04 Users</a>
+            <a href="admin/sa05-user-detail.html" class="side-path-node">sa05 User Detail</a>
+            <a href="admin/sa06-advertisement-management.html" class="side-path-node">sa06 Ads</a>
+            <a href="admin/sa07-rejection-templates.html" class="side-path-node">sa07 Templates</a>
+            <a href="admin/sa08-data-retention.html" class="side-path-node">sa08 Retention</a>
+            <a href="admin/sa09-audit-log.html" class="side-path-node">sa09 Audit Log</a>
+            <a href="admin/sa10-platform-reports.html" class="side-path-node">sa10 Reports</a>
+            <a href="admin/sa11-settings.html" class="side-path-node">sa11 Settings</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN CONNECTION MAP -->
+    <hr class="section-divider">
+    <div class="section-heading">
+      Screen Connection Map
+      <span class="section-heading-badge">54 screens</span>
+    </div>
+    <div class="section-sub">Every screen and its inbound / outbound links</div>
+    
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Screen ID</th>
+            <th>Screen Name</th>
+            <th>Comes From</th>
+            <th>Goes To</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="screen-id-cell">p01</td>
+            <td>Homepage</td>
+            <td>Direct / a01</td>
+            <td>
+              <div class="link-list">
+                <a href="public/p02-job-search.html" class="link-chip">p02</a>
+                <a href="auth/a01-login.html" class="link-chip">a01</a>
+                <a href="auth/a02-register-role.html" class="link-chip">a02</a>
+                <a href="public/p04-employer-landing.html" class="link-chip">p04</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">p02</td>
+            <td>Job Search</td>
+            <td>p01, js01</td>
+            <td>
+              <div class="link-list">
+                <a href="public/p03-job-detail.html" class="link-chip">p03</a>
+                <a href="job-seeker/js06-saved-jobs.html" class="link-chip">js06</a>
+                <a href="auth/a01-login.html" class="link-chip">a01</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">p03</td>
+            <td>Job Detail</td>
+            <td>p02</td>
+            <td>
+              <div class="link-list">
+                <a href="job-seeker/js03-apply.html" class="link-chip">js03</a>
+                <a href="auth/a01-login.html" class="link-chip">a01</a>
+                <a href="job-seeker/js06-saved-jobs.html" class="link-chip">js06</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">p04</td>
+            <td>Employer Landing</td>
+            <td>p01</td>
+            <td><a href="auth/a02-register-role.html" class="link-chip">a02</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">p05</td>
+            <td>Company Directory</td>
+            <td>p01</td>
+            <td><a href="public/p02-job-search.html" class="link-chip">p02</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">a01</td>
+            <td>Login</td>
+            <td>p01, p03, multiple</td>
+            <td>role-based redirect</td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">a02</td>
+            <td>Role Select</td>
+            <td>a01, p04</td>
+            <td><a href="auth/a03-register-profile.html" class="link-chip">a03</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">a03</td>
+            <td>Profile Form</td>
+            <td>a02</td>
+            <td><a href="auth/a04-otp-verify.html" class="link-chip">a04</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">a04</td>
+            <td>OTP Verify</td>
+            <td>a03, a07</td>
+            <td>
+              <div class="link-list">
+                <a href="onboarding/ow01-company-info.html" class="link-chip">ow01</a>
+                <a href="job-seeker/js07-profile.html" class="link-chip">js01</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">a05</td>
+            <td>Forgot Password</td>
+            <td>a01</td>
+            <td><a href="auth/a01-login.html" class="link-chip">a01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">a06</td>
+            <td>First Login</td>
+            <td>a04</td>
+            <td>
+              <div class="link-list">
+                <a href="onboarding/ow01-company-info.html" class="link-chip">ow01</a>
+                <a href="job-seeker/js07-profile.html" class="link-chip">js07</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">a07</td>
+            <td>Social Login</td>
+            <td>a01</td>
+            <td><a href="auth/a04-otp-verify.html" class="link-chip">a04</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">ow01</td>
+            <td>Company Info</td>
+            <td>a04, a06</td>
+            <td><a href="onboarding/ow02-plan-confirm.html" class="link-chip">ow02</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">ow02</td>
+            <td>Plan Confirm</td>
+            <td>ow01</td>
+            <td><a href="onboarding/ow03-team-invite.html" class="link-chip">ow03</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">ow03</td>
+            <td>Team Invite</td>
+            <td>ow02</td>
+            <td><a href="onboarding/ow04-pending-approval.html" class="link-chip">ow04</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">ow04</td>
+            <td>Pending</td>
+            <td>ow03</td>
+            <td><a href="employer/e01-dashboard.html" class="link-chip">e01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e01</td>
+            <td>Dashboard</td>
+            <td>ow04, a01</td>
+            <td>
+              <div class="link-list">
+                <a href="employer/e02-job-list.html" class="link-chip">e02</a>
+                <a href="employer/e06-pipeline-kanban.html" class="link-chip">e06</a>
+                <a href="employer/e14-team-list.html" class="link-chip">e14</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e02</td>
+            <td>Job List</td>
+            <td>e01</td>
+            <td>
+              <div class="link-list">
+                <a href="employer/e03-create-job.html" class="link-chip">e03</a>
+                <a href="employer/e04-edit-job.html" class="link-chip">e04</a>
+                <a href="employer/e06-pipeline-kanban.html" class="link-chip">e06</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e03</td>
+            <td>Create Job</td>
+            <td>e02, e01</td>
+            <td>
+              <div class="link-list">
+                <a href="employer/e05-ai-jd-generator.html" class="link-chip">e05</a>
+                <a href="employer/e02-job-list.html" class="link-chip">e02</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e04</td>
+            <td>Edit Job</td>
+            <td>e02</td>
+            <td><a href="employer/e06-pipeline-kanban.html" class="link-chip">e06</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e05</td>
+            <td>AI Generator</td>
+            <td>e03</td>
+            <td><a href="employer/e03-create-job.html" class="link-chip">e03</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e06</td>
+            <td>Pipeline Kanban</td>
+            <td>e01, e02</td>
+            <td>
+              <div class="link-list">
+                <a href="employer/e07-candidate-detail.html" class="link-chip">e07</a>
+                <a href="employer/e08-move-stage-modal.html" class="link-chip">e08</a>
+                <a href="employer/e09-reject-notify.html" class="link-chip">e09</a>
+                <a href="employer/e12-stage-config.html" class="link-chip">e12</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e07</td>
+            <td>Candidate Detail</td>
+            <td>e06</td>
+            <td>
+              <div class="link-list">
+                <a href="employer/e08-move-stage-modal.html" class="link-chip">e08</a>
+                <a href="employer/e09-reject-notify.html" class="link-chip">e09</a>
+                <a href="employer/e10-candidate-notes.html" class="link-chip">e10</a>
+                <a href="employer/e11-view-documents.html" class="link-chip">e11</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e08</td>
+            <td>Move Stage Modal</td>
+            <td>e06, e07</td>
+            <td><a href="employer/e06-pipeline-kanban.html" class="link-chip">e06</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e09</td>
+            <td>Reject Notify</td>
+            <td>e07, e06</td>
+            <td><a href="employer/e13-rejection-templates.html" class="link-chip">e13</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e10</td>
+            <td>Candidate Notes</td>
+            <td>e07</td>
+            <td><a href="employer/e07-candidate-detail.html" class="link-chip">e07</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e11</td>
+            <td>View Documents</td>
+            <td>e07</td>
+            <td><a href="employer/e07-candidate-detail.html" class="link-chip">e07</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e12</td>
+            <td>Stage Config</td>
+            <td>e06</td>
+            <td><a href="employer/e06-pipeline-kanban.html" class="link-chip">e06</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e13</td>
+            <td>Templates</td>
+            <td>e09</td>
+            <td><a href="employer/e09-reject-notify.html" class="link-chip">e09</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e14</td>
+            <td>Team List</td>
+            <td>e01</td>
+            <td>
+              <div class="link-list">
+                <a href="employer/e15-invite-member.html" class="link-chip">e15</a>
+                <a href="employer/e16-edit-role.html" class="link-chip">e16</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e15</td>
+            <td>Invite Member</td>
+            <td>e14</td>
+            <td><a href="employer/e14-team-list.html" class="link-chip">e14</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e16</td>
+            <td>Edit Role</td>
+            <td>e14</td>
+            <td><a href="employer/e14-team-list.html" class="link-chip">e14</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e17</td>
+            <td>Notifications</td>
+            <td>e01</td>
+            <td>multiple</td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e18</td>
+            <td>Account Settings</td>
+            <td>e01</td>
+            <td><a href="employer/e01-dashboard.html" class="link-chip">e01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">e19</td>
+            <td>Company Profile</td>
+            <td>e01</td>
+            <td><a href="employer/e01-dashboard.html" class="link-chip">e01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa01</td>
+            <td>Admin Dashboard</td>
+            <td>login</td>
+            <td>sa02–sa11</td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa02</td>
+            <td>Company List</td>
+            <td>sa01</td>
+            <td><a href="admin/sa03-company-detail.html" class="link-chip">sa03</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa03</td>
+            <td>Company Detail</td>
+            <td>sa02</td>
+            <td><a href="admin/sa02-company-list.html" class="link-chip">sa02</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa04</td>
+            <td>User Management</td>
+            <td>sa01</td>
+            <td><a href="admin/sa05-user-detail.html" class="link-chip">sa05</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa05</td>
+            <td>User Detail</td>
+            <td>sa04</td>
+            <td><a href="admin/sa04-user-management.html" class="link-chip">sa04</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa06</td>
+            <td>Ads</td>
+            <td>sa01</td>
+            <td><a href="admin/sa01-dashboard.html" class="link-chip">sa01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa07</td>
+            <td>Templates</td>
+            <td>sa01</td>
+            <td><a href="admin/sa01-dashboard.html" class="link-chip">sa01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa08</td>
+            <td>Retention</td>
+            <td>sa01, sa11</td>
+            <td><a href="admin/sa01-dashboard.html" class="link-chip">sa01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa09</td>
+            <td>Audit Log</td>
+            <td>sa01</td>
+            <td><a href="admin/sa01-dashboard.html" class="link-chip">sa01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa10</td>
+            <td>Reports</td>
+            <td>sa01</td>
+            <td><a href="admin/sa01-dashboard.html" class="link-chip">sa01</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">sa11</td>
+            <td>Settings</td>
+            <td>sa01</td>
+            <td><a href="admin/sa08-data-retention.html" class="link-chip">sa08</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js01</td>
+            <td>JS Dashboard</td>
+            <td>a04, a01</td>
+            <td>
+              <div class="link-list">
+                <a href="job-seeker/js04-tracker.html" class="link-chip">js04</a>
+                <a href="job-seeker/js06-saved-jobs.html" class="link-chip">js06</a>
+                <a href="job-seeker/js07-profile.html" class="link-chip">js07</a>
+                <a href="job-seeker/js09-documents.html" class="link-chip">js09</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js03</td>
+            <td>Apply Form</td>
+            <td>p03</td>
+            <td><a href="job-seeker/js05-app-detail.html" class="link-chip">js05</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js04</td>
+            <td>Tracker</td>
+            <td>js01</td>
+            <td><a href="job-seeker/js05-app-detail.html" class="link-chip">js05</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js05</td>
+            <td>App Detail</td>
+            <td>js04</td>
+            <td>
+              <div class="link-list">
+                <a href="job-seeker/js11-ai-prep.html" class="link-chip">js11</a>
+                <a href="public/p03-job-detail.html" class="link-chip">p03</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js06</td>
+            <td>Saved Jobs</td>
+            <td>js01</td>
+            <td>
+              <div class="link-list">
+                <a href="job-seeker/js03-apply.html" class="link-chip">js03</a>
+                <a href="public/p03-job-detail.html" class="link-chip">p03</a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js07</td>
+            <td>Profile</td>
+            <td>js01, a06</td>
+            <td><a href="job-seeker/js09-documents.html" class="link-chip">js09</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js09</td>
+            <td>Documents</td>
+            <td>js07</td>
+            <td><a href="job-seeker/js10-upload-doc.html" class="link-chip">js10</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js10</td>
+            <td>Upload Doc</td>
+            <td>js09</td>
+            <td><a href="job-seeker/js09-documents.html" class="link-chip">js09</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js11</td>
+            <td>AI Prep</td>
+            <td>js05, js04</td>
+            <td><a href="job-seeker/js05-app-detail.html" class="link-chip">js05</a></td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js12</td>
+            <td>Notifications</td>
+            <td>js01</td>
+            <td>multiple</td>
+          </tr>
+          <tr>
+            <td class="screen-id-cell">js13</td>
+            <td>Settings</td>
+            <td>js01</td>
+            <td><a href="job-seeker/js01-dashboard.html" class="link-chip">js01</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PHASE 2 PLACEHOLDER -->
+    <hr class="section-divider">
+    <div class="section-heading">
+      Phase 2 Screens (not in Stage 1)
+      <span class="section-heading-badge">Future</span>
+    </div>
+    
+    <div class="phase2-grid">
+      <div class="phase2-card">
+        <div class="phase2-card-name">Drag-and-drop Kanban</div>
+        <div class="phase2-card-badge">Phase 2 — not in scope</div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-name">Subscription billing</div>
+        <div class="phase2-card-badge">Phase 2 — not in scope</div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-name">Company subdomains</div>
+        <div class="phase2-card-badge">Phase 2 — not in scope</div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-name">In-app messaging</div>
+        <div class="phase2-card-badge">Phase 2 — not in scope</div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-name">Line Manager approval</div>
+        <div class="phase2-card-badge">Phase 2 — not in scope</div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-name">Full AI recommendations</div>
+        <div class="phase2-card-badge">Phase 2 — not in scope</div>
+      </div>
+    </div>
+
+  </div> <!-- end page-content -->
+
+  <!-- FOOTER -->
+  <footer style="background:#1E293B;border-top:1px solid #334155;padding:20px 0;margin-top:40px;">
+    <div style="max-width:1600px;margin:0 auto;padding:0 24px;text-align:center;">
+      <div style="font-size:14px;font-weight:600;color:#F1F5F9;margin:0 0 4px 0;" data-i18n="footerTitle">LàmViệc360 Flow Map · LV360-PRD-001 v1.0 · tresundios Software · March 2026</div>
+      <div style="font-size:12px;color:#94A3B8;margin:0;" data-i18n="footerSubtitle">54 screens · 7 batches · 6 modules</div>
+    </div>
+  </footer>
+
+  <script>
+    function switchJourney(id) {
+      // Update tabs
+      document.querySelectorAll('.journey-tab')
+        .forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Show / hide sections
+      const sections = document.querySelectorAll('.journey-section');
+      if (id === 'all') {
+        sections.forEach(s => s.classList.remove('hidden'));
+      } else {
+        sections.forEach(s => {
+          s.classList.toggle('hidden', s.id !== id);
+        });
+      }
+    }
+
+    // Language toggle
+    const FLOW_LANG = {
+      en: {
+        pageTitle: 'LàmViệc360 — Screen Flow Map',
+        pageSub: '5 user journeys · 54 screens · navigation paths',
+        tabAll: 'All Flows',
+        tabJ1: 'Registration',
+        tabJ2: 'Post Job',
+        tabJ3: 'Apply',
+        tabJ4: 'Pipeline',
+        tabJ5: 'Admin',
+        footerTitle: 'LàmViệc360 Flow Map · LV360-PRD-001 v1.0 · tresundios Software · March 2026',
+        footerSubtitle: '54 screens · 7 batches · 6 modules'
+      },
+      vi: {
+        pageTitle: 'LàmViệc360 — Bản đồ màn hình',
+        pageSub: '5 hành trình · 54 màn hình · đường điều hướng',
+        tabAll: 'Tất cả',
+        tabJ1: 'Đăng ký',
+        tabJ2: 'Đăng tin',
+        tabJ3: 'Ứng tuyển',
+        tabJ4: 'Pipeline',
+        tabJ5: 'Quản trị',
+        footerTitle: 'LàmViệc360 Flow Map · LV360-PRD-001 v1.0 · tresundios Software · March 2026',
+        footerSubtitle: '54 screens · 7 batches · 6 modules'
+      }
+    };
+
+    function setLang(lang) {
+      localStorage.setItem('lv360_lang', lang);
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (FLOW_LANG[lang][key]) el.textContent = FLOW_LANG[lang][key];
+      });
+      document.getElementById('lang-vi')
+        .classList.toggle('active', lang === 'vi');
+      document.getElementById('lang-en')
+        .classList.toggle('active', lang === 'en');
+    }
+
+    // Init
+    const currentLang = localStorage.getItem('lv360_lang') || 'vi';
+    setLang(currentLang);
+    // Show all sections by default
+    document.querySelectorAll('.journey-section')
+      .forEach(s => s.classList.remove('hidden'));
+  </script>
+</body>
+</html>

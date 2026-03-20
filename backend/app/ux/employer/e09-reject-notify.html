@@ -1,0 +1,1474 @@
+<!doctype html>
+<!--
+  SCREEN: e09 Rejection Notification
+  PRD REFS: EMP-FR-025, EMP-FR-025b, NTF-FR-001, NTF-FR-004, NTF-FR-006, BR-005
+  FLOW: e06-pipeline-kanban.html → THIS → e06-pipeline-kanban.html
+         e07-candidate-detail.html → THIS → e07-candidate-detail.html
+  PERSONA: Company Admin, HR/Recruiter
+  STAGE: Phase 1 MVP
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Send Rejection | TechCorp Vietnam JSC</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-50);
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--color-navy);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1000;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo {
+      height: 32px;
+      width: auto;
+      display: block;
+      margin-bottom: var(--space-4);
+      filter: brightness(0) invert(1);
+    }
+
+    .company-info {
+      margin-bottom: var(--space-2);
+    }
+
+    .company-name {
+      font-size: var(--text-base);
+      font-weight: 700;
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .role-badge {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      margin-right: var(--space-2);
+    }
+
+    .verified-badge {
+      display: inline-block;
+      background: var(--color-success);
+      color: white;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-4) 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-6);
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-footer {
+      padding: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
+
+    .sign-out-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: color 0.2s;
+    }
+
+    .sign-out-link:hover {
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .page-title-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-grey-700);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .page-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0;
+      color: var(--color-grey-900);
+    }
+
+    .page-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      border: 1px solid var(--color-grey-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-grey-700);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--color-danger);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: 700;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .user-avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-6);
+      flex: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Form Container */
+    .form-container {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Steps */
+    .step {
+      margin-bottom: var(--space-8);
+    }
+
+    .step:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: var(--text-sm);
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0;
+      color: var(--color-grey-900);
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .required-asterisk {
+      color: var(--color-danger);
+    }
+
+    .form-select,
+    .form-textarea,
+    .form-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      transition: all 0.2s;
+    }
+
+    .form-select:focus,
+    .form-textarea:focus,
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* Radio Group */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .radio-input {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .radio-label {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      cursor: pointer;
+    }
+
+    /* Email Preview */
+    .email-preview {
+      background: var(--color-grey-50);
+      border: 2px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      line-height: 1.4;
+      margin-bottom: var(--space-4);
+    }
+
+    .email-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-grey-300);
+    }
+
+    .email-from,
+    .email-to,
+    .email-subject {
+      color: var(--color-grey-700);
+    }
+
+    .email-body {
+      color: var(--color-grey-900);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .template-note {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-info);
+      font-weight: 600;
+      margin-bottom: var(--space-4);
+    }
+
+    .edit-link {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .edit-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Toggle Switch */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--color-grey-300);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--color-primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: var(--radius-full);
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    .toggle-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    .toggle-note {
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      margin-top: var(--space-1);
+    }
+
+    /* Schedule Options */
+    .schedule-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .schedule-input {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .schedule-input .form-input {
+      flex: 1;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: var(--space-4);
+      justify-content: flex-end;
+      padding-top: var(--space-6);
+      border-top: var(--border-default);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 44px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-danger { background: var(--color-danger); color: white; }
+    .btn-danger:hover { background: #B91C1C; text-decoration: none; }
+    .btn-ghost { background: transparent; color: var(--color-grey-700); border: 1px solid var(--color-grey-300); }
+    .btn-ghost:hover { background: var(--color-grey-50); text-decoration: none; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: var(--space-6);
+      right: var(--space-6);
+      background: var(--color-grey-900);
+      color: white;
+      padding: var(--space-4) var(--space-6);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      align-items: center;
+      gap: var(--space-4);
+      z-index: 3000;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    .toast-text {
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .toast-undo {
+      background: var(--color-primary);
+      color: white;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toast-undo:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s;
+    }
+
+    .toast-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Audit Note */
+    .audit-note {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-info);
+      font-weight: 600;
+      margin-top: var(--space-6);
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--color-grey-700);
+      cursor: pointer;
+      padding: var(--space-2);
+    }
+
+    .mobile-menu-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .mobile-overlay.open {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .content-area {
+        padding: var(--space-4);
+      }
+
+      .page-title-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .action-buttons .btn {
+        width: 100%;
+      }
+
+      .schedule-options {
+        gap: var(--space-2);
+      }
+
+      .schedule-input {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .sidebar { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <!-- Logo (RULE G-003) -->
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+        
+        <div class="company-info">
+          <h2 class="company-name">TechCorp Vietnam JSC</h2>
+          <div>
+            <span class="role-badge" data-i18n="roleAdmin">Company Admin</span>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+        <a href="e01-dashboard.html" class="nav-item" data-i18n="navDashboard">
+          <span class="nav-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="e02-job-list.html" class="nav-item" data-i18n="navJobManagement">
+          <span class="nav-icon">💼</span>
+          Job Management
+        </a>
+        <a href="e06-pipeline-kanban.html" class="nav-item active" data-i18n="navCandidatePipeline">
+          <span class="nav-icon">👥</span>
+          Candidate Pipeline
+        </a>
+        <a href="e14-team-list.html" class="nav-item" data-i18n="navTeamManagement">
+          <span class="nav-icon">👤</span>
+          Team Management
+        </a>
+        <a href="e18-account-settings.html" class="nav-item" data-i18n="navSettings">
+          <span class="nav-icon">⚙</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">NH</div>
+          <div class="user-info">
+            <p class="user-name">Nguyễn Thị Haanh</p>
+          </div>
+        </div>
+        <a href="../auth/a01-login.html" class="sign-out-link" data-i18n="signOut">Sign Out</a>
+      </div>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="page-title-section">
+          <!-- Mobile Menu Toggle -->
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <svg class="mobile-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          
+          <a href="e06-pipeline-kanban.html" class="back-link" data-i18n="backToPipeline">← Back to Pipeline</a>
+          <div>
+            <h1 class="page-title" data-i18n="pageTitle">Send Rejection</h1>
+            <p class="page-subtitle" data-i18n="pageSubtitle">Nguyễn Thị Thu · Senior Backend Engineer · Applied 10 Tháng 3, 2026</p>
+          </div>
+        </div>
+
+        <div class="top-bar-actions">
+          <!-- Notifications -->
+          <a href="e17-notifications.html" class="notification-bell" aria-label="Notifications">
+            🔔
+            <span class="notification-badge">3</span>
+          </a>
+
+          <!-- Language Toggle (RULE G-002) -->
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+
+          <!-- User Avatar -->
+          <div class="user-avatar-circle">NH</div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <div class="form-container">
+          <!-- Step 1: Select Rejection Reason -->
+          <div class="step">
+            <div class="step-header">
+              <div class="step-number">1</div>
+              <h2 class="step-title" data-i18n="step1Title">Select Rejection Reason</h2>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="reasonLabel">
+                Rejection reason <span class="required-asterisk">*</span>
+              </label>
+              <div class="radio-group">
+                <div class="radio-item">
+                  <input type="radio" id="reason1" name="rejectionReason" value="filled">
+                  <label for="reason1" class="radio-label" data-i18n="reason1">Role filled internally</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="reason2" name="rejectionReason" value="mismatch">
+                  <label for="reason2" class="radio-label" data-i18n="reason2">Profile does not match current requirements</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="reason3" name="rejectionReason" value="overqualified">
+                  <label for="reason3" class="radio-label" data-i18n="reason3">Overqualified for this role</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="reason4" name="rejectionReason" value="unavailable">
+                  <label for="reason4" class="radio-label" data-i18n="reason4">Position no longer available</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="reason5" name="rejectionReason" value="better">
+                  <label for="reason5" class="radio-label" data-i18n="reason5">Better-suited candidates identified</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="reason6" name="rejectionReason" value="custom">
+                  <label for="reason6" class="radio-label" data-i18n="reason6">Write custom reason...</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" id="customReasonGroup" style="display: none;">
+              <textarea class="form-textarea" id="customReason" placeholder="Enter your reason..." data-i18n-placeholder="customReasonPlaceholder"></textarea>
+            </div>
+          </div>
+
+          <!-- Step 2: Email Preview -->
+          <div class="step">
+            <div class="step-header">
+              <div class="step-number">2</div>
+              <h2 class="step-title" data-i18n="step2Title">Email Preview</h2>
+            </div>
+
+            <div class="template-note" data-i18n="templateNote">
+              Template uses candidate name, job title, company tokens.
+            </div>
+
+            <div class="email-preview">
+              <div class="email-header">
+                <div class="email-from" data-i18n="emailFrom">From: TechCorp Vietnam JSC</div>
+                <div class="email-to" data-i18n="emailTo">To: thu.nguyen@gmail.com</div>
+                <div class="email-subject" data-i18n="emailSubject">Subject: Kết quả ứng tuyển — Senior Backend Engineer</div>
+              </div>
+              <div class="email-body" id="emailBody">Kính gửi Nguyễn Thị Thu,
+
+Cảm ơn bạn đã ứng tuyển vào vị trí Senior Backend Engineer tại TechCorp Vietnam JSC.
+
+Sau khi xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng hồ sơ của bạn không phù hợp với yêu cầu của vị trí hiện tại.
+
+Chúng tôi chúc bạn sớm tìm được cơ hội phù hợp hơn.
+
+Trân trọng,
+TechCorp Vietnam JSC</div>
+            </div>
+
+            <a href="e13-rejection-templates.html" class="edit-link" data-i18n="editTemplate">Edit template →</a>
+          </div>
+
+          <!-- Step 3: Delivery Options -->
+          <div class="step">
+            <div class="step-header">
+              <div class="step-number">3</div>
+              <h2 class="step-title" data-i18n="step3Title">Delivery Options</h2>
+            </div>
+
+            <!-- Notification Suppression -->
+            <div class="form-group">
+              <div class="toggle-group">
+                <div class="toggle-switch" id="suppressToggle"></div>
+                <div>
+                  <div class="toggle-label" data-i18n="suppressLabel">🔕 Suppress this notification</div>
+                  <div class="toggle-note" data-i18n="suppressNote">When suppressed, no email is sent to the candidate.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Schedule Send -->
+            <div class="form-group">
+              <label class="form-label" data-i18n="scheduleLabel">Schedule send:</label>
+              <div class="schedule-options">
+                <div class="radio-item">
+                  <input type="radio" id="sendImmediate" name="schedule" value="immediate">
+                  <label for="sendImmediate" class="radio-label" data-i18n="sendImmediate">Send immediately</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="scheduleSend" name="schedule" value="schedule" checked>
+                  <label for="scheduleSend" class="radio-label" data-i18n="scheduleSend">Schedule send:</label>
+                </div>
+                <div class="schedule-options" id="scheduleOptions">
+                  <div class="radio-item">
+                    <input type="radio" id="schedule1h" name="delay" value="1h">
+                    <label for="schedule1h" class="radio-label" data-i18n="schedule1h">In 1 hour</label>
+                  </div>
+                  <div class="radio-item">
+                    <input type="radio" id="schedule24h" name="delay" value="24h" checked>
+                    <label for="schedule24h" class="radio-label" data-i18n="schedule24h">In 24 hours</label>
+                  </div>
+                  <div class="radio-item">
+                    <input type="radio" id="schedule48h" name="delay" value="48h">
+                    <label for="schedule48h" class="radio-label" data-i18n="schedule48h">In 48 hours</label>
+                  </div>
+                  <div class="schedule-input">
+                    <input type="radio" id="scheduleCustom" name="delay" value="custom">
+                    <label for="scheduleCustom" class="radio-label" data-i18n="scheduleCustom">Custom date/time:</label>
+                    <input type="datetime-local" class="form-input" id="customDateTime">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="btn btn-ghost" data-i18n="cancel">Cancel</button>
+            <button class="btn btn-danger" id="sendBtn" data-i18n="sendRejection">Send Rejection</button>
+          </div>
+
+          <!-- Audit Note -->
+          <div class="audit-note" data-i18n="auditNote">
+            Rejection and email delivery logged automatically.
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span class="toast-text" id="toastText">Rejection sent to Nguyễn Thị Thu.</span>
+    <button class="toast-undo" id="toastUndo">Undo (4:52)</button>
+    <button class="toast-close" id="toastClose">×</button>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 e09: Reject Notify
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="e06-pipeline-kanban.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← e06: Pipeline</a>
+    <a href="e07-candidate-detail.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← e07: Candidate Detail</a>
+    <div style="margin:8px 0 4px 0;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="e13-rejection-templates.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ e13: Templates</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        backToPipeline: '← Back to Pipeline',
+        pageTitle: 'Send Rejection',
+        pageSubtitle: 'Nguyễn Thị Thu · Senior Backend Engineer · Applied 10 Tháng 3, 2026',
+        step1Title: 'Select Rejection Reason',
+        reasonLabel: 'Rejection reason',
+        reason1: 'Role filled internally',
+        reason2: 'Profile does not match current requirements',
+        reason3: 'Overqualified for this role',
+        reason4: 'Position no longer available',
+        reason5: 'Better-suited candidates identified',
+        reason6: 'Write custom reason...',
+        customReasonPlaceholder: 'Enter your reason...',
+        step2Title: 'Email Preview',
+        templateNote: 'Template uses candidate name, job title, company tokens.',
+        emailFrom: 'From: TechCorp Vietnam JSC',
+        emailTo: 'To: thu.nguyen@gmail.com',
+        emailSubject: 'Subject: Kết quả ứng tuyển — Senior Backend Engineer',
+        editTemplate: 'Edit template →',
+        step3Title: 'Delivery Options',
+        suppressLabel: '🔕 Suppress this notification',
+        suppressNote: 'When suppressed, no email is sent to the candidate.',
+        scheduleLabel: 'Schedule send:',
+        sendImmediate: 'Send immediately',
+        scheduleSend: 'Schedule send:',
+        schedule1h: 'In 1 hour',
+        schedule24h: 'In 24 hours',
+        schedule48h: 'In 48 hours',
+        scheduleCustom: 'Custom date/time:',
+        cancel: 'Cancel',
+        sendRejection: 'Send Rejection',
+        auditNote: 'Rejection and email delivery logged automatically.'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        backToPipeline: '← Back to Pipeline',
+        pageTitle: 'Send Rejection',
+        pageSubtitle: 'Nguyen Thi Thu · Senior Backend Engineer · Applied March 10, 2026',
+        step1Title: 'Select Rejection Reason',
+        reasonLabel: 'Rejection reason',
+        reason1: 'Role filled internally',
+        reason2: 'Profile does not match current requirements',
+        reason3: 'Overqualified for this role',
+        reason4: 'Position no longer available',
+        reason5: 'Better-suited candidates identified',
+        reason6: 'Write custom reason...',
+        customReasonPlaceholder: 'Enter your reason...',
+        step2Title: 'Email Preview',
+        templateNote: 'Template uses candidate name, job title, company tokens.',
+        emailFrom: 'From: TechCorp Vietnam JSC',
+        emailTo: 'To: thu.nguyen@gmail.com',
+        emailSubject: 'Subject: Application Result — Senior Backend Engineer',
+        editTemplate: 'Edit template →',
+        step3Title: 'Delivery Options',
+        suppressLabel: '🔕 Suppress this notification',
+        suppressNote: 'When suppressed, no email is sent to the candidate.',
+        scheduleLabel: 'Schedule send:',
+        sendImmediate: 'Send immediately',
+        scheduleSend: 'Schedule send:',
+        schedule1h: 'In 1 hour',
+        schedule24h: 'In 24 hours',
+        schedule48h: 'In 48 hours',
+        scheduleCustom: 'Custom date/time:',
+        cancel: 'Cancel',
+        sendRejection: 'Send Rejection',
+        auditNote: 'Rejection and email delivery logged automatically.'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Send Rejection | TechCorp Vietnam JSC' : 'LàmViệc360 — Send Rejection | TechCorp Vietnam JSC';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE SIDEBAR ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    function openMobileSidebar() {
+      sidebar.classList.add('open');
+      mobileOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      mobileOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    mobileMenuToggle.addEventListener('click', openMobileSidebar);
+    mobileOverlay.addEventListener('click', closeMobileSidebar);
+
+    // Close sidebar when clicking nav links on mobile
+    document.querySelectorAll('.nav-item').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 767) {
+          closeMobileSidebar();
+        }
+      });
+    });
+
+    // ========== REJECTION REASON HANDLING ==========
+    const rejectionReasons = document.querySelectorAll('input[name="rejectionReason"]');
+    const customReasonGroup = document.getElementById('customReasonGroup');
+    const customReason = document.getElementById('customReason');
+    const emailBody = document.getElementById('emailBody');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Email templates for different reasons
+    const emailTemplates = {
+      vi: {
+        filled: 'Kính gửi Nguyễn Thị Thu,\n\nCảm ơn bạn đã ứng tuyển vào vị trí Senior Backend Engineer tại TechCorp Vietnam JSC.\n\nSau khi xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng vị trí này đã được lấp đầy bởi nhân viên nội bộ.\n\nChúng tôi đánh giá cao kinh nghiệm và kỹ năng của bạn và sẽ giữ hồ sơ của bạn cho các cơ hội tuyển dụng trong tương lai.\n\nTrân trọng,\nTechCorp Vietnam JSC',
+        mismatch: 'Kính gửi Nguyễn Thị Thu,\n\nCảm ơn bạn đã ứng tuyển vào vị trí Senior Backend Engineer tại TechCorp Vietnam JSC.\n\nSau khi xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng hồ sơ của bạn không hoàn toàn phù hợp với yêu cầu của vị trí hiện tại.\n\nChúng tôi chúc bạn sớm tìm được cơ hội phù hợp hơn.\n\nTrân trọng,\nTechCorp Vietnam JSC',
+        overqualified: 'Kính gửi Nguyễn Thị Thu,\n\nCảm ơn bạn đã ứng tuyển vào vị trí Senior Backend Engineer tại TechCorp Vietnam JSC.\n\nSau khi xem xét kỹ lưỡng, chúng tôi nhận thấy bạn có kinh nghiệm và kỹ năng vượt trội so với yêu cầu của vị trí này.\n\nChúng tôi tin rằng sẽ có cơ hội phù hợp hơn với năng lực của bạn. Chúng tôi sẽ giữ hồ sơ của bạn cho các vị trí cao cấp hơn trong tương lai.\n\nTrân trọng,\nTechCorp Vietnam JSC',
+        unavailable: 'Kính gửi Nguyễn Thị Thu,\n\nCảm ơn bạn đã ứng tuyển vào vị trí Senior Backend Engineer tại TechCorp Vietnam JSC.\n\nSau khi xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng vị trí này không còn khả dụng do thay đổi về nhu cầu nhân sự.\n\nChúng tôi rất ấn tượng với hồ sơ của bạn và sẽ giữ lại để xem xét cho các cơ hội trong tương lai.\n\nTrân trọng,\nTechCorp Vietnam JSC',
+        better: 'Kính gửi Nguyễn Thị Thu,\n\nCảm ơn bạn đã ứng tuyển vào vị trí Senior Backend Engineer tại TechCorp Vietnam JSC.\n\nSau khi xem xét kỹ lưỡng, chúng tôi đã tìm thấy các ứng viên phù hợp hơn với yêu cầu cụ thể của vị trí này.\n\nChúng tôi đánh giá cao kinh nghiệm của bạn và sẽ giữ hồ sơ của bạn cho các cơ hội tuyển dụng phù hợp hơn trong tương lai.\n\nTrân trọng,\nTechCorp Vietnam JSC',
+        custom: 'Kính gửi Nguyễn Thị Thu,\n\nCảm ơn bạn đã ứng tuyển vào vị trí Senior Backend Engineer tại TechCorp Vietnam JSC.\n\nSau khi xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo rằng hồ sơ của bạn không được chọn cho vòng tiếp theo.\n\n[Custom reason will be inserted here]\n\nChúng tôi chúc bạn thành công trong việc tìm kiếm cơ hội phù hợp.\n\nTrân trọng,\nTechCorp Vietnam JSC'
+      },
+      en: {
+        filled: 'Dear Nguyen Thi Thu,\n\nThank you for applying for the Senior Backend Engineer position at TechCorp Vietnam JSC.\n\nAfter careful consideration, we regret to inform you that this position has been filled internally.\n\nWe highly value your experience and skills and will keep your resume on file for future opportunities.\n\nSincerely,\nTechCorp Vietnam JSC',
+        mismatch: 'Dear Nguyen Thi Thu,\n\nThank you for applying for the Senior Backend Engineer position at TechCorp Vietnam JSC.\n\nAfter careful consideration, we regret to inform you that your profile does not fully match the requirements for this position.\n\nWe wish you the best in your job search.\n\nSincerely,\nTechCorp Vietnam JSC',
+        overqualified: 'Dear Nguyen Thi Thu,\n\nThank you for applying for the Senior Backend Engineer position at TechCorp Vietnam JSC.\n\nAfter careful consideration, we find that you are overqualified for this position.\n\nWe believe there will be better opportunities that match your qualifications. We will keep your resume on file for higher-level positions in the future.\n\nSincerely,\nTechCorp Vietnam JSC',
+        unavailable: 'Dear Nguyen Thi Thu,\n\nThank you for applying for the Senior Backend Engineer position at TechCorp Vietnam JSC.\n\nAfter careful consideration, we regret to inform you that this position is no longer available due to changes in our staffing needs.\n\nWe were impressed with your qualifications and will keep your resume on file for future opportunities.\n\nSincerely,\nTechCorp Vietnam JSC',
+        better: 'Dear Nguyen Thi Thu,\n\nThank you for applying for the Senior Backend Engineer position at TechCorp Vietnam JSC.\n\nAfter careful consideration, we have found candidates who are better suited for the specific requirements of this position.\n\nWe value your experience and will keep your resume on file for more suitable opportunities in the future.\n\nSincerely,\nTechCorp Vietnam JSC',
+        custom: 'Dear Nguyen Thi Thu,\n\nThank you for applying for the Senior Backend Engineer position at TechCorp Vietnam JSC.\n\nAfter careful consideration, we regret to inform you that your application was not selected for the next round.\n\n[Custom reason will be inserted here]\n\nWe wish you success in your job search.\n\nSincerely,\nTechCorp Vietnam JSC'
+      }
+    };
+
+    // Update email body when reason changes
+    function updateEmailBody() {
+      const selectedReason = document.querySelector('input[name="rejectionReason"]:checked');
+      if (selectedReason && selectedReason.value !== 'custom') {
+        emailBody.textContent = emailTemplates[currentLang][selectedReason.value];
+      } else if (selectedReason && selectedReason.value === 'custom') {
+        const customText = customReason.value.trim();
+        if (customText) {
+          const template = emailTemplates[currentLang].custom;
+          emailBody.textContent = template.replace('[Custom reason will be inserted here]', customText);
+        } else {
+          emailBody.textContent = emailTemplates[currentLang].custom;
+        }
+      }
+    }
+
+    // Handle custom reason visibility
+    rejectionReasons.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'custom') {
+          customReasonGroup.style.display = 'block';
+          customReason.focus();
+        } else {
+          customReasonGroup.style.display = 'none';
+          customReason.value = '';
+        }
+        updateEmailBody();
+      });
+    });
+
+    // Update email body when custom reason changes
+    customReason.addEventListener('input', updateEmailBody);
+
+    // ========== SCHEDULE OPTIONS HANDLING ==========
+    const scheduleSend = document.getElementById('scheduleSend');
+    const scheduleOptions = document.getElementById('scheduleOptions');
+    const customDateTime = document.getElementById('customDateTime');
+
+    scheduleSend.addEventListener('change', () => {
+      if (scheduleSend.checked) {
+        scheduleOptions.style.display = 'block';
+      } else {
+        scheduleOptions.style.display = 'none';
+      }
+    });
+
+    // Custom date/time handling
+    document.getElementById('scheduleCustom').addEventListener('change', () => {
+      if (document.getElementById('scheduleCustom').checked) {
+        customDateTime.focus();
+      }
+    });
+
+    // ========== SEND REJECTION ==========
+    sendBtn.addEventListener('click', () => {
+      // Validate rejection reason
+      const selectedReason = document.querySelector('input[name="rejectionReason"]:checked');
+      if (!selectedReason) {
+        alert('Please select a rejection reason.');
+        return;
+      }
+
+      if (selectedReason.value === 'custom' && !customReason.value.trim()) {
+        alert('Please enter a custom rejection reason.');
+        return;
+      }
+
+      // Check if notification is suppressed
+      const isSuppressed = document.getElementById('suppressToggle').classList.contains('active');
+      
+      // Get scheduling info
+      let scheduleInfo = 'immediately';
+      if (document.getElementById('scheduleSend').checked) {
+        const delay = document.querySelector('input[name="delay"]:checked');
+        if (delay) {
+          if (delay.value === 'custom') {
+            scheduleInfo = customDateTime.value;
+          } else {
+            scheduleInfo = delay.value;
+          }
+        }
+      }
+
+      // In real app, would send rejection email
+      console.log('Sending rejection:', {
+        candidate: 'Nguyễn Thị Thu',
+        reason: selectedReason.value === 'custom' ? customReason.value : selectedReason.value,
+        suppressed: isSuppressed,
+        schedule: scheduleInfo
+      });
+
+      // Show success toast
+      showSuccessToast();
+    });
+
+    // ========== TOGGLE SWITCHES ==========
+    const suppressToggle = document.getElementById('suppressToggle');
+
+    suppressToggle.addEventListener('click', () => {
+      suppressToggle.classList.toggle('active');
+    });
+
+    // ========== SUCCESS TOAST ==========
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const toastUndo = document.getElementById('toastUndo');
+    const toastClose = document.getElementById('toastClose');
+    let undoTimeout;
+
+    function showSuccessToast() {
+      const actionText = document.getElementById('scheduleSend').checked ? 'scheduled' : 'sent';
+      toastText.textContent = `Rejection ${actionText} to Nguyễn Thị Thu.`;
+      
+      toastUndo.style.display = 'inline-block';
+      toastUndo.textContent = 'Undo (4:52)';
+      
+      // Start countdown
+      let secondsLeft = 292; // 4 minutes 52 seconds
+      undoTimeout = setInterval(() => {
+        secondsLeft--;
+        const minutes = Math.floor(secondsLeft / 60);
+        const secs = secondsLeft % 60;
+        toastUndo.textContent = `Undo (${minutes}:${secs.toString().padStart(2, '0')})`;
+        
+        if (secondsLeft <= 0) {
+          clearInterval(undoTimeout);
+          toastUndo.style.display = 'none';
+        }
+      }, 1000);
+      
+      toastUndo.onclick = () => {
+        clearInterval(undoTimeout);
+        toast.classList.remove('show');
+        // In real app, would undo the rejection
+        console.log('Undo rejection');
+      };
+      
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 5000);
+    }
+
+    toastClose.addEventListener('click', () => {
+      toast.classList.remove('show');
+      if (undoTimeout) {
+        clearInterval(undoTimeout);
+      }
+    });
+
+    // ========== CANCEL HANDLING ==========
+    document.querySelector('.btn-ghost').addEventListener('click', () => {
+      // Return to pipeline
+      window.location.href = 'e06-pipeline-kanban.html';
+    });
+
+    // ========== RESPONSIVE HANDLING ==========
+    function handleResize() {
+      if (window.innerWidth > 767) {
+        closeMobileSidebar();
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    // Initialize with first reason selected
+    document.getElementById('reason1').checked = true;
+    updateEmailBody();
+  </script>
+</body>
+</html>

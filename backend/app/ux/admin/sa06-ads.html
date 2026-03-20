@@ -1,0 +1,1969 @@
+<!doctype html>
+<!--
+  SCREEN: sa06 Advertisement Management
+  PRD REFS: SAP-FR-008
+  FLOW: sa01-dashboard.html → THIS → Various admin screens
+  PERSONA: Super Admin
+  STAGE: Phase 1 MVP
+  NOTE: Advertisement banner slot management
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Advertisement Management | Super Admin</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-100);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 212px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: var(--color-admin-bg);
+      color: var(--color-white);
+      padding: var(--space-6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-logo {
+      height: 28px;
+      width: auto;
+      margin-bottom: var(--space-2);
+    }
+
+    .sidebar-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-admin-light);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-8) 0;
+    }
+
+    .sidebar-nav-item {
+      margin-bottom: var(--space-1);
+    }
+
+    .sidebar-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav-link:hover {
+      background: rgba(124, 58, 237, 0.2);
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-nav-link.active {
+      background: var(--color-admin-accent);
+      color: white;
+    }
+
+    .sidebar-nav-icon {
+      font-size: var(--text-base);
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .sidebar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .sidebar-user-role {
+      font-size: var(--text-xs);
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+
+    .sidebar-signout {
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .sidebar-signout:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 200px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-grey-100);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--color-danger);
+      color: white;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .top-bar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .top-bar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-8);
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+    }
+
+    .page-title-section h1 {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .page-subtitle {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+
+    /* Ad Slot Cards */
+    .ad-slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .ad-slot-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ad-slot-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .ad-slot-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .ad-slot-position {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: var(--space-1) 0 0 0;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .status-badge.active {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .status-badge.available {
+      background: var(--color-grey-100);
+      color: var(--color-grey-500);
+    }
+
+    .ad-slot-content {
+      margin-bottom: var(--space-4);
+    }
+
+    .ad-details {
+      display: grid;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+    }
+
+    .ad-detail {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .ad-detail strong {
+      color: var(--color-grey-900);
+    }
+
+    .empty-slot {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      font-style: italic;
+      margin-bottom: var(--space-4);
+    }
+
+    .ad-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .btn-sm {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-sm:active { transform: scale(0.98); }
+    .btn-sm-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-sm-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-sm-ghost {
+      background: transparent;
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-sm-ghost:hover {
+      background: var(--color-grey-50);
+      text-decoration: none;
+    }
+    .btn-sm-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+    .btn-sm-danger:hover {
+      background: #991B1B;
+      text-decoration: none;
+    }
+
+    /* Schedule Calendar */
+    .schedule-calendar {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .calendar-header {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: var(--space-1);
+      margin-top: var(--space-4);
+    }
+
+    .calendar-day-header {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      text-align: center;
+      padding: var(--space-2);
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-100);
+      border-radius: var(--radius-sm);
+      position: relative;
+    }
+
+    .calendar-day.booked-a {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .calendar-day.booked-b {
+      background: var(--color-admin-accent);
+      color: white;
+      border-color: var(--color-admin-accent);
+    }
+
+    .calendar-legend {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+      font-size: var(--text-sm);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Ads Table */
+    .ads-section {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .section-link {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .section-link:hover {
+      text-decoration: underline;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .ads-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: var(--space-4);
+    }
+
+    .ads-table th,
+    .ads-table td {
+      padding: var(--space-3);
+      text-align: left;
+      border-bottom: var(--border-default);
+      font-size: var(--text-sm);
+    }
+
+    .ads-table th {
+      font-weight: 600;
+      color: var(--color-grey-700);
+      background: var(--color-grey-50);
+    }
+
+    .ads-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    /* Form Panel */
+    .form-panel {
+      background: var(--color-grey-50);
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-top: var(--space-6);
+      display: none;
+    }
+
+    .form-panel.show {
+      display: block;
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .form-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .radio-option:hover {
+      background: var(--color-grey-50);
+    }
+
+    .radio-option.selected {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+    }
+
+    .radio-input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .file-upload {
+      border: 2px dashed var(--color-grey-300);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-upload:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: flex-end;
+      margin-top: var(--space-6);
+    }
+
+    /* Dropdown */
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-toggle {
+      background: none;
+      border: 1px solid var(--color-grey-300);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dropdown-toggle:hover {
+      background: var(--color-grey-50);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      min-width: 120px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      color: var(--color-grey-700);
+      text-decoration: none;
+      font-size: var(--text-xs);
+      transition: all 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: var(--color-grey-50);
+      color: var(--color-grey-900);
+      text-decoration: none;
+    }
+
+    .dropdown-item.danger {
+      color: var(--color-danger);
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+    }
+
+    .mobile-menu-toggle:hover {
+      background: var(--color-grey-100);
+    }
+
+    /* Mobile Overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .mobile-overlay.show {
+      display: block;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .top-bar {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .content-area {
+        padding: var(--space-4);
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+      }
+
+      .ad-slots {
+        grid-template-columns: 1fr;
+      }
+
+      .calendar-grid {
+        gap: 0;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table-container {
+        font-size: var(--text-xs);
+      }
+
+      .ads-table th,
+      .ads-table td {
+        padding: var(--space-2);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .btn-sm:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Logo -->
+      <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+      <div class="sidebar-label" data-i18n="adminPanel">Super Admin Panel</div>
+      
+      <div class="sidebar-divider"></div>
+
+      <!-- Navigation -->
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="sa01-dashboard.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📊</span>
+              <span data-i18n="navDashboard">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa02-companies.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🏢</span>
+              <span data-i18n="navCompanies">Companies</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa04-users.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">👤</span>
+              <span data-i18n="navUsers">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa06-ads.html" class="sidebar-nav-link active">
+              <span class="sidebar-nav-icon">📢</span>
+              <span data-i18n="navAds">Advertisements</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa07-templates.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📋</span>
+              <span data-i18n="navTemplates">Rejection Templates</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa08-retention.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🗑</span>
+              <span data-i18n="navRetention">Data Retention</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa09-audit-log.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🔍</span>
+              <span data-i18n="navAuditLog">Audit Log</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa10-reports.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📈</span>
+              <span data-i18n="navReports">Reports</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa11-settings.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">⚙</span>
+              <span data-i18n="navSettings">System Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">SA</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" data-i18n="superAdmin">Super Admin</div>
+            <div class="sidebar-user-role" data-i18n="adminRole">Administrator</div>
+          </div>
+        </div>
+        <button class="sidebar-signout" data-i18n="signOut">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+        <h1 class="top-bar-title" data-i18n="pageTitle">Advertisement Management</h1>
+        
+        <div class="top-bar-actions">
+          <button class="notification-bell">
+            🔔
+            <span class="notification-badge">5</span>
+          </button>
+          
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+          
+          <div class="top-bar-user">
+            <span data-i18n="superAdmin">Super Admin</span>
+            <div class="top-bar-avatar">SA</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title-section">
+            <h1 data-i18n="adBanners">Ad Banners</h1>
+            <p class="page-subtitle" data-i18n="slotStats">3 slots available · 2 active · 1 available</p>
+          </div>
+          <button class="btn btn-primary" id="createNewAdBtn" data-i18n="createNewAd">+ Create New Ad</button>
+        </div>
+
+        <!-- Ad Slot Overview -->
+        <div class="ad-slots">
+          <!-- Slot A -->
+          <div class="ad-slot-card">
+            <div class="ad-slot-header">
+              <div>
+                <h2 class="ad-slot-title" data-i18n="slotA">Slot A — Homepage Hero Banner</h2>
+                <div class="ad-slot-position" data-i18n="slotAPosition">Position: Homepage — Top (728×90px)</div>
+              </div>
+              <div class="status-badge active" data-i18n="statusActive">Active ●</div>
+            </div>
+            
+            <div class="ad-slot-content">
+              <div class="ad-details">
+                <div data-i18n="currentAd">Current ad:</div>
+                <strong>TechVN Careers — Hiring Now</strong>
+              </div>
+              <div class="ad-details">
+                <div data-i18n="advertiser">Advertiser:</div>
+                <strong>TechVN Group</strong>
+              </div>
+              <div class="ad-details">
+                <div data-i18n="active">Active:</div>
+                <strong>1 Mar – 31 Mar 2026</strong>
+              </div>
+              <div class="ad-details">
+                <div data-i18n="impressions">Impressions:</div>
+                <strong>24,847</strong>
+              </div>
+            </div>
+            
+            <div class="ad-actions">
+              <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+              <button class="btn-sm btn-sm-danger" data-i18n="deactivate">Deactivate</button>
+              <button class="btn-sm btn-sm-ghost" data-i18n="view">View</button>
+            </div>
+          </div>
+
+          <!-- Slot B -->
+          <div class="ad-slot-card">
+            <div class="ad-slot-header">
+              <div>
+                <h2 class="ad-slot-title" data-i18n="slotB">Slot B — Job Search Results</h2>
+                <div class="ad-slot-position" data-i18n="slotBPosition">Position: Job Search — Right sidebar (300×250px)</div>
+              </div>
+              <div class="status-badge active" data-i18n="statusActive">Active ●</div>
+            </div>
+            
+            <div class="ad-slot-content">
+              <div class="ad-details">
+                <div data-i18n="currentAd">Current ad:</div>
+                <strong>LinkedIn Learning — Level up your skills</strong>
+              </div>
+              <div class="ad-details">
+                <div data-i18n="advertiser">Advertiser:</div>
+                <strong>LinkedIn VN</strong>
+              </div>
+              <div class="ad-details">
+                <div data-i18n="active">Active:</div>
+                <strong>10 Mar – 10 Apr 2026</strong>
+              </div>
+              <div class="ad-details">
+                <div data-i18n="impressions">Impressions:</div>
+                <strong>8,234</strong>
+              </div>
+            </div>
+            
+            <div class="ad-actions">
+              <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+              <button class="btn-sm btn-sm-danger" data-i18n="deactivate">Deactivate</button>
+              <button class="btn-sm btn-sm-ghost" data-i18n="view">View</button>
+            </div>
+          </div>
+
+          <!-- Slot C -->
+          <div class="ad-slot-card">
+            <div class="ad-slot-header">
+              <div>
+                <h2 class="ad-slot-title" data-i18n="slotC">Slot C — Employer Dashboard</h2>
+                <div class="ad-slot-position" data-i18n="slotCPosition">Position: Employer Dashboard — Top (728×90px)</div>
+              </div>
+              <div class="status-badge available" data-i18n="statusAvailable">Available ●</div>
+            </div>
+            
+            <div class="ad-slot-content">
+              <div class="ad-details">
+                <div data-i18n="currentAd">Current ad:</div>
+                <strong data-i18n="none">None</strong>
+              </div>
+              <div class="empty-slot" data-i18n="slotEmpty">This slot is currently empty.</div>
+              
+              <button class="btn btn-ghost" data-i18n="createAdForSlotC">+ Create Ad for Slot C</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Schedule Calendar -->
+        <div class="schedule-calendar">
+          <h2 class="calendar-header" data-i18n="adSchedule">Ad Schedule — March 2026</h2>
+          
+          <div class="calendar-grid">
+            <!-- Day headers -->
+            <div class="calendar-day-header" data-i18n="sun">Sun</div>
+            <div class="calendar-day-header" data-i18n="mon">Mon</div>
+            <div class="calendar-day-header" data-i18n="tue">Tue</div>
+            <div class="calendar-day-header" data-i18n="wed">Wed</div>
+            <div class="calendar-day-header" data-i18n="thu">Thu</div>
+            <div class="calendar-day-header" data-i18n="fri">Fri</div>
+            <div class="calendar-day-header" data-i18n="sat">Sat</div>
+            
+            <!-- Calendar days -->
+            <div class="calendar-day">1</div>
+            <div class="calendar-day booked-a">2</div>
+            <div class="calendar-day booked-a">3</div>
+            <div class="calendar-day booked-a">4</div>
+            <div class="calendar-day booked-a">5</div>
+            <div class="calendar-day booked-a">6</div>
+            <div class="calendar-day booked-a">7</div>
+            <div class="calendar-day booked-a">8</div>
+            <div class="calendar-day booked-a">9</div>
+            <div class="calendar-day booked-a">10</div>
+            <div class="calendar-day booked-b">11</div>
+            <div class="calendar-day booked-b">12</div>
+            <div class="calendar-day booked-b">13</div>
+            <div class="calendar-day booked-b">14</div>
+            <div class="calendar-day booked-b">15</div>
+            <div class="calendar-day booked-b">16</div>
+            <div class="calendar-day booked-b">17</div>
+            <div class="calendar-day booked-b">18</div>
+            <div class="calendar-day booked-b">19</div>
+            <div class="calendar-day booked-b">20</div>
+            <div class="calendar-day booked-b">21</div>
+            <div class="calendar-day booked-b">22</div>
+            <div class="calendar-day booked-b">23</div>
+            <div class="calendar-day booked-b">24</div>
+            <div class="calendar-day booked-b">25</div>
+            <div class="calendar-day booked-b">26</div>
+            <div class="calendar-day booked-b">27</div>
+            <div class="calendar-day booked-b">28</div>
+            <div class="calendar-day booked-b">29</div>
+            <div class="calendar-day booked-b">30</div>
+            <div class="calendar-day booked-b">31</div>
+          </div>
+          
+          <div class="calendar-legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: var(--color-primary);"></div>
+              <span data-i18n="slotALegend">Slot A: TechVN</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: var(--color-admin-accent);"></div>
+              <span data-i18n="slotBLegend">Slot B: LinkedIn</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: var(--color-grey-200); border: 1px dashed var(--color-grey-400);"></div>
+              <span data-i18n="slotCLegend">Slot C: Available</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- All Ads Table -->
+        <div class="ads-section">
+          <div class="section-header">
+            <h2 class="section-title" data-i18n="allAds">All Advertisements</h2>
+          </div>
+          
+          <div class="table-container">
+            <table class="ads-table">
+              <thead>
+                <tr>
+                  <th data-i18n="colName">Name</th>
+                  <th data-i18n="colSlot">Slot</th>
+                  <th data-i18n="colAdvertiser">Advertiser</th>
+                  <th data-i18n="colStart">Start</th>
+                  <th data-i18n="colEnd">End</th>
+                  <th data-i18n="colStatus">Status</th>
+                  <th data-i18n="colImpressions">Impressions</th>
+                  <th data-i18n="colActions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-i18n="techVNCareers">TechVN Careers</td>
+                  <td data-i18n="slotA">Slot A</td>
+                  <td data-i18n="techVNGroup">TechVN Group</td>
+                  <td data-i18n="dateMar1">1 Mar</td>
+                  <td data-i18n="dateMar31">31 Mar</td>
+                  <td>
+                    <span class="status-badge active" data-i18n="statusActive">Active ●</span>
+                  </td>
+                  <td data-i18n="impressions24847">24,847</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-danger" data-i18n="deactivate">Deactivate</button>
+                      <div class="dropdown">
+                        <button class="dropdown-toggle">⋮</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-i18n="duplicate">Duplicate</a>
+                          <a href="#" class="dropdown-item danger" data-i18n="delete">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="linkedinLearning">LinkedIn Learning</td>
+                  <td data-i18n="slotB">Slot B</td>
+                  <td data-i18n="linkedinVN">LinkedIn VN</td>
+                  <td data-i18n="dateMar10">10 Mar</td>
+                  <td data-i18n="dateApr10">10 Apr</td>
+                  <td>
+                    <span class="status-badge active" data-i18n="statusActive">Active ●</span>
+                  </td>
+                  <td data-i18n="impressions8234">8,234</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-danger" data-i18n="deactivate">Deactivate</button>
+                      <div class="dropdown">
+                        <button class="dropdown-toggle">⋮</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-i18n="duplicate">Duplicate</a>
+                          <a href="#" class="dropdown-item danger" data-i18n="delete">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="dataVNHiring">DataVN Hiring</td>
+                  <td data-i18n="slotA">Slot A</td>
+                  <td data-i18n="dataVNLtd">DataVN Ltd</td>
+                  <td data-i18n="dateApr1">1 Apr</td>
+                  <td data-i18n="dateApr30">30 Apr</td>
+                  <td>
+                    <span class="status-badge" style="background: var(--color-info-bg); color: var(--color-info);" data-i18n="statusScheduled">Scheduled ●</span>
+                  </td>
+                  <td data-i18n="none">—</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-danger" data-i18n="cancel">Cancel</button>
+                      <div class="dropdown">
+                        <button class="dropdown-toggle">⋮</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item" data-i18n="duplicate">Duplicate</a>
+                          <a href="#" class="dropdown-item danger" data-i18n="delete">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="oldCampaign">Old Campaign</td>
+                  <td data-i18n="slotC">Slot C</td>
+                  <td data-i18n="finAppVN">FinApp VN</td>
+                  <td data-i18n="dateJan1">1 Jan</td>
+                  <td data-i18n="dateFeb28">28 Feb</td>
+                  <td>
+                    <span class="status-badge" style="background: var(--color-grey-100); color: var(--color-grey-500);" data-i18n="statusExpired">Expired ●</span>
+                  </td>
+                  <td data-i18n="impressions41200">41,200</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="duplicate">Duplicate</button>
+                      <div class="dropdown">
+                        <button class="dropdown-toggle">⋮</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item danger" data-i18n="delete">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td data-i18n="testBanner">Test Banner</td>
+                  <td data-i18n="slotB">Slot B</td>
+                  <td data-i18n="internal">Internal</td>
+                  <td data-i18n="none">—</td>
+                  <td data-i18n="none">—</td>
+                  <td>
+                    <span class="status-badge" style="background: var(--color-grey-100); color: var(--color-grey-500);" data-i18n="statusDraft">Draft ●</span>
+                  </td>
+                  <td data-i18n="none">—</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn-sm btn-sm-ghost" data-i18n="edit">Edit</button>
+                      <button class="btn-sm btn-sm-primary" data-i18n="activate">Activate</button>
+                      <div class="dropdown">
+                        <button class="dropdown-toggle">⋮</button>
+                        <div class="dropdown-menu">
+                          <a href="#" class="dropdown-item danger" data-i18n="delete">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Create/Edit Form Panel -->
+          <div class="form-panel" id="adFormPanel">
+            <div class="form-header">
+              <h3 class="form-title" data-i18n="createEditAd">Create Advertisement</h3>
+              <button class="btn btn-ghost" id="closeFormBtn" data-i18n="close">× Close</button>
+            </div>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" data-i18n="adName">Ad Name *</label>
+                <input type="text" class="form-input" id="adName" value="TechVN Careers — Q2 Campaign" data-i18n-placeholder="adNamePlaceholder">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="advertiserName">Advertiser Name *</label>
+                <input type="text" class="form-input" id="advertiserName" value="TechVN Group" data-i18n-placeholder="advertiserNamePlaceholder">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="adSlot">Ad Slot *</label>
+                <div class="radio-group">
+                  <div class="radio-option" data-slot="A">
+                    <input type="radio" name="adSlot" class="radio-input" id="slotA">
+                    <span data-i18n="slotARadio">Slot A — Homepage (728×90)</span>
+                  </div>
+                  <div class="radio-option" data-slot="B">
+                    <input type="radio" name="adSlot" class="radio-input" id="slotB">
+                    <span data-i18n="slotBRadio">Slot B — Job Search (300×250)</span>
+                  </div>
+                  <div class="radio-option" data-slot="C">
+                    <input type="radio" name="adSlot" class="radio-input" id="slotC">
+                    <span data-i18n="slotCRadio">Slot C — Employer Dashboard (728×90)</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="bannerImage">Banner Image *</label>
+                <div class="file-upload" id="fileUpload">
+                  <div data-i18n="uploadBanner">Upload banner image</div>
+                  <div style="font-size: var(--text-sm); color: var(--color-grey-500); margin-top: var(--space-2);">
+                    <span data-i18n="requiredSize">Required size shown per selected slot.</span><br>
+                    <span data-i18n="acceptedFormats">Accepted: PNG, JPG · Max 500KB</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="clickUrl">Click URL *</label>
+                <input type="url" class="form-input" id="clickUrl" value="https://careers.techvn.com" data-i18n-placeholder="clickUrlPlaceholder">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="schedule">Schedule</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+                  <div>
+                    <label class="form-label" data-i18n="startDate">Start Date *</label>
+                    <input type="date" class="form-input" id="startDate" value="2026-04-01">
+                  </div>
+                  <div>
+                    <label class="form-label" data-i18n="endDate">End Date *</label>
+                    <input type="date" class="form-input" id="endDate" value="2026-04-30">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="status">Status</label>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" name="status" class="radio-input" id="statusDraft">
+                    <span data-i18n="statusDraft">Draft</span>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" name="status" class="radio-input" id="statusActive">
+                    <span data-i18n="statusActive">Active</span>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" name="status" class="radio-input" id="statusScheduled">
+                    <span data-i18n="statusScheduled">Scheduled</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button class="btn btn-ghost" id="cancelBtn" data-i18n="cancel">Cancel</button>
+              <button class="btn btn-primary" id="saveAdBtn" data-i18n="saveAd">Save Advertisement</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 sa06: Advertisement Management
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="sa01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← sa01: Dashboard</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Advertisement Management',
+        adBanners: 'Ad Banners',
+        slotStats: '3 slots available · 2 active · 1 available',
+        createNewAd: '+ Create New Ad',
+        slotA: 'Slot A — Homepage Hero Banner',
+        slotAPosition: 'Position: Homepage — Top (728×90px)',
+        slotB: 'Slot B — Job Search Results',
+        slotBPosition: 'Position: Job Search — Right sidebar (300×250px)',
+        slotC: 'Slot C — Employer Dashboard',
+        slotCPosition: 'Position: Employer Dashboard — Top (728×90px)',
+        statusActive: 'Active ●',
+        statusAvailable: 'Available ●',
+        currentAd: 'Current ad:',
+        none: 'None',
+        advertiser: 'Advertiser:',
+        active: 'Active:',
+        impressions: 'Impressions:',
+        edit: 'Edit',
+        deactivate: 'Deactivate',
+        view: 'View',
+        slotEmpty: 'This slot is currently empty.',
+        createAdForSlotC: '+ Create Ad for Slot C',
+        adSchedule: 'Ad Schedule — March 2026',
+        sun: 'Sun',
+        mon: 'Mon',
+        tue: 'Tue',
+        wed: 'Wed',
+        thu: 'Thu',
+        fri: 'Fri',
+        sat: 'Sat',
+        slotALegend: 'Slot A: TechVN',
+        slotBLegend: 'Slot B: LinkedIn',
+        slotCLegend: 'Slot C: Available',
+        allAds: 'All Advertisements',
+        colName: 'Name',
+        colSlot: 'Slot',
+        colAdvertiser: 'Advertiser',
+        colStart: 'Start',
+        colEnd: 'End',
+        colStatus: 'Status',
+        colImpressions: 'Impressions',
+        colActions: 'Actions',
+        techVNCareers: 'TechVN Careers',
+        techVNGroup: 'TechVN Group',
+        linkedinLearning: 'LinkedIn Learning',
+        linkedinVN: 'LinkedIn VN',
+        dataVNHiring: 'DataVN Hiring',
+        dataVNLtd: 'DataVN Ltd',
+        oldCampaign: 'Old Campaign',
+        finAppVN: 'FinApp VN',
+        testBanner: 'Test Banner',
+        internal: 'Internal',
+        statusScheduled: 'Scheduled ●',
+        statusExpired: 'Expired ●',
+        statusDraft: 'Draft ●',
+        impressions24847: '24,847',
+        impressions8234: '8,234',
+        impressions41200: '41,200',
+        duplicate: 'Duplicate',
+        delete: 'Delete',
+        cancel: 'Cancel',
+        activate: 'Activate',
+        dateMar1: '1 Mar',
+        dateMar31: '31 Mar',
+        dateMar10: '10 Mar',
+        dateApr10: '10 Apr',
+        dateApr1: '1 Apr',
+        dateApr30: '30 Apr',
+        dateJan1: '1 Jan',
+        dateFeb28: '28 Feb',
+        createEditAd: 'Create Advertisement',
+        close: '× Close',
+        adName: 'Ad Name *',
+        adNamePlaceholder: 'Enter advertisement name',
+        advertiserName: 'Advertiser Name *',
+        advertiserNamePlaceholder: 'Enter advertiser name',
+        adSlot: 'Ad Slot *',
+        slotARadio: 'Slot A — Homepage (728×90)',
+        slotBRadio: 'Slot B — Job Search (300×250)',
+        slotCRadio: 'Slot C — Employer Dashboard (728×90)',
+        bannerImage: 'Banner Image *',
+        uploadBanner: 'Upload banner image',
+        requiredSize: 'Required size shown per selected slot.',
+        acceptedFormats: 'Accepted: PNG, JPG · Max 500KB',
+        clickUrl: 'Click URL *',
+        clickUrlPlaceholder: 'Enter click URL',
+        schedule: 'Schedule',
+        startDate: 'Start Date *',
+        endDate: 'End Date *',
+        statusDraft: 'Draft',
+        statusActive: 'Active',
+        statusScheduled: 'Scheduled',
+        saveAd: 'Save Advertisement'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Advertisement Management',
+        adBanners: 'Ad Banners',
+        slotStats: '3 slots available · 2 active · 1 available',
+        createNewAd: '+ Create New Ad',
+        slotA: 'Slot A — Homepage Hero Banner',
+        slotAPosition: 'Position: Homepage — Top (728×90px)',
+        slotB: 'Slot B — Job Search Results',
+        slotBPosition: 'Position: Job Search — Right sidebar (300×250px)',
+        slotC: 'Slot C — Employer Dashboard',
+        slotCPosition: 'Position: Employer Dashboard — Top (728×90px)',
+        statusActive: 'Active ●',
+        statusAvailable: 'Available ●',
+        currentAd: 'Current ad:',
+        none: 'None',
+        advertiser: 'Advertiser:',
+        active: 'Active:',
+        impressions: 'Impressions:',
+        edit: 'Edit',
+        deactivate: 'Deactivate',
+        view: 'View',
+        slotEmpty: 'This slot is currently empty.',
+        createAdForSlotC: '+ Create Ad for Slot C',
+        adSchedule: 'Ad Schedule — March 2026',
+        sun: 'Sun',
+        mon: 'Mon',
+        tue: 'Tue',
+        wed: 'Wed',
+        thu: 'Thu',
+        fri: 'Fri',
+        sat: 'Sat',
+        slotALegend: 'Slot A: TechVN',
+        slotBLegend: 'Slot B: LinkedIn',
+        slotCLegend: 'Slot C: Available',
+        allAds: 'All Advertisements',
+        colName: 'Name',
+        colSlot: 'Slot',
+        colAdvertiser: 'Advertiser',
+        colStart: 'Start',
+        colEnd: 'End',
+        colStatus: 'Status',
+        colImpressions: 'Impressions',
+        colActions: 'Actions',
+        techVNCareers: 'TechVN Careers',
+        techVNGroup: 'TechVN Group',
+        linkedinLearning: 'LinkedIn Learning',
+        linkedinVN: 'LinkedIn VN',
+        dataVNHiring: 'DataVN Hiring',
+        dataVNLtd: 'DataVN Ltd',
+        oldCampaign: 'Old Campaign',
+        finAppVN: 'FinApp VN',
+        testBanner: 'Test Banner',
+        internal: 'Internal',
+        statusScheduled: 'Scheduled ●',
+        statusExpired: 'Expired ●',
+        statusDraft: 'Draft ●',
+        impressions24847: '24,847',
+        impressions8234: '8,234',
+        impressions41200: '41,200',
+        duplicate: 'Duplicate',
+        delete: 'Delete',
+        cancel: 'Cancel',
+        activate: 'Activate',
+        dateMar1: '1 Mar',
+        dateMar31: '31 Mar',
+        dateMar10: '10 Mar',
+        dateApr10: '10 Apr',
+        dateApr1: '1 Apr',
+        dateApr30: '30 Apr',
+        dateJan1: '1 Jan',
+        dateFeb28: '28 Feb',
+        createEditAd: 'Create Advertisement',
+        close: '× Close',
+        adName: 'Ad Name *',
+        adNamePlaceholder: 'Enter advertisement name',
+        advertiserName: 'Advertiser Name *',
+        advertiserNamePlaceholder: 'Enter advertiser name',
+        adSlot: 'Ad Slot *',
+        slotARadio: 'Slot A — Homepage (728×90)',
+        slotBRadio: 'Slot B — Job Search (300×250)',
+        slotCRadio: 'Slot C — Employer Dashboard (728×90)',
+        bannerImage: 'Banner Image *',
+        uploadBanner: 'Upload banner image',
+        requiredSize: 'Required size shown per selected slot.',
+        acceptedFormats: 'Accepted: PNG, JPG · Max 500KB',
+        clickUrl: 'Click URL *',
+        clickUrlPlaceholder: 'Enter click URL',
+        schedule: 'Schedule',
+        startDate: 'Start Date *',
+        endDate: 'End Date *',
+        statusDraft: 'Draft',
+        statusActive: 'Active',
+        statusScheduled: 'Scheduled',
+        saveAd: 'Save Advertisement'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Advertisement Management | Super Admin' : 'LàmViệc360 — Advertisement Management | Super Admin';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE MENU ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+      mobileOverlay.classList.toggle('show');
+    });
+
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('show');
+      mobileOverlay.classList.remove('show');
+    });
+
+    // ========== CREATE NEW AD BUTTON ==========
+    const createNewAdBtn = document.getElementById('createNewAdBtn');
+    const adFormPanel = document.getElementById('adFormPanel');
+    const closeFormBtn = document.getElementById('closeFormBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const saveAdBtn = document.getElementById('saveAdBtn');
+
+    createNewAdBtn.addEventListener('click', () => {
+      adFormPanel.classList.add('show');
+      // Reset form
+      document.getElementById('adName').value = '';
+      document.getElementById('advertiserName').value = '';
+      document.getElementById('slotA').checked = true;
+      document.getElementById('startDate').value = '2026-04-01';
+      document.getElementById('endDate').value = '2026-04-30';
+      document.getElementById('statusDraft').checked = true;
+    });
+
+    closeFormBtn.addEventListener('click', () => {
+      adFormPanel.classList.remove('show');
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      adFormPanel.classList.remove('show');
+    });
+
+    saveAdBtn.addEventListener('click', () => {
+      const adName = document.getElementById('adName').value;
+      const advertiserName = document.getElementById('advertiserName').value;
+      const selectedSlot = document.querySelector('input[name="adSlot"]:checked');
+      const clickUrl = document.getElementById('clickUrl').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const selectedStatus = document.querySelector('input[name="status"]:checked');
+      
+      if (!adName || !advertiserName || !selectedSlot || !clickUrl || !startDate || !endDate) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      
+      console.log('Saving advertisement:', {
+        adName, advertiserName, slot: selectedSlot.id, clickUrl, startDate, endDate, status: selectedStatus.id
+      });
+      
+      alert('Advertisement saved successfully!');
+      adFormPanel.classList.remove('show');
+      // In real app, this would make an API call and refresh the table
+    });
+
+    // ========== RADIO BUTTONS ==========
+    const radioOptions = document.querySelectorAll('.radio-option');
+    
+    radioOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Remove selected class from all options in the same group
+        const groupName = option.getAttribute('data-slot') || option.parentElement.querySelector('input[name="status"]')?.name;
+        if (groupName) {
+          document.querySelectorAll(`[data-slot="${groupName}"]`).forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          document.querySelectorAll(`input[name="${groupName}"]`).forEach(input => {
+            input.parentElement.classList.remove('selected');
+          });
+        }
+        
+        // Add selected class to clicked option
+        option.classList.add('selected');
+        const input = option.querySelector('input[type="radio"]');
+        if (input) {
+          input.checked = true;
+        }
+      });
+    });
+
+    // Initialize radio buttons
+    document.getElementById('slotA').checked = true;
+    document.querySelector('[data-slot="A"]').classList.add('selected');
+    document.getElementById('statusDraft').checked = true;
+    document.querySelector('[data-status="draft"]').classList.add('selected');
+
+    // ========== FILE UPLOAD ==========
+    const fileUpload = document.getElementById('fileUpload');
+    
+    fileUpload.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/png,image/jpeg';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (file.size > 500 * 1024) { // 500KB limit
+            alert('File size must be less than 500KB');
+            return;
+          }
+        console.log('File selected:', file.name);
+        fileUpload.innerHTML = `✓ ${file.name} (${(file.size / 1024).toFixed(1)}KB)`;
+        fileUpload.style.background = 'var(--color-success-bg)';
+        fileUpload.style.color = 'var(--color-success)';
+        fileUpload.style.border = '2px solid var(--color-success)';
+      }
+      input.click();
+    });
+
+    // ========== TABLE ACTIONS ==========
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+
+    dropdownToggles.forEach(toggle => {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Close other dropdowns
+        dropdownToggles.forEach(otherToggle => {
+          if (otherToggle !== toggle) {
+            otherToggle.nextElementSibling.classList.remove('show');
+          }
+        });
+        
+        // Toggle current dropdown
+        toggle.nextElementSibling.classList.toggle('show');
+      });
+    });
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+      });
+    });
+
+    // Handle dropdown item clicks
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const action = item.textContent;
+        
+        if (item.classList.contains('danger')) {
+          if (confirm('Permanently delete this advertisement? This action cannot be undone.')) {
+            console.log('Deleting advertisement...');
+            alert('Advertisement permanently deleted.');
+            // In real app, this would make an API call and refresh the table
+          }
+        } else {
+          console.log('Action:', action);
+          alert(`${action}...`);
+          // In real app, this would handle the specific action
+        }
+        
+        item.closest('.dropdown-menu').classList.remove('show');
+      });
+    });
+
+    // ========== SIGN OUT ==========
+    document.querySelector('.sidebar-signout').addEventListener('click', () => {
+      if (confirm('Are you sure you want to sign out?')) {
+        console.log('Signing out...');
+        // In real app, this would clear session and redirect
+        alert('Signed out successfully');
+      }
+    });
+  </script>
+</body>
+</html>

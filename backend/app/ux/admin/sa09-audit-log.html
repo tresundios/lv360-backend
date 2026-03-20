@@ -1,0 +1,1999 @@
+<!doctype html>
+<!--
+  SCREEN: sa09 Audit Log
+  PRD REFS: SAP-FR-006, EMP-FR-019, BR-005, BR-012
+  FLOW: sa01-dashboard.html → THIS → Various admin screens
+  PERSONA: Super Admin
+  STAGE: Phase 1 MVP
+  NOTE: Platform-wide immutable audit log
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Audit Log | Super Admin</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-100);
+      min-height: 100vh;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 212px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout Container */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: var(--color-admin-bg);
+      color: var(--color-white);
+      padding: var(--space-6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-logo {
+      height: 28px;
+      width: auto;
+      margin-bottom: var(--space-2);
+    }
+
+    .sidebar-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-admin-light);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: var(--space-6);
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-8) 0;
+    }
+
+    .sidebar-nav-item {
+      margin-bottom: var(--space-1);
+    }
+
+    .sidebar-nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+    }
+
+    .sidebar-nav-link:hover {
+      background: rgba(124, 58, 237, 0.2);
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-nav-link.active {
+      background: var(--color-admin-accent);
+      color: white;
+    }
+
+    .sidebar-nav-icon {
+      font-size: var(--text-base);
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .sidebar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+    }
+
+    .sidebar-user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .sidebar-user-role {
+      font-size: var(--text-xs);
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+
+    .sidebar-signout {
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .sidebar-signout:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 200px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      background: none;
+      border: none;
+      font-size: var(--text-lg);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-grey-100);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--color-danger);
+      color: white;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .top-bar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .top-bar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--color-admin-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-8);
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+    }
+
+    .page-title-section h1 {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .page-subtitle {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-ghost:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+    .btn-secondary {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-secondary:hover {
+      background: var(--color-grey-200);
+      text-decoration: none;
+    }
+
+    /* Search and Filter Bar */
+    .search-filter-bar {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      margin-bottom: var(--space-4);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .filter-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+    }
+
+    .filter-select {
+      padding: var(--space-2) var(--space-3);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background: white;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .btn-sm {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-sm:active { transform: scale(0.98); }
+    .btn-sm-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-sm-primary:hover {
+      background: var(--color-primary-dark);
+      text-decoration: none;
+    }
+    .btn-sm-ghost {
+      background: transparent;
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+    .btn-sm-ghost:hover {
+      background: var(--color-grey-50);
+      text-decoration: none;
+    }
+
+    /* Results Summary */
+    .results-summary {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-6);
+      margin-bottom: var(--space-6);
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+    }
+
+    /* Audit Log Table */
+    .audit-table-container {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-6);
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-xs);
+    }
+
+    .audit-table th,
+    .audit-table td {
+      padding: var(--space-3);
+      text-align: left;
+      border-bottom: var(--border-default);
+      white-space: nowrap;
+    }
+
+    .audit-table th {
+      font-weight: 600;
+      color: var(--color-grey-700);
+      background: var(--color-grey-50);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .audit-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .audit-table tbody tr {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .audit-table tbody tr:hover {
+      background: var(--color-grey-50);
+    }
+
+    .audit-table tbody tr.expanded {
+      background: var(--color-primary-light);
+    }
+
+    /* Event Type Badges */
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .event-badge.pipeline {
+      background: var(--color-info-bg);
+      color: var(--color-info);
+    }
+
+    .event-badge.document {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+    }
+
+    .event-badge.admin {
+      background: var(--color-admin-light);
+      color: var(--color-admin-accent);
+    }
+
+    .event-badge.ai {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .event-badge.user {
+      background: var(--color-grey-100);
+      color: var(--color-grey-700);
+    }
+
+    .event-badge.system {
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+    }
+
+    /* Expanded Detail Panel */
+    .detail-panel {
+      display: none;
+      background: var(--color-grey-50);
+      border-left: 4px solid var(--color-primary);
+    }
+
+    .detail-panel.show {
+      display: table-row;
+    }
+
+    .detail-content {
+      padding: var(--space-6);
+      font-size: var(--text-xs);
+      line-height: 1.6;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .detail-section {
+      margin-bottom: var(--space-4);
+    }
+
+    .detail-title {
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin-bottom: var(--space-2);
+    }
+
+    .detail-item {
+      margin-bottom: var(--space-1);
+      color: var(--color-grey-700);
+    }
+
+    .detail-item strong {
+      color: var(--color-grey-900);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-6);
+    }
+
+    .pagination-info {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    .pagination-btn {
+      padding: var(--space-2) var(--space-3);
+      border: var(--border-default);
+      background: white;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pagination-btn:hover {
+      background: var(--color-grey-50);
+    }
+
+    .pagination-btn.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .pagination-ellipsis {
+      padding: 0 var(--space-2);
+      color: var(--color-grey-500);
+    }
+
+    /* Export Note */
+    .export-note {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-info);
+      line-height: 1.5;
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: var(--text-xl);
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+    }
+
+    .mobile-menu-toggle:hover {
+      background: var(--color-grey-100);
+    }
+
+    /* Mobile Overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .mobile-overlay.show {
+      display: block;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .top-bar {
+        padding: var(--space-4) var(--space-4);
+      }
+
+      .content-area {
+        padding: var(--space-4);
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+      }
+
+      .export-buttons {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .filter-row {
+        grid-template-columns: 1fr;
+      }
+
+      .audit-table-container {
+        overflow-x: auto;
+      }
+
+      .audit-table {
+        min-width: 800px;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pagination {
+        flex-direction: column;
+        gap: var(--space-4);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .btn-sm:active { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Logo -->
+      <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+      <div class="sidebar-label" data-i18n="adminPanel">Super Admin Panel</div>
+      
+      <div class="sidebar-divider"></div>
+
+      <!-- Navigation -->
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="sa01-dashboard.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📊</span>
+              <span data-i18n="navDashboard">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa02-companies.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🏢</span>
+              <span data-i18n="navCompanies">Companies</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa04-users.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">👤</span>
+              <span data-i18n="navUsers">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa06-ads.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📢</span>
+              <span data-i18n="navAds">Advertisements</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa07-templates.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📋</span>
+              <span data-i18n="navTemplates">Rejection Templates</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa08-retention.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">🗑</span>
+              <span data-i18n="navRetention">Data Retention</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa09-audit-log.html" class="sidebar-nav-link active">
+              <span class="sidebar-nav-icon">🔍</span>
+              <span data-i18n="navAuditLog">Audit Log</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa10-reports.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">📈</span>
+              <span data-i18n="navReports">Reports</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="sa11-settings.html" class="sidebar-nav-link">
+              <span class="sidebar-nav-icon">⚙</span>
+              <span data-i18n="navSettings">System Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">SA</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" data-i18n="superAdmin">Super Admin</div>
+            <div class="sidebar-user-role" data-i18n="adminRole">Administrator</div>
+          </div>
+        </div>
+        <button class="sidebar-signout" data-i18n="signOut">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+        <h1 class="top-bar-title" data-i18n="pageTitle">Audit Log</h1>
+        
+        <div class="top-bar-actions">
+          <button class="notification-bell">
+            🔔
+            <span class="notification-badge">5</span>
+          </button>
+          
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+          
+          <div class="top-bar-user">
+            <span data-i18n="superAdmin">Super Admin</span>
+            <div class="top-bar-avatar">SA</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title-section">
+            <h1 data-i18n="pageHeader">Platform Audit Log</h1>
+            <p class="page-subtitle" data-i18n="pageSubtitle">
+              Immutable record of all platform actions. Cannot be edited or deleted. (BR-005)
+            </p>
+          </div>
+          <div class="export-buttons">
+            <button class="btn btn-ghost" data-i18n="exportCSV">Export CSV</button>
+            <button class="btn btn-ghost" data-i18n="exportJSON">Export JSON</button>
+          </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="search-filter-bar">
+          <input type="text" class="search-input" placeholder="🔍 Search by user, company, action or entity ID..." data-i18n-placeholder="searchPlaceholder">
+          
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-label" data-i18n="eventType">Event Type:</label>
+              <select class="filter-select" id="eventType">
+                <option value="all" data-i18n="all">All ▾</option>
+                <option value="user-actions" data-i18n="userActions">User Actions</option>
+                <option value="company-actions" data-i18n="companyActions">Company Actions</option>
+                <option value="pipeline-actions" data-i18n="pipelineActions">Pipeline Actions</option>
+                <option value="document-access" data-i18n="documentAccess">Document Access</option>
+                <option value="admin-actions" data-i18n="adminActions">Admin Actions</option>
+                <option value="system-events" data-i18n="systemEvents">System Events</option>
+                <option value="data-deletion" data-i18n="dataDeletion">Data Deletion</option>
+                <option value="ai-usage" data-i18n="aiUsage">AI Usage</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label" data-i18n="dateRange">Date Range:</label>
+              <select class="filter-select" id="dateRange">
+                <option value="7-days" data-i18n="last7Days">Last 7 days ▾</option>
+                <option value="today" data-i18n="today">Today</option>
+                <option value="30-days" data-i18n="last30Days">Last 30 days</option>
+                <option value="90-days" data-i18n="last90Days">Last 90 days</option>
+                <option value="custom" data-i18n="customRange">Custom range</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label" data-i18n="company">Company:</label>
+              <select class="filter-select" id="company">
+                <option value="all" data-i18n="allCompanies">All companies ▾</option>
+                <option value="techcorp" data-i18n="techcorp">TechCorp VN</option>
+                <option value="greenenergy" data-i18n="greenenergy">GreenEnergy JSC</option>
+                <option value="techstart" data-i18n="techstart">TechStart Vietnam</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label" data-i18n="user">User:</label>
+              <select class="filter-select" id="user">
+                <option value="all" data-i18n="allUsers">All users ▾</option>
+                <option value="minh-duc" data-i18n="minhDuc">Trần Minh Đức</option>
+                <option value="thi-haanh" data-i18n="thiHaanh">Nguyễn Thị Haanh</option>
+                <option value="thi-thuy" data-i18n="thiThuy">Lê Thị Thuy</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="filter-actions">
+            <button class="btn-sm btn-sm-primary" data-i18n="applyFilters">Apply Filters</button>
+            <button class="btn-sm btn-sm-ghost" data-i18n="clear">Clear</button>
+          </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="results-summary" data-i18n="resultsSummary">
+          Showing 847 events · Last 7 days · All types
+        </div>
+
+        <!-- Audit Log Table -->
+        <div class="audit-table-container">
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th data-i18n="timestamp">Timestamp</th>
+                <th data-i18n="eventType">Event Type</th>
+                <th data-i18n="actor">Actor</th>
+                <th data-i18n="entity">Entity</th>
+                <th data-i18n="action">Action</th>
+                <th data-i18n="company">Company</th>
+                <th data-i18n="ipAddress">IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr data-event-id="EVT-20260314-0847">
+                <td data-i18n="timestamp1">14 Mar 2026 14:32:01</td>
+                <td><span class="event-badge pipeline" data-i18n="pipeline">Pipeline</span></td>
+                <td data-i18n="actor1">Trần Minh Đức</td>
+                <td data-i18n="entity1">Application #APP-0847</td>
+                <td data-i18n="action1">Moved: Applied → Screening</td>
+                <td data-i18n="company1">TechCorp VN</td>
+                <td data-i18n="ip1">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0846">
+                <td data-i18n="timestamp2">14 Mar 2026 14:30:45</td>
+                <td><span class="event-badge document" data-i18n="document">Document</span></td>
+                <td data-i18n="actor2">Nguyễn Thị Haanh</td>
+                <td data-i18n="entity2">Document #DOC-0234</td>
+                <td data-i18n="action2">Downloaded: employment-contract.pdf</td>
+                <td data-i18n="company2">TechCorp VN</td>
+                <td data-i18n="ip2">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0845">
+                <td data-i18n="timestamp3">14 Mar 2026 14:15:22</td>
+                <td><span class="event-badge admin" data-i18n="adminAction">Admin Action</span></td>
+                <td data-i18n="actor3">Super Admin</td>
+                <td data-i18n="entity3">Company #COMP-0012</td>
+                <td data-i18n="action3">Approved: GreenEnergy JSC</td>
+                <td data-i18n="company3">Platform</td>
+                <td data-i18n="ip3">10.0.0.1</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0844">
+                <td data-i18n="timestamp4">14 Mar 2026 13:58:10</td>
+                <td><span class="event-badge ai" data-i18n="aiUsage">AI Usage</span></td>
+                <td data-i18n="actor4">Trần Minh Đức</td>
+                <td data-i18n="entity4">Job #JOB-0056</td>
+                <td data-i18n="action4">AI JD Generated</td>
+                <td data-i18n="company4">TechCorp VN</td>
+                <td data-i18n="ip4">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0843">
+                <td data-i18n="timestamp5">14 Mar 2026 13:45:00</td>
+                <td><span class="event-badge user" data-i18n="userAction">User Action</span></td>
+                <td data-i18n="actor5">Lê Thị Thuy</td>
+                <td data-i18n="entity5">Application #APP-0901</td>
+                <td data-i18n="action5">Applied: Senior Backend Eng</td>
+                <td data-i18n="company5">—</td>
+                <td data-i18n="ip5">118.70.x.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0842">
+                <td data-i18n="timestamp6">14 Mar 2026 12:30:15</td>
+                <td><span class="event-badge user" data-i18n="note">Note</span></td>
+                <td data-i18n="actor6">Nguyễn Thị Haanh</td>
+                <td data-i18n="entity6">Candidate #CAND-0045</td>
+                <td data-i18n="action6">Note Added</td>
+                <td data-i18n="company6">TechCorp VN</td>
+                <td data-i18n="ip6">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0841">
+                <td data-i18n="timestamp7">14 Mar 2026 11:00:00</td>
+                <td><span class="event-badge system" data-i18n="dataDeletion">Data Deletion</span></td>
+                <td data-i18n="actor7">System</td>
+                <td data-i18n="entity7">15 candidate records</td>
+                <td data-i18n="action7">Auto-deleted (retention)</td>
+                <td data-i18n="company7">Platform</td>
+                <td data-i18n="ip7">System</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0840">
+                <td data-i18n="timestamp8">14 Mar 2026 10:45:32</td>
+                <td><span class="event-badge pipeline" data-i18n="pipeline">Pipeline</span></td>
+                <td data-i18n="actor8">Trần Minh Đức</td>
+                <td data-i18n="entity8">Application #APP-0756</td>
+                <td data-i18n="action8">Bulk moved: 5 → Rejected</td>
+                <td data-i18n="company8">TechCorp VN</td>
+                <td data-i18n="ip8">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0839">
+                <td data-i18n="timestamp9">14 Mar 2026 09:30:00</td>
+                <td><span class="event-badge user" data-i18n="company">Company</span></td>
+                <td data-i18n="actor9">TechStart Vietnam</td>
+                <td data-i18n="entity9">Company #COMP-0127</td>
+                <td data-i18n="action9">Registration submitted</td>
+                <td data-i18n="company9">—</td>
+                <td data-i18n="ip9">27.72.x.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0838">
+                <td data-i18n="timestamp10">14 Mar 2026 09:00:01</td>
+                <td><span class="event-badge system" data-i18n="system">System</span></td>
+                <td data-i18n="actor10">System</td>
+                <td data-i18n="entity10">Platform</td>
+                <td data-i18n="action10">Retention job started</td>
+                <td data-i18n="company10">Platform</td>
+                <td data-i18n="ip10">System</td>
+              </tr>
+              
+              <!-- Additional rows -->
+              <tr data-event-id="EVT-20260314-0837">
+                <td data-i18n="timestamp11">13 Mar 2026 16:45:23</td>
+                <td><span class="event-badge admin" data-i18n="adminAction">Admin Action</span></td>
+                <td data-i18n="actor11">Super Admin</td>
+                <td data-i18n="entity11">User #USR-0892</td>
+                <td data-i18n="action11">Suspended: spam@fake.com</td>
+                <td data-i18n="company11">Platform</td>
+                <td data-i18n="ip11">10.0.0.1</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0836">
+                <td data-i18n="timestamp12">13 Mar 2026 15:30:15</td>
+                <td><span class="event-badge document" data-i18n="document">Document</span></td>
+                <td data-i18n="actor12">Trần Minh Đức</td>
+                <td data-i18n="entity12">Document #DOC-0456</td>
+                <td data-i18n="action12">Viewed: resume_le_thuy.pdf</td>
+                <td data-i18n="company12">TechCorp VN</td>
+                <td data-i18n="ip12">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0835">
+                <td data-i18n="timestamp13">13 Mar 2026 14:20:45</td>
+                <td><span class="event-badge pipeline" data-i18n="pipeline">Pipeline</span></td>
+                <td data-i18n="actor13">Nguyễn Thị Haanh</td>
+                <td data-i18n="entity13">Application #APP-0891</td>
+                <td data-i18n="action13">Moved: Screening → Interview</td>
+                <td data-i18n="company13">TechCorp VN</td>
+                <td data-i18n="ip13">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0834">
+                <td data-i18n="timestamp14">13 Mar 2026 13:15:30</td>
+                <td><span class="event-badge ai" data-i18n="aiUsage">AI Usage</span></td>
+                <td data-i18n="actor14">Nguyễn Thị Haanh</td>
+                <td data-i18n="entity14">Candidate #CAND-0089</td>
+                <td data-i18n="action14">AI Resume Analyzed</td>
+                <td data-i18n="company14">TechCorp VN</td>
+                <td data-i18n="ip14">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0833">
+                <td data-i18n="timestamp15">13 Mar 2026 12:00:00</td>
+                <td><span class="event-badge user" data-i18n="userAction">User Action</span></td>
+                <td data-i18n="actor15">Hoàng Văn An</td>
+                <td data-i18n="entity15">Application #APP-0890</td>
+                <td data-i18n="action15">Applied: Frontend Developer</td>
+                <td data-i18n="company15">—</td>
+                <td data-i18n="ip15">103.89.x.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0832">
+                <td data-i18n="timestamp16">13 Mar 2026 11:30:12</td>
+                <td><span class="event-badge admin" data-i18n="adminAction">Admin Action</span></td>
+                <td data-i18n="actor16">Super Admin</td>
+                <td data-i18n="entity16">Template #TPL-0012</td>
+                <td data-i18n="action16">Created: Global rejection template</td>
+                <td data-i18n="company16">Platform</td>
+                <td data-i18n="ip16">10.0.0.1</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0831">
+                <td data-i18n="timestamp17">13 Mar 2026 10:15:45</td>
+                <td><span class="event-badge system" data-i18n="system">System</span></td>
+                <td data-i18n="actor17">System</td>
+                <td data-i18n="entity17">Platform</td>
+                <td data-i18n="action17">Backup completed</td>
+                <td data-i18n="company17">Platform</td>
+                <td data-i18n="ip17">System</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0830">
+                <td data-i18n="timestamp18">13 Mar 2026 09:45:30</td>
+                <td><span class="event-badge user" data-i18n="company">Company</span></td>
+                <td data-i18n="actor18">DataVN Ltd</td>
+                <td data-i18n="entity18">Company #COMP-0128</td>
+                <td data-i18n="action18">Profile updated</td>
+                <td data-i18n="company18">—</td>
+                <td data-i18n="ip18">172.16.x.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0829">
+                <td data-i18n="timestamp19">13 Mar 2026 08:30:15</td>
+                <td><span class="event-badge pipeline" data-i18n="pipeline">Pipeline</span></td>
+                <td data-i18n="actor19">Trần Minh Đức</td>
+                <td data-i18n="entity19">Application #APP-0889</td>
+                <td data-i18n="action19">Moved: Interview → Offer</td>
+                <td data-i18n="company19">TechCorp VN</td>
+                <td data-i18n="ip19">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0828">
+                <td data-i18n="timestamp20">13 Mar 2026 07:15:00</td>
+                <td><span class="event-badge system" data-i18n="system">System</span></td>
+                <td data-i18n="actor20">System</td>
+                <td data-i18n="entity20">Platform</td>
+                <td data-i18n="action20">Daily maintenance completed</td>
+                <td data-i18n="company20">Platform</td>
+                <td data-i18n="ip20">System</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0827">
+                <td data-i18n="timestamp21">12 Mar 2026 18:45:12</td>
+                <td><span class="event-badge document" data-i18n="document">Document</span></td>
+                <td data-i18n="actor21">Nguyễn Thị Haanh</td>
+                <td data-i18n="entity21">Document #DOC-0678</td>
+                <td data-i18n="action21">Uploaded: cover_letter.pdf</td>
+                <td data-i18n="company21">TechCorp VN</td>
+                <td data-i18n="ip21">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0826">
+                <td data-i18n="timestamp22">12 Mar 2026 17:30:45</td>
+                <td><span class="event-badge ai" data-i18n="aiUsage">AI Usage</span></td>
+                <td data-i18n="actor22">Trần Minh Đức</td>
+                <td data-i18n="entity22">Job #JOB-0057</td>
+                <td data-i18n="action22">AI Interview Questions Generated</td>
+                <td data-i18n="company22">TechCorp VN</td>
+                <td data-i18n="ip22">192.168.1.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0825">
+                <td data-i18n="timestamp23">12 Mar 2026 16:15:30</td>
+                <td><span class="event-badge user" data-i18n="userAction">User Action</span></td>
+                <td data-i18n="actor23">Lê Thị Thuy</td>
+                <td data-i18n="entity23">Profile #PRF-0034</td>
+                <td data-i18n="action23">Profile updated</td>
+                <td data-i18n="company23">—</td>
+                <td data-i18n="ip23">118.70.x.x</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0824">
+                <td data-i18n="timestamp24">12 Mar 2026 15:00:15</td>
+                <td><span class="event-badge admin" data-i18n="adminAction">Admin Action</span></td>
+                <td data-i18n="actor24">Super Admin</td>
+                <td data-i18n="entity24">Ad #ADV-0045</td>
+                <td data-i18n="action24">Deactivated: TechVN banner</td>
+                <td data-i18n="company24">Platform</td>
+                <td data-i18n="ip24">10.0.0.1</td>
+              </tr>
+              
+              <tr data-event-id="EVT-20260314-0823">
+                <td data-i18n="timestamp25">12 Mar 2026 14:30:00</td>
+                <td><span class="event-badge system" data-i18n="dataDeletion">Data Deletion</span></td>
+                <td data-i18n="actor25">System</td>
+                <td data-i18n="entity25">8 document files</td>
+                <td data-i18n="action25">Auto-deleted (orphaned)</td>
+                <td data-i18n="company25">Platform</td>
+                <td data-i18n="ip25">System</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <div class="pagination-info" data-i18n="paginationInfo">
+            Showing 1–25 of 847 events
+          </div>
+          <div class="pagination-controls">
+            <button class="pagination-btn" data-i18n="prev">← Previous</button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <span class="pagination-ellipsis">...</span>
+            <button class="pagination-btn">34</button>
+            <button class="pagination-btn" data-i18n="next">→</button>
+          </div>
+        </div>
+
+        <!-- Export Note -->
+        <div class="export-note" data-i18n="exportNote">
+          Audit logs are permanent and cannot be deleted. (BR-005)<br>
+          Exported files are timestamped and include all filtered events in CSV or JSON format.
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 sa09: Audit Log
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">PREV ←</div>
+    <a href="sa01-dashboard.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">← sa01: Dashboard</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Audit Log',
+        pageHeader: 'Platform Audit Log',
+        pageSubtitle: 'Immutable record of all platform actions. Cannot be edited or deleted. (BR-005)',
+        exportCSV: 'Export CSV',
+        exportJSON: 'Export JSON',
+        searchPlaceholder: '🔍 Search by user, company, action or entity ID...',
+        eventType: 'Event Type:',
+        all: 'All ▾',
+        userActions: 'User Actions',
+        companyActions: 'Company Actions',
+        pipelineActions: 'Pipeline Actions',
+        documentAccess: 'Document Access',
+        adminActions: 'Admin Actions',
+        systemEvents: 'System Events',
+        dataDeletion: 'Data Deletion',
+        aiUsage: 'AI Usage',
+        dateRange: 'Date Range:',
+        last7Days: 'Last 7 days ▾',
+        today: 'Today',
+        last30Days: 'Last 30 days',
+        last90Days: 'Last 90 days',
+        customRange: 'Custom range',
+        company: 'Company:',
+        allCompanies: 'All companies ▾',
+        techcorp: 'TechCorp VN',
+        greenenergy: 'GreenEnergy JSC',
+        techstart: 'TechStart Vietnam',
+        user: 'User:',
+        allUsers: 'All users ▾',
+        minhDuc: 'Trần Minh Đức',
+        thiHaanh: 'Nguyễn Thị Haanh',
+        thiThuy: 'Lê Thị Thuy',
+        applyFilters: 'Apply Filters',
+        clear: 'Clear',
+        resultsSummary: 'Showing 847 events · Last 7 days · All types',
+        timestamp: 'Timestamp',
+        actor: 'Actor',
+        entity: 'Entity',
+        action: 'Action',
+        ipAddress: 'IP Address',
+        pipeline: 'Pipeline',
+        document: 'Document',
+        adminAction: 'Admin Action',
+        note: 'Note',
+        system: 'System',
+        company: 'Company',
+        userAction: 'User Action',
+        aiUsage: 'AI Usage',
+        dataDeletion: 'Data Deletion',
+        // Timestamps
+        timestamp1: '14 Mar 2026 14:32:01',
+        timestamp2: '14 Mar 2026 14:30:45',
+        timestamp3: '14 Mar 2026 14:15:22',
+        timestamp4: '14 Mar 2026 13:58:10',
+        timestamp5: '14 Mar 2026 13:45:00',
+        timestamp6: '14 Mar 2026 12:30:15',
+        timestamp7: '14 Mar 2026 11:00:00',
+        timestamp8: '14 Mar 2026 10:45:32',
+        timestamp9: '14 Mar 2026 09:30:00',
+        timestamp10: '14 Mar 2026 09:00:01',
+        timestamp11: '13 Mar 2026 16:45:23',
+        timestamp12: '13 Mar 2026 15:30:15',
+        timestamp13: '13 Mar 2026 14:20:45',
+        timestamp14: '13 Mar 2026 13:15:30',
+        timestamp15: '13 Mar 2026 12:00:00',
+        timestamp16: '13 Mar 2026 11:30:12',
+        timestamp17: '13 Mar 2026 10:15:45',
+        timestamp18: '13 Mar 2026 09:45:30',
+        timestamp19: '13 Mar 2026 08:30:15',
+        timestamp20: '13 Mar 2026 07:15:00',
+        timestamp21: '12 Mar 2026 18:45:12',
+        timestamp22: '12 Mar 2026 17:30:45',
+        timestamp23: '12 Mar 2026 16:15:30',
+        timestamp24: '12 Mar 2026 15:00:15',
+        timestamp25: '12 Mar 2026 14:30:00',
+        // Actors
+        actor1: 'Trần Minh Đức',
+        actor2: 'Nguyễn Thị Haanh',
+        actor3: 'Super Admin',
+        actor4: 'Trần Minh Đức',
+        actor5: 'Lê Thị Thuy',
+        actor6: 'Nguyễn Thị Haanh',
+        actor7: 'System',
+        actor8: 'Trần Minh Đức',
+        actor9: 'TechStart Vietnam',
+        actor10: 'System',
+        actor11: 'Super Admin',
+        actor12: 'Trần Minh Đức',
+        actor13: 'Nguyễn Thị Haanh',
+        actor14: 'Nguyễn Thị Haanh',
+        actor15: 'Hoàng Văn An',
+        actor16: 'Super Admin',
+        actor17: 'System',
+        actor18: 'DataVN Ltd',
+        actor19: 'Trần Minh Đức',
+        actor20: 'System',
+        actor21: 'Nguyễn Thị Haanh',
+        actor22: 'Trần Minh Đức',
+        actor23: 'Lê Thị Thuy',
+        actor24: 'Super Admin',
+        actor25: 'System',
+        // Entities
+        entity1: 'Application #APP-0847',
+        entity2: 'Document #DOC-0234',
+        entity3: 'Company #COMP-0012',
+        entity4: 'Job #JOB-0056',
+        entity5: 'Application #APP-0901',
+        entity6: 'Candidate #CAND-0045',
+        entity7: '15 candidate records',
+        entity8: 'Application #APP-0756',
+        entity9: 'Company #COMP-0127',
+        entity10: 'Platform',
+        entity11: 'User #USR-0892',
+        entity12: 'Document #DOC-0456',
+        entity13: 'Application #APP-0891',
+        entity14: 'Candidate #CAND-0089',
+        entity15: 'Application #APP-0890',
+        entity16: 'Template #TPL-0012',
+        entity17: 'Platform',
+        entity18: 'Company #COMP-0128',
+        entity19: 'Application #APP-0889',
+        entity20: 'Platform',
+        entity21: 'Document #DOC-0678',
+        entity22: 'Job #JOB-0057',
+        entity23: 'Profile #PRF-0034',
+        entity24: 'Ad #ADV-0045',
+        entity25: '8 document files',
+        // Actions
+        action1: 'Moved: Applied → Screening',
+        action2: 'Downloaded: employment-contract.pdf',
+        action3: 'Approved: GreenEnergy JSC',
+        action4: 'AI JD Generated',
+        action5: 'Applied: Senior Backend Eng',
+        action6: 'Note Added',
+        action7: 'Auto-deleted (retention)',
+        action8: 'Bulk moved: 5 → Rejected',
+        action9: 'Registration submitted',
+        action10: 'Retention job started',
+        action11: 'Suspended: spam@fake.com',
+        action12: 'Viewed: resume_le_thuy.pdf',
+        action13: 'Moved: Screening → Interview',
+        action14: 'AI Resume Analyzed',
+        action15: 'Applied: Frontend Developer',
+        action16: 'Created: Global rejection template',
+        action17: 'Backup completed',
+        action18: 'Profile updated',
+        action19: 'Moved: Interview → Offer',
+        action20: 'Daily maintenance completed',
+        action21: 'Uploaded: cover_letter.pdf',
+        action22: 'AI Interview Questions Generated',
+        action23: 'Profile updated',
+        action24: 'Deactivated: TechVN banner',
+        action25: 'Auto-deleted (orphaned)',
+        // Companies
+        company1: 'TechCorp VN',
+        company2: 'TechCorp VN',
+        company3: 'Platform',
+        company4: 'TechCorp VN',
+        company5: '—',
+        company6: 'TechCorp VN',
+        company7: 'Platform',
+        company8: 'TechCorp VN',
+        company9: '—',
+        company10: 'Platform',
+        company11: 'Platform',
+        company12: 'TechCorp VN',
+        company13: 'TechCorp VN',
+        company14: 'TechCorp VN',
+        company15: '—',
+        company16: 'Platform',
+        company17: 'Platform',
+        company18: '—',
+        company19: 'TechCorp VN',
+        company20: 'Platform',
+        company21: 'TechCorp VN',
+        company22: 'TechCorp VN',
+        company23: '—',
+        company24: 'Platform',
+        company25: 'Platform',
+        // IP Addresses
+        ip1: '192.168.1.x',
+        ip2: '192.168.1.x',
+        ip3: '10.0.0.1',
+        ip4: '192.168.1.x',
+        ip5: '118.70.x.x',
+        ip6: '192.168.1.x',
+        ip7: 'System',
+        ip8: '192.168.1.x',
+        ip9: '27.72.x.x',
+        ip10: 'System',
+        ip11: '10.0.0.1',
+        ip12: '192.168.1.x',
+        ip13: '192.168.1.x',
+        ip14: '192.168.1.x',
+        ip15: '103.89.x.x',
+        ip16: '10.0.0.1',
+        ip17: 'System',
+        ip18: '172.16.x.x',
+        ip19: '192.168.1.x',
+        ip20: 'System',
+        ip21: '192.168.1.x',
+        ip22: '192.168.1.x',
+        ip23: '118.70.x.x',
+        ip24: '10.0.0.1',
+        ip25: 'System',
+        paginationInfo: 'Showing 1–25 of 847 events',
+        prev: '← Previous',
+        next: '→',
+        exportNote: 'Audit logs are permanent and cannot be deleted. (BR-005)\nExported files are timestamped and include all filtered events in CSV or JSON format.'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        adminPanel: 'Super Admin Panel',
+        navDashboard: 'Dashboard',
+        navCompanies: 'Companies',
+        navUsers: 'Users',
+        navAds: 'Advertisements',
+        navTemplates: 'Rejection Templates',
+        navRetention: 'Data Retention',
+        navAuditLog: 'Audit Log',
+        navReports: 'Reports',
+        navSettings: 'System Settings',
+        superAdmin: 'Super Admin',
+        adminRole: 'Administrator',
+        signOut: 'Sign Out',
+        pageTitle: 'Audit Log',
+        pageHeader: 'Platform Audit Log',
+        pageSubtitle: 'Immutable record of all platform actions. Cannot be edited or deleted. (BR-005)',
+        exportCSV: 'Export CSV',
+        exportJSON: 'Export JSON',
+        searchPlaceholder: '🔍 Search by user, company, action or entity ID...',
+        eventType: 'Event Type:',
+        all: 'All ▾',
+        userActions: 'User Actions',
+        companyActions: 'Company Actions',
+        pipelineActions: 'Pipeline Actions',
+        documentAccess: 'Document Access',
+        adminActions: 'Admin Actions',
+        systemEvents: 'System Events',
+        dataDeletion: 'Data Deletion',
+        aiUsage: 'AI Usage',
+        dateRange: 'Date Range:',
+        last7Days: 'Last 7 days ▾',
+        today: 'Today',
+        last30Days: 'Last 30 days',
+        last90Days: 'Last 90 days',
+        customRange: 'Custom range',
+        company: 'Company:',
+        allCompanies: 'All companies ▾',
+        techcorp: 'TechCorp VN',
+        greenenergy: 'GreenEnergy JSC',
+        techstart: 'TechStart Vietnam',
+        user: 'User:',
+        allUsers: 'All users ▾',
+        minhDuc: 'Trần Minh Đức',
+        thiHaanh: 'Nguyễn Thị Haanh',
+        thiThuy: 'Lê Thị Thuy',
+        applyFilters: 'Apply Filters',
+        clear: 'Clear',
+        resultsSummary: 'Showing 847 events · Last 7 days · All types',
+        timestamp: 'Timestamp',
+        actor: 'Actor',
+        entity: 'Entity',
+        action: 'Action',
+        ipAddress: 'IP Address',
+        pipeline: 'Pipeline',
+        document: 'Document',
+        adminAction: 'Admin Action',
+        note: 'Note',
+        system: 'System',
+        company: 'Company',
+        userAction: 'User Action',
+        aiUsage: 'AI Usage',
+        dataDeletion: 'Data Deletion',
+        // Timestamps
+        timestamp1: '14 Mar 2026 14:32:01',
+        timestamp2: '14 Mar 2026 14:30:45',
+        timestamp3: '14 Mar 2026 14:15:22',
+        timestamp4: '14 Mar 2026 13:58:10',
+        timestamp5: '14 Mar 2026 13:45:00',
+        timestamp6: '14 Mar 2026 12:30:15',
+        timestamp7: '14 Mar 2026 11:00:00',
+        timestamp8: '14 Mar 2026 10:45:32',
+        timestamp9: '14 Mar 2026 09:30:00',
+        timestamp10: '14 Mar 2026 09:00:01',
+        timestamp11: '13 Mar 2026 16:45:23',
+        timestamp12: '13 Mar 2026 15:30:15',
+        timestamp13: '13 Mar 2026 14:20:45',
+        timestamp14: '13 Mar 2026 13:15:30',
+        timestamp15: '13 Mar 2026 12:00:00',
+        timestamp16: '13 Mar 2026 11:30:12',
+        timestamp17: '13 Mar 2026 10:15:45',
+        timestamp18: '13 Mar 2026 09:45:30',
+        timestamp19: '13 Mar 2026 08:30:15',
+        timestamp20: '13 Mar 2026 07:15:00',
+        timestamp21: '12 Mar 2026 18:45:12',
+        timestamp22: '12 Mar 2026 17:30:45',
+        timestamp23: '12 Mar 2026 16:15:30',
+        timestamp24: '12 Mar 2026 15:00:15',
+        timestamp25: '12 Mar 2026 14:30:00',
+        // Actors
+        actor1: 'Trần Minh Đức',
+        actor2: 'Nguyễn Thị Haanh',
+        actor3: 'Super Admin',
+        actor4: 'Trần Minh Đức',
+        actor5: 'Lê Thị Thuy',
+        actor6: 'Nguyễn Thị Haanh',
+        actor7: 'System',
+        actor8: 'Trần Minh Đức',
+        actor9: 'TechStart Vietnam',
+        actor10: 'System',
+        actor11: 'Super Admin',
+        actor12: 'Trần Minh Đức',
+        actor13: 'Nguyễn Thị Haanh',
+        actor14: 'Nguyễn Thị Haanh',
+        actor15: 'Hoàng Văn An',
+        actor16: 'Super Admin',
+        actor17: 'System',
+        actor18: 'DataVN Ltd',
+        actor19: 'Trần Minh Đức',
+        actor20: 'System',
+        actor21: 'Nguyễn Thị Haanh',
+        actor22: 'Trần Minh Đức',
+        actor23: 'Lê Thị Thuy',
+        actor24: 'Super Admin',
+        actor25: 'System',
+        // Entities
+        entity1: 'Application #APP-0847',
+        entity2: 'Document #DOC-0234',
+        entity3: 'Company #COMP-0012',
+        entity4: 'Job #JOB-0056',
+        entity5: 'Application #APP-0901',
+        entity6: 'Candidate #CAND-0045',
+        entity7: '15 candidate records',
+        entity8: 'Application #APP-0756',
+        entity9: 'Company #COMP-0127',
+        entity10: 'Platform',
+        entity11: 'User #USR-0892',
+        entity12: 'Document #DOC-0456',
+        entity13: 'Application #APP-0891',
+        entity14: 'Candidate #CAND-0089',
+        entity15: 'Application #APP-0890',
+        entity16: 'Template #TPL-0012',
+        entity17: 'Platform',
+        entity18: 'Company #COMP-0128',
+        entity19: 'Application #APP-0889',
+        entity20: 'Platform',
+        entity21: 'Document #DOC-0678',
+        entity22: 'Job #JOB-0057',
+        entity23: 'Profile #PRF-0034',
+        entity24: 'Ad #ADV-0045',
+        entity25: '8 document files',
+        // Actions
+        action1: 'Moved: Applied → Screening',
+        action2: 'Downloaded: employment-contract.pdf',
+        action3: 'Approved: GreenEnergy JSC',
+        action4: 'AI JD Generated',
+        action5: 'Applied: Senior Backend Eng',
+        action6: 'Note Added',
+        action7: 'Auto-deleted (retention)',
+        action8: 'Bulk moved: 5 → Rejected',
+        action9: 'Registration submitted',
+        action10: 'Retention job started',
+        action11: 'Suspended: spam@fake.com',
+        action12: 'Viewed: resume_le_thuy.pdf',
+        action13: 'Moved: Screening → Interview',
+        action14: 'AI Resume Analyzed',
+        action15: 'Applied: Frontend Developer',
+        action16: 'Created: Global rejection template',
+        action17: 'Backup completed',
+        action18: 'Profile updated',
+        action19: 'Moved: Interview → Offer',
+        action20: 'Daily maintenance completed',
+        action21: 'Uploaded: cover_letter.pdf',
+        action22: 'AI Interview Questions Generated',
+        action23: 'Profile updated',
+        action24: 'Deactivated: TechVN banner',
+        action25: 'Auto-deleted (orphaned)',
+        // Companies
+        company1: 'TechCorp VN',
+        company2: 'TechCorp VN',
+        company3: 'Platform',
+        company4: 'TechCorp VN',
+        company5: '—',
+        company6: 'TechCorp VN',
+        company7: 'Platform',
+        company8: 'TechCorp VN',
+        company9: '—',
+        company10: 'Platform',
+        company11: 'Platform',
+        company12: 'TechCorp VN',
+        company13: 'TechCorp VN',
+        company14: 'TechCorp VN',
+        company15: '—',
+        company16: 'Platform',
+        company17: 'Platform',
+        company18: '—',
+        company19: 'TechCorp VN',
+        company20: 'Platform',
+        company21: 'TechCorp VN',
+        company22: 'TechCorp VN',
+        company23: '—',
+        company24: 'Platform',
+        company25: 'Platform',
+        // IP Addresses
+        ip1: '192.168.1.x',
+        ip2: '192.168.1.x',
+        ip3: '10.0.0.1',
+        ip4: '192.168.1.x',
+        ip5: '118.70.x.x',
+        ip6: '192.168.1.x',
+        ip7: 'System',
+        ip8: '192.168.1.x',
+        ip9: '27.72.x.x',
+        ip10: 'System',
+        ip11: '10.0.0.1',
+        ip12: '192.168.1.x',
+        ip13: '192.168.1.x',
+        ip14: '192.168.1.x',
+        ip15: '103.89.x.x',
+        ip16: '10.0.0.1',
+        ip17: 'System',
+        ip18: '172.16.x.x',
+        ip19: '192.168.1.x',
+        ip20: 'System',
+        ip21: '192.168.1.x',
+        ip22: '192.168.1.x',
+        ip23: '118.70.x.x',
+        ip24: '10.0.0.1',
+        ip25: 'System',
+        paginationInfo: 'Showing 1–25 of 847 events',
+        prev: '← Previous',
+        next: '→',
+        exportNote: 'Audit logs are permanent and cannot be deleted. (BR-005)\nExported files are timestamped and include all filtered events in CSV or JSON format.'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Audit Log | Super Admin' : 'LàmViệc360 — Audit Log | Super Admin';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE MENU ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+      mobileOverlay.classList.toggle('show');
+    });
+
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('show');
+      mobileOverlay.classList.remove('show');
+    });
+
+    // ========== ROW EXPANSION ==========
+    const auditTableBody = document.getElementById('auditTableBody');
+    let expandedRow = null;
+
+    function createDetailPanel(eventId) {
+      const panel = document.createElement('tr');
+      panel.className = 'detail-panel';
+      panel.dataset.eventId = eventId;
+      
+      panel.innerHTML = `
+        <td colspan="7">
+          <div class="detail-content">
+            <div class="detail-grid">
+              <div class="detail-section">
+                <div class="detail-title" data-i18n="eventId">Event ID:</div>
+                <div class="detail-item">${eventId}</div>
+                <div class="detail-title" data-i18n="fullTimestamp">Full Timestamp:</div>
+                <div class="detail-item">14 March 2026 14:32:01.234 UTC+7</div>
+              </div>
+              
+              <div class="detail-section">
+                <div class="detail-title" data-i18n="actor">Actor:</div>
+                <div class="detail-item"><strong data-i18n="userId">User ID:</strong> USR-0023</div>
+                <div class="detail-item"><strong data-i18n="name">Name:</strong> Trần Minh Đức</div>
+                <div class="detail-item"><strong data-i18n="role">Role:</strong> HR/Recruiter</div>
+                <div class="detail-item"><strong data-i18n="company">Company:</strong> TechCorp Vietnam JSC</div>
+              </div>
+              
+              <div class="detail-section">
+                <div class="detail-title" data-i18n="entity">Entity:</div>
+                <div class="detail-item"><strong data-i18n="type">Type:</strong> Candidate Application</div>
+                <div class="detail-item"><strong data-i18n="id">ID:</strong> APP-0847</div>
+                <div class="detail-item"><strong data-i18n="candidate">Candidate:</strong> Nguyễn Thị Thuy</div>
+                <div class="detail-item"><strong data-i18n="job">Job:</strong> Senior Backend Engineer</div>
+              </div>
+              
+              <div class="detail-section">
+                <div class="detail-title" data-i18n="actionDetail">Action Detail:</div>
+                <div class="detail-item"><strong data-i18n="fromStage">From Stage:</strong> Applied (STAGE-001)</div>
+                <div class="detail-item"><strong data-i18n="toStage">To Stage:</strong> Screening (STAGE-002)</div>
+                <div class="detail-item"><strong data-i18n="noteAdded">Note added:</strong> "Initial CV review passed"</div>
+                <div class="detail-item"><strong data-i18n="notificationSent">Notification sent:</strong> Yes</div>
+              </div>
+              
+              <div class="detail-section">
+                <div class="detail-title" data-i18n="system">System:</div>
+                <div class="detail-item"><strong data-i18n="ip">IP:</strong> 192.168.1.45</div>
+                <div class="detail-item"><strong data-i18n="userAgent">User Agent:</strong> Chrome 122 / MacOS</div>
+                <div class="detail-item"><strong data-i18n="sessionId">Session ID:</strong> SESS-xxx (truncated)</div>
+              </div>
+            </div>
+          </div>
+        </td>
+      `;
+      
+      return panel;
+    }
+
+    auditTableBody.addEventListener('click', (e) => {
+      const row = e.target.closest('tr');
+      if (!row) return;
+      
+      const eventId = row.getAttribute('data-event-id');
+      if (!eventId) return;
+      
+      // Close previously expanded row
+      if (expandedRow && expandedRow !== row) {
+        expandedRow.classList.remove('expanded');
+        const existingPanel = document.querySelector('.detail-panel.show');
+        if (existingPanel) {
+          existingPanel.remove();
+        }
+      }
+      
+      // Toggle current row
+      row.classList.toggle('expanded');
+      
+      // Find and remove existing panel
+      const existingPanel = document.querySelector(`.detail-panel[data-event-id="${eventId}"]`);
+      if (existingPanel) {
+        existingPanel.remove();
+        expandedRow = null;
+      } else {
+        // Create and insert new panel
+        const panel = createDetailPanel(eventId);
+        row.after(panel);
+        setTimeout(() => panel.classList.add('show'), 10);
+        expandedRow = row;
+      }
+    });
+
+    // ========== FILTER ACTIONS ==========
+    const applyFiltersBtn = document.querySelector('[data-i18n="applyFilters"]');
+    const clearBtn = document.querySelector('[data-i18n="clear"]');
+
+    applyFiltersBtn.addEventListener('click', () => {
+      const eventType = document.getElementById('eventType').value;
+      const dateRange = document.getElementById('dateRange').value;
+      const company = document.getElementById('company').value;
+      const user = document.getElementById('user').value;
+      
+      console.log('Applying filters:', { eventType, dateRange, company, user });
+      alert('Filters applied successfully!');
+      // In real app, this would make an API call and refresh the table
+    });
+
+    clearBtn.addEventListener('click', () => {
+      document.getElementById('eventType').value = 'all';
+      document.getElementById('dateRange').value = '7-days';
+      document.getElementById('company').value = 'all';
+      document.getElementById('user').value = 'all';
+      
+      console.log('Filters cleared');
+      // In real app, this would reset the table
+    });
+
+    // ========== EXPORT BUTTONS ==========
+    document.querySelectorAll('[data-i18n="exportCSV"], [data-i18n="exportJSON"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const format = btn.getAttribute('data-i18n').replace('export', '').toLowerCase();
+        console.log(`Exporting audit log as ${format}`);
+        alert(`Audit log exported as ${format.toUpperCase()} file!`);
+        // In real app, this would generate and download the file
+      });
+    });
+
+    // ========== PAGINATION ==========
+    document.querySelectorAll('.pagination-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!btn.classList.contains('active')) {
+          console.log('Navigating to page:', btn.textContent);
+          // In real app, this would load the corresponding page
+        }
+      });
+    });
+
+    // ========== SIGN OUT ==========
+    document.querySelector('.sidebar-signout').addEventListener('click', () => {
+      if (confirm('Are you sure you want to sign out?')) {
+        console.log('Signing out...');
+        // In real app, this would clear session and redirect
+        alert('Signed out successfully');
+      }
+    });
+  </script>
+</body>
+</html>

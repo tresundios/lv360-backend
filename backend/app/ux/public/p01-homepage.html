@@ -1,0 +1,1609 @@
+<!doctype html>
+<!--
+  SCREEN: p01 Homepage
+  PRD REFS: JSP-FR-001, JSP-FR-002, JSP-FR-010, BR-008, BR-009
+  FLOW: Entry point → p02-job-search.html OR auth flows
+  PERSONA: Job Seekers, Employers (public)
+  STAGE: Phase 1 MVP
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Tìm việc làm phù hợp với bạn</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Header */
+    .header {
+      background: var(--color-white);
+      border-bottom: var(--border-default);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    /* Logo styles (RULE G-003) */
+    .logo-img {
+      height: 36px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+    @media (max-width: 767px) {
+      .logo-img { height: 28px; }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .nav-link {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      text-decoration: none;
+    }
+    .nav-link:hover { color: var(--color-primary); text-decoration: none; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 44px;
+      min-width: 44px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-ghost { background: transparent; color: var(--color-grey-700); border: 1px solid var(--color-grey-300); }
+    .btn-ghost:hover { background: rgba(15, 23, 42, 0.02); text-decoration: none; }
+
+    /* Mobile menu */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-2);
+    }
+
+    .mobile-menu-icon {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: 
+        linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
+        url('https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat,
+        linear-gradient(135deg, var(--color-primary-light) 0%, rgba(255,255,255,0.8) 50%, var(--color-white) 100%);
+      padding: var(--space-20) var(--space-6);
+      text-align: center;
+      position: relative;
+      min-height: 500px;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(15, 23, 42, 0.9) 100%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-content {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: var(--text-5xl);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 var(--space-6) 0;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero-subtitle {
+      font-size: var(--text-xl);
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0 0 var(--space-10) 0;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* Search Bar */
+    .search-container {
+      max-width: 680px;
+      margin: 0 auto var(--space-8) auto;
+    }
+
+    .search-bar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: var(--space-2);
+      background: white;
+      border: 2px solid var(--color-grey-300);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2);
+      box-shadow: var(--shadow-lg);
+      transition: all 0.2s;
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      font-size: var(--text-base);
+      padding: var(--space-3) var(--space-4);
+      background: transparent;
+    }
+
+    .search-input::placeholder {
+      color: var(--color-grey-500);
+    }
+
+    .search-dropdown {
+      border: none;
+      outline: none;
+      font-size: var(--text-base);
+      padding: var(--space-3) var(--space-4);
+      background: transparent;
+      border-left: 1px solid var(--color-grey-300);
+      color: var(--color-grey-700);
+      cursor: pointer;
+      min-width: 140px;
+    }
+
+    .search-btn {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .search-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* Popular Searches */
+    .popular-searches {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .popular-label {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin-bottom: var(--space-3);
+    }
+
+    .search-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      justify-content: center;
+    }
+
+    .search-tag {
+      background: var(--color-white);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-full);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-grey-700);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .search-tag:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    /* Advertisement Banners */
+    .ad-banner {
+      max-width: 1280px;
+      margin: var(--space-12) auto;
+      padding: 0 var(--space-6);
+    }
+
+    .ad-slot-a {
+      height: 90px;
+      background: 
+        linear-gradient(rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05)),
+        url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      border: 2px solid var(--color-primary-light);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary-dark);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ad-slot-a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      z-index: 1;
+    }
+
+    .ad-slot-a > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .ad-slot-b {
+      height: 250px;
+      background: 
+        linear-gradient(rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05)),
+        url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      border: 2px solid var(--color-primary-light);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary-dark);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: var(--space-12) 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ad-slot-b::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      z-index: 1;
+    }
+
+    .ad-slot-b > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Featured Jobs Section */
+    .featured-jobs-section {
+      background: 
+        linear-gradient(rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.98)),
+        url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      position: relative;
+    }
+
+    .featured-jobs-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(37, 99, 235, 0.02);
+      z-index: 1;
+    }
+
+    .featured-jobs-section .section-container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .section {
+      padding: var(--space-20) var(--space-6);
+    }
+
+    .section-container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: var(--space-12);
+    }
+
+    .section-title {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0 0 var(--space-4) 0;
+      color: var(--color-grey-900);
+    }
+
+    .section-subtitle {
+      font-size: var(--text-lg);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Job Cards */
+    .jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .job-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .job-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      transform: translateY(-2px);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .job-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .company-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      display: grid;
+      place-items: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-grey-500);
+      flex-shrink: 0;
+    }
+
+    .job-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+      line-height: 1.3;
+    }
+
+    .company-name {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .verified-badge {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin-bottom: var(--space-4);
+    }
+
+    .job-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .job-type {
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .view-all-link {
+      text-align: center;
+    }
+
+    .view-all-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-primary);
+      text-decoration: none;
+      padding: var(--space-3) var(--space-6);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-full);
+      transition: all 0.2s;
+    }
+
+    .view-all-btn:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Stats Section */
+    .stats-section {
+      background: 
+        linear-gradient(rgba(239, 246, 255, 0.95), rgba(239, 246, 255, 0.95)),
+        url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      position: relative;
+    }
+
+    .stats-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(37, 99, 235, 0.05);
+      z-index: 1;
+    }
+
+    .stats-section .section-container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-8);
+      text-align: center;
+    }
+
+    .stat-item {
+      padding: var(--space-6);
+    }
+
+    .stat-number {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      color: var(--color-primary);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .stat-label {
+      font-size: var(--text-lg);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* For Employers Section */
+    .employers-section {
+      background: 
+        linear-gradient(rgba(15, 32, 68, 0.95), rgba(15, 32, 68, 0.95)),
+        url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      color: white;
+      position: relative;
+    }
+
+    .employers-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(15, 32, 68, 0.8) 100%);
+      z-index: 1;
+    }
+
+    .employers-section .section-container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .employers-section .section-title {
+      color: white;
+    }
+
+    .employers-section .section-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .benefit-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      text-align: center;
+      color: var(--color-grey-900);
+    }
+
+    .benefit-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-light);
+      display: grid;
+      place-items: center;
+      font-size: 32px;
+      margin: 0 auto var(--space-4) auto;
+    }
+
+    .benefit-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .benefit-desc {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Top Companies */
+    .companies-section {
+      background: 
+        linear-gradient(rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0.95)),
+        url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      position: relative;
+    }
+
+    .companies-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(37, 99, 235, 0.03);
+      z-index: 1;
+    }
+
+    .companies-section .section-container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .companies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .company-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+    }
+
+    .company-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .company-logo-large {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-lg);
+      background: var(--color-grey-100);
+      display: grid;
+      place-items: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-grey-500);
+      margin: 0 auto var(--space-3) auto;
+    }
+
+    .company-name-large {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin: 0;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--color-grey-900);
+      color: white;
+      padding: var(--space-16) var(--space-6) var(--space-8);
+    }
+
+    .footer-container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-8);
+      margin-bottom: var(--space-8);
+    }
+
+    .footer-column h4 {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin: 0 0 var(--space-4) 0;
+      color: white;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: var(--text-sm);
+    }
+
+    .footer-link:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+
+    .footer-copyright {
+      font-size: var(--text-sm);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .footer-lang {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .footer-lang-btn {
+      padding: var(--space-2) var(--space-3);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-md);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: var(--text-xs);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .footer-lang-btn.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .nav-links { display: none; }
+      .mobile-menu-toggle { display: block; }
+      
+      .hero-title { font-size: var(--text-3xl); }
+      .hero-subtitle { font-size: var(--text-lg); }
+      .hero { min-height: 400px; }
+      
+      .search-bar {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+      }
+      
+      .search-dropdown {
+        border-left: none;
+        border-top: 1px solid var(--color-grey-300);
+      }
+      
+      .jobs-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .benefits-grid { grid-template-columns: 1fr; }
+      .companies-grid { grid-template-columns: repeat(2, 1fr); }
+      
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    /* Responsive: Tablet */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .jobs-grid { grid-template-columns: repeat(2, 1fr); }
+      .companies-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* Responsive: Desktop */
+    @media (min-width: 1024px) {
+      .hero { padding: var(--space-24) var(--space-6); }
+      .section { padding: var(--space-24) var(--space-6); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .job-card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Logo (RULE G-003) -->
+      <a href="p01-homepage.html" class="logo-link" aria-label="LàmViệc360 homepage">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo-img">
+      </a>
+
+      <!-- Navigation -->
+      <nav class="nav-links" role="navigation" aria-label="Main navigation">
+        <a href="p02-job-search.html" class="nav-link" data-i18n="navFindJobs">Find Jobs</a>
+        <a href="#employers" class="nav-link" data-i18n="navForEmployers">For Employers</a>
+        <a href="p02-job-search.html" class="nav-link" data-i18n="navBrowseCompanies">Browse Companies</a>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Language Toggle (RULE G-002) -->
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+        </div>
+
+        <a href="../auth/a01-login.html" class="btn btn-ghost" data-i18n="navSignIn">Sign In</a>
+        <a href="../auth/a02-register-role.html" class="btn btn-primary" data-i18n="navSignUp">Sign Up</a>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
+          <svg class="mobile-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <h1 class="hero-title" id="hero-title" data-i18n="heroTitle">Tìm việc làm phù hợp với bạn</h1>
+        <p class="hero-subtitle" data-i18n="heroSubtitle">Hàng ngàn cơ hội việc làm tại Việt Nam</p>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <form class="search-bar" role="search" aria-label="Job search">
+            <input type="text" class="search-input" 
+                   data-i18n-placeholder="searchPlaceholder"
+                   placeholder="🔍 Job title, keyword, company..."
+                   aria-label="Search jobs">
+            <select class="search-dropdown" aria-label="Select location">
+              <option value="" data-i18n="allProvinces">All Provinces</option>
+              <option value="hanoi" data-i18n="hanoi">Hà Nội</option>
+              <option value="hcmc" data-i18n="hcmc">TP. Hồ Chí Minh</option>
+              <option value="danang" data-i18n="danang">Đà Nẵng</option>
+              <option value="haiphong" data-i18n="haiphong">Hải Phòng</option>
+              <option value="cantho" data-i18n="cantho">Cần Thơ</option>
+              <option value="binhduong" data-i18n="binhduong">Bình Dương</option>
+              <option value="dongnai" data-i18n="dongnai">Đồng Nai</option>
+            </select>
+            <button type="submit" class="search-btn" data-i18n="searchButton">Search</button>
+          </form>
+        </div>
+
+        <!-- Popular Searches -->
+        <div class="popular-searches">
+          <div class="popular-label" data-i18n="popularLabel">Popular:</div>
+          <div class="search-tags">
+            <a href="#" class="search-tag" data-i18n="tagSoftware">Software Engineer</a>
+            <a href="#" class="search-tag" data-i18n="tagMarketing">Marketing</a>
+            <a href="#" class="search-tag" data-i18n="tagAccounting">Kế toán</a>
+            <a href="#" class="search-tag" data-i18n="tagDesign">Thiết kế</a>
+            <a href="#" class="search-tag" data-i18n="tagRemote">Remote</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Advertisement Banner A -->
+    <div class="ad-banner">
+      <div class="ad-slot-a" data-i18n="adSlotA">[ AD SLOT A — 728×90 Banner ]</div>
+    </div>
+
+    <!-- Featured Jobs Section -->
+    <section class="section featured-jobs-section" aria-labelledby="featured-jobs-title">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title" id="featured-jobs-title" data-i18n="featuredJobsTitle">Việc làm nổi bật</h2>
+          <p class="section-subtitle" data-i18n="featuredJobsSubtitle">Latest opportunities from top employers</p>
+        </div>
+
+        <div class="jobs-grid">
+          <!-- Job Card 1 -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Senior Backend Engineer at TechCorp Vietnam JSC">
+            <div class="job-header">
+              <div class="company-logo">TCV</div>
+              <div>
+                <h3 class="job-title">Senior Backend Engineer</h3>
+                <p class="company-name">
+                  TechCorp Vietnam JSC
+                  <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                </p>
+              </div>
+            </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Hà Nội</span>
+              <span class="job-meta-item">💰 25.000.000 – 40.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 2 days ago</span>
+            </div>
+            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
+          </a>
+
+          <!-- Job Card 2 -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="UI/UX Designer at DataVN Ltd">
+            <div class="job-header">
+              <div class="company-logo">DVN</div>
+              <div>
+                <h3 class="job-title">UI/UX Designer</h3>
+                <p class="company-name">DataVN Ltd</p>
+              </div>
+            </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
+              <span class="job-meta-item">💰 Thương lượng</span>
+              <span class="job-meta-item">📅 3 days ago</span>
+            </div>
+            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
+          </a>
+
+          <!-- Job Card 3 -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Digital Marketing Manager at FinApp Vietnam">
+            <div class="job-header">
+              <div class="company-logo">FAV</div>
+              <div>
+                <h3 class="job-title">Digital Marketing Manager</h3>
+                <p class="company-name">
+                  FinApp Vietnam
+                  <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                </p>
+              </div>
+            </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Đà Nẵng</span>
+              <span class="job-meta-item">💰 18.000.000 – 28.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 1 week ago</span>
+            </div>
+            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
+          </a>
+
+          <!-- Job Card 4 -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="React Frontend Developer at StartupVN">
+            <div class="job-header">
+              <div class="company-logo">SVN</div>
+              <div>
+                <h3 class="job-title">React Frontend Developer</h3>
+                <p class="company-name">StartupVN</p>
+              </div>
+            </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Hà Nội</span>
+              <span class="job-meta-item">💰 20.000.000 – 35.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 4 days ago</span>
+            </div>
+            <span class="job-type" data-i18n="jobTypeRemote">Remote</span>
+          </a>
+
+          <!-- Job Card 5 -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Data Analyst at MegaCorp Vietnam">
+            <div class="job-header">
+              <div class="company-logo">MCV</div>
+              <div>
+                <h3 class="job-title">Data Analyst</h3>
+                <p class="company-name">
+                  MegaCorp Vietnam
+                  <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                </p>
+              </div>
+            </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
+              <span class="job-meta-item">💰 22.000.000 – 30.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 5 days ago</span>
+            </div>
+            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
+          </a>
+
+          <!-- Job Card 6 -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Product Manager at TechVN Group">
+            <div class="job-header">
+              <div class="company-logo">TVG</div>
+              <div>
+                <h3 class="job-title">Product Manager</h3>
+                <p class="company-name">TechVN Group</p>
+              </div>
+            </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Hà Nội</span>
+              <span class="job-meta-item">💰 Thương lượng</span>
+              <span class="job-meta-item">📅 1 week ago</span>
+            </div>
+            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
+          </a>
+        </div>
+
+        <div class="view-all-link">
+          <a href="p02-job-search.html" class="view-all-btn" data-i18n="viewAllJobs">View all jobs →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Advertisement Banner B -->
+    <div class="ad-banner">
+      <div class="ad-slot-b" data-i18n="adSlotB">[ AD SLOT B — 300×250 Rectangle ]</div>
+    </div>
+
+    <!-- Stats Section -->
+    <section class="stats-section" aria-labelledby="stats-title">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title" id="stats-title" data-i18n="statsTitle">Trusted by Vietnamese professionals</h2>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number" data-i18n="statJobs">10.000+</div>
+            <p class="stat-label" data-i18n="statJobsLabel">Việc làm</p>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" data-i18n="statEmployers">5.000+</div>
+            <p class="stat-label" data-i18n="statEmployersLabel">Nhà tuyển dụng</p>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" data-i18n="statCandidates">100.000+</div>
+            <p class="stat-label" data-i18n="statCandidatesLabel">Ứng viên</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- For Employers Section -->
+    <section class="employers-section" id="employers" aria-labelledby="employers-title">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title" id="employers-title" data-i18n="employersTitle">Tuyển dụng thông minh hơn với AI</h2>
+          <p class="section-subtitle" data-i18n="employersSubtitle">Save time, hire better with our AI-powered platform</p>
+        </div>
+
+        <div class="benefits-grid">
+          <div class="benefit-card">
+            <div class="benefit-icon">🤖</div>
+            <h3 class="benefit-title" data-i18n="benefit1Title">AI JD Generator</h3>
+            <p class="benefit-desc" data-i18n="benefit1Desc">Write job descriptions in seconds with AI assistance</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">📊</div>
+            <h3 class="benefit-title" data-i18n="benefit2Title">Kanban Pipeline</h3>
+            <p class="benefit-desc" data-i18n="benefit2Desc">Manage all candidates visually with drag-and-drop pipeline</p>
+          </div>
+          <div class="benefit-card">
+            <div class="benefit-icon">✓</div>
+            <h3 class="benefit-title" data-i18n="benefit3Title">Verified Hiring</h3>
+            <p class="benefit-desc" data-i18n="benefit3Desc">Trusted platform for Vietnamese businesses</p>
+          </div>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="../auth/a02-register-role.html" class="btn btn-primary" style="font-size: var(--text-lg); padding: var(--space-4) var(--space-8);" data-i18n="employersCTA">Đăng tuyển miễn phí →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Companies Section -->
+    <section class="section companies-section" aria-labelledby="companies-title">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title" id="companies-title" data-i18n="companiesTitle">Nhà tuyển dụng hàng đầu</h2>
+          <p class="section-subtitle" data-i18n="companiesSubtitle">Join thousands of professionals at leading companies</p>
+        </div>
+
+        <div class="companies-grid">
+          <div class="company-card">
+            <div class="company-logo-large">TCV</div>
+            <h3 class="company-name-large">TechCorp Vietnam JSC</h3>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+          <div class="company-card">
+            <div class="company-logo-large">DVN</div>
+            <h3 class="company-name-large">DataVN Ltd</h3>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+          <div class="company-card">
+            <div class="company-logo-large">FAV</div>
+            <h3 class="company-name-large">FinApp Vietnam</h3>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+          <div class="company-card">
+            <div class="company-logo-large">MCV</div>
+            <h3 class="company-name-large">MegaCorp Vietnam</h3>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+          <div class="company-card">
+            <div class="company-logo-large">SVN</div>
+            <h3 class="company-name-large">StartupVN</h3>
+          </div>
+        </div>
+
+        <div class="view-all-link">
+          <a href="p02-job-search.html" class="view-all-btn" data-i18n="viewAllCompanies">View all companies →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <!-- Logo (RULE G-003) -->
+        <div class="footer-column">
+          <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo-img" style="height: 28px; margin-bottom: var(--space-4);">
+          <p style="color: rgba(255,255,255,0.6); font-size: var(--text-sm); margin: 0;" data-i18n="footerDesc">
+            Your trusted partner for finding the perfect job in Vietnam
+          </p>
+        </div>
+
+        <div class="footer-column">
+          <h4 data-i18n="footerForJobSeekers">For Job Seekers</h4>
+          <div class="footer-links">
+            <a href="p02-job-search.html" class="footer-link" data-i18n="footerBrowseJobs">Browse Jobs</a>
+            <a href="#" class="footer-link" data-i18n="footerCareerAdvice">Career Advice</a>
+            <a href="#" class="footer-link" data-i18n="footerResumeTips">Resume Tips</a>
+            <a href="#" class="footer-link" data-i18n="footerSalaryGuide">Salary Guide</a>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h4 data-i18n="footerForEmployers">For Employers</h4>
+          <div class="footer-links">
+            <a href="../auth/a02-register-role.html" class="footer-link" data-i18n="footerPostJobs">Post Jobs</a>
+            <a href="#" class="footer-link" data-i18n="footerPricing">Pricing</a>
+            <a href="#" class="footer-link" data-i18n="footerRecruitingTips">Recruiting Tips</a>
+            <a href="#" class="footer-link" data-i18n="footerEmployerResources">Employer Resources</a>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h4 data-i18n="footerCompany">Company</h4>
+          <div class="footer-links">
+            <a href="#" class="footer-link" data-i18n="footerAboutUs">About Us</a>
+            <a href="#" class="footer-link" data-i18n="footerContact">Contact</a>
+            <a href="#" class="footer-link" data-i18n="footerPrivacy">Privacy Policy</a>
+            <a href="#" class="footer-link" data-i18n="footerTerms">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copyright" data-i18n="footerCopyright">
+          © 2026 LàmViệc360 · Zebra Global Pte Ltd · Decree 13/2023 Compliant
+        </div>
+        
+        <!-- Language Toggle (RULE G-002) -->
+        <div class="footer-lang">
+          <button class="footer-lang-btn active" data-lang="vi">VI</button>
+          <button class="footer-lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 p01: Homepage
+    </div>
+    <div style="margin-bottom:4px;opacity:.7;font-size:10px;">NEXT →</div>
+    <a href="p02-job-search.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ p02: Job Search</a>
+    <a href="../auth/a01-login.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ a01: Login</a>
+    <a href="../auth/a02-register-role.html" style="display:block;color:#5B9BD5;padding:2px 0;text-decoration:none;">→ a02: Register</a>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        navFindJobs: 'Find Jobs',
+        navForEmployers: 'For Employers',
+        navBrowseCompanies: 'Browse Companies',
+        navSignIn: 'Sign In',
+        navSignUp: 'Sign Up',
+        heroTitle: 'Tìm việc làm phù hợp với bạn',
+        heroSubtitle: 'Hàng ngàn cơ hội việc làm tại Việt Nam',
+        searchPlaceholder: '🔍 Job title, keyword, company...',
+        searchButton: 'Search',
+        allProvinces: 'All Provinces',
+        hanoi: 'Hà Nội',
+        hcmc: 'TP. Hồ Chí Minh',
+        danang: 'Đà Nẵng',
+        haiphong: 'Hải Phòng',
+        cantho: 'Cần Thơ',
+        binhduong: 'Bình Dương',
+        dongnai: 'Đồng Nai',
+        popularLabel: 'Phổ biến:',
+        tagSoftware: 'Software Engineer',
+        tagMarketing: 'Marketing',
+        tagAccounting: 'Kế toán',
+        tagDesign: 'Thiết kế',
+        tagRemote: 'Remote',
+        adSlotA: '[ AD SLOT A — 728×90 Banner ]',
+        featuredJobsTitle: 'Việc làm nổi bật',
+        featuredJobsSubtitle: 'Latest opportunities from top employers',
+        verifiedBadge: '✓ Verified',
+        jobTypeFullTime: 'Full-time',
+        jobTypeRemote: 'Remote',
+        viewAllJobs: 'View all jobs →',
+        adSlotB: '[ AD SLOT B — 300×250 Rectangle ]',
+        statsTitle: 'Được tin tưởng bởi chuyên gia Việt Nam',
+        statJobs: '10.000+',
+        statJobsLabel: 'Việc làm',
+        statEmployers: '5.000+',
+        statEmployersLabel: 'Nhà tuyển dụng',
+        statCandidates: '100.000+',
+        statCandidatesLabel: 'Ứng viên',
+        employersTitle: 'Tuyển dụng thông minh hơn với AI',
+        employersSubtitle: 'Tiết kiệm thời gian, tuyển dụng tốt hơn với nền tảng AI của chúng tôi',
+        benefit1Title: 'AI JD Generator',
+        benefit1Desc: 'Viết mô tả công việc trong vài giây với sự trợ giúp của AI',
+        benefit2Title: 'Kanban Pipeline',
+        benefit2Desc: 'Quản lý tất cả ứng viên một cách trực quan với pipeline kéo-thả',
+        benefit3Title: 'Verified Hiring',
+        benefit3Desc: 'Nền tảng đáng tin cậy cho doanh nghiệp Việt Nam',
+        employersCTA: 'Đăng tuyển miễn phí →',
+        companiesTitle: 'Nhà tuyển dụng hàng đầu',
+        companiesSubtitle: 'Tham gia hàng nghìn chuyên gia tại các công ty hàng đầu',
+        viewAllCompanies: 'View all companies →',
+        footerDesc: 'Đối tác tin cậy của bạn để tìm công việc hoàn hảo tại Việt Nam',
+        footerForJobSeekers: 'For Job Seekers',
+        footerBrowseJobs: 'Browse Jobs',
+        footerCareerAdvice: 'Career Advice',
+        footerResumeTips: 'Resume Tips',
+        footerSalaryGuide: 'Salary Guide',
+        footerForEmployers: 'For Employers',
+        footerPostJobs: 'Post Jobs',
+        footerPricing: 'Pricing',
+        footerRecruitingTips: 'Recruiting Tips',
+        footerEmployerResources: 'Employer Resources',
+        footerCompany: 'Company',
+        footerAboutUs: 'About Us',
+        footerContact: 'Contact',
+        footerPrivacy: 'Privacy Policy',
+        footerTerms: 'Terms of Service',
+        footerCopyright: '© 2026 LàmViệc360 · Zebra Global Pte Ltd · Decree 13/2023 Compliant'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        navFindJobs: 'Find Jobs',
+        navForEmployers: 'For Employers',
+        navBrowseCompanies: 'Browse Companies',
+        navSignIn: 'Sign In',
+        navSignUp: 'Sign Up',
+        heroTitle: 'Find the job that fits you',
+        heroSubtitle: 'Thousands of opportunities across Vietnam',
+        searchPlaceholder: '🔍 Job title, keyword, company...',
+        searchButton: 'Search',
+        allProvinces: 'All Provinces',
+        hanoi: 'Hanoi',
+        hcmc: 'Ho Chi Minh City',
+        danang: 'Da Nang',
+        haiphong: 'Hai Phong',
+        cantho: 'Can Tho',
+        binhduong: 'Binh Duong',
+        dongnai: 'Dong Nai',
+        popularLabel: 'Popular:',
+        tagSoftware: 'Software Engineer',
+        tagMarketing: 'Marketing',
+        tagAccounting: 'Accounting',
+        tagDesign: 'Design',
+        tagRemote: 'Remote',
+        adSlotA: '[ AD SLOT A — 728×90 Banner ]',
+        featuredJobsTitle: 'Featured Jobs',
+        featuredJobsSubtitle: 'Latest opportunities from top employers',
+        verifiedBadge: '✓ Verified',
+        jobTypeFullTime: 'Full-time',
+        jobTypeRemote: 'Remote',
+        viewAllJobs: 'View all jobs →',
+        adSlotB: '[ AD SLOT B — 300×250 Rectangle ]',
+        statsTitle: 'Trusted by Vietnamese professionals',
+        statJobs: '10,000+',
+        statJobsLabel: 'Jobs',
+        statEmployers: '5,000+',
+        statEmployersLabel: 'Employers',
+        statCandidates: '100,000+',
+        statCandidatesLabel: 'Candidates',
+        employersTitle: 'Hire smarter with AI',
+        employersSubtitle: 'Save time, hire better with our AI-powered platform',
+        benefit1Title: 'AI JD Generator',
+        benefit1Desc: 'Write job descriptions in seconds with AI assistance',
+        benefit2Title: 'Kanban Pipeline',
+        benefit2Desc: 'Manage all candidates visually with drag-and-drop pipeline',
+        benefit3Title: 'Verified Hiring',
+        benefit3Desc: 'Trusted platform for Vietnamese businesses',
+        employersCTA: 'Post Jobs Free →',
+        companiesTitle: 'Top Employers',
+        companiesSubtitle: 'Join thousands of professionals at leading companies',
+        viewAllCompanies: 'View all companies →',
+        footerDesc: 'Your trusted partner for finding the perfect job in Vietnam',
+        footerForJobSeekers: 'For Job Seekers',
+        footerBrowseJobs: 'Browse Jobs',
+        footerCareerAdvice: 'Career Advice',
+        footerResumeTips: 'Resume Tips',
+        footerSalaryGuide: 'Salary Guide',
+        footerForEmployers: 'For Employers',
+        footerPostJobs: 'Post Jobs',
+        footerPricing: 'Pricing',
+        footerRecruitingTips: 'Recruiting Tips',
+        footerEmployerResources: 'Employer Resources',
+        footerCompany: 'Company',
+        footerAboutUs: 'About Us',
+        footerContact: 'Contact',
+        footerPrivacy: 'Privacy Policy',
+        footerTerms: 'Terms of Service',
+        footerCopyright: '© 2026 LàmViệc360 · Zebra Global Pte Ltd · Decree 13/2023 Compliant'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Tìm việc làm phù hợp với bạn' : 'LàmViệc360 — Find the job that fits you';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn, .footer-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn, .footer-lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== SEARCH FUNCTIONALITY ==========
+    document.querySelector('.search-bar').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const searchInput = document.querySelector('.search-input').value;
+      const location = document.querySelector('.search-dropdown').value;
+      
+      // In real app, would navigate to search results with query parameters
+      console.log('Search:', searchInput, 'Location:', location);
+      window.location.href = 'p02-job-search.html';
+    });
+
+    // ========== SMOOTH SCROLLING ==========
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ========== MOBILE MENU ==========
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (mobileMenuToggle) {
+      mobileMenuToggle.addEventListener('click', () => {
+        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        navLinks.style.position = 'absolute';
+        navLinks.style.top = '72px';
+        navLinks.style.left = '0';
+        navLinks.style.right = '0';
+        navLinks.style.background = 'white';
+        navLinks.style.flexDirection = 'column';
+        navLinks.style.padding = 'var(--space-4)';
+        navLinks.style.boxShadow = 'var(--shadow-lg)';
+        navLinks.style.borderBottom = 'var(--border-default)';
+      });
+    }
+
+    // ========== RESPONSIVE SEARCH BAR ==========
+    function handleResize() {
+      const searchBar = document.querySelector('.search-bar');
+      const searchInput = document.querySelector('.search-input');
+      const searchDropdown = document.querySelector('.search-dropdown');
+      const searchBtn = document.querySelector('.search-btn');
+      
+      if (window.innerWidth < 768) {
+        // Mobile layout
+        searchBar.style.gridTemplateColumns = '1fr';
+        searchDropdown.style.borderLeft = 'none';
+        searchDropdown.style.borderTop = '1px solid var(--color-grey-300)';
+        searchDropdown.style.paddingTop = 'var(--space-3)';
+        searchDropdown.style.paddingBottom = 'var(--space-3)';
+        searchBtn.style.width = '100%';
+        searchBtn.style.marginTop = 'var(--space-2)';
+      } else {
+        // Desktop layout
+        searchBar.style.gridTemplateColumns = '1fr auto auto';
+        searchDropdown.style.borderLeft = '1px solid var(--color-grey-300)';
+        searchDropdown.style.borderTop = 'none';
+        searchDropdown.style.paddingTop = 'var(--space-3)';
+        searchDropdown.style.paddingBottom = 'var(--space-3)';
+        searchBtn.style.width = 'auto';
+        searchBtn.style.marginTop = '0';
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial call
+  </script>
+</body>
+</html>

@@ -1,0 +1,1492 @@
+<!doctype html>
+<!--
+  SCREEN: e18 Account Settings
+  PRD REFS: AUTH-FR-006, AUTH-FR-009, NTF-FR-005
+  FLOW: Various screens → THIS → Various screens
+  PERSONA: Company Admin, HR/Recruiter
+  STAGE: Phase 1 MVP
+  NOTE: Personal account settings with tabs and data protection
+  AUTHOR: tresundios Software
+-->
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LàmViệc360 — Account Settings | TechCorp Vietnam JSC</title>
+  <style>
+    :root {
+      /* Brand */
+      --color-primary:       #2563EB;
+      --color-primary-dark:  #1D4ED8;
+      --color-primary-light: #EFF6FF;
+
+      /* Employer workspace (navy) */
+      --color-navy:          #0F2044;
+      --color-navy-mid:      #1A4A8A;
+      --color-navy-light:    #DBEAFE;
+
+      /* Super Admin (deep purple-navy) */
+      --color-admin-bg:      #1A0A3A;
+      --color-admin-accent:  #7C3AED;
+      --color-admin-light:   #EDE9FE;
+
+      /* Semantic */
+      --color-success:       #15803D;
+      --color-success-bg:    #DCFCE7;
+      --color-warning:       #C8922A;
+      --color-warning-bg:    #FEF9C3;
+      --color-danger:        #B91C1C;
+      --color-danger-bg:     #FEF2F2;
+      --color-info:          #0284C7;
+      --color-info-bg:       #E0F2FE;
+
+      /* Neutrals */
+      --color-grey-900:      #0F172A;
+      --color-grey-700:      #334155;
+      --color-grey-500:      #64748B;
+      --color-grey-300:      #CBD5E1;
+      --color-grey-100:      #F1F5F9;
+      --color-white:         #FFFFFF;
+
+      /* Typography */
+      --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono:  'Fira Code', 'Cascadia Code', monospace;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  15px;
+      --text-lg:    17px;
+      --text-xl:    20px;
+      --text-2xl:   24px;
+      --text-3xl:   30px;
+      --text-4xl:   36px;
+      --text-5xl:   48px;
+
+      /* Spacing (8pt grid) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      --space-24: 96px;
+
+      /* Border radius */
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+
+      /* Border */
+      --border-default: 1px solid #E2E8F0;
+      --border-strong:  1px solid #CBD5E1;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--color-grey-900);
+      line-height: 1.6;
+      background: var(--color-grey-50);
+    }
+
+    a { color: var(--color-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      z-index: 100;
+      border-radius: var(--radius-md);
+    }
+    .skip-link:focus { top: 12px; left: 12px; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--color-navy);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1000;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo {
+      height: 32px;
+      width: auto;
+      display: block;
+      margin-bottom: var(--space-4);
+      filter: brightness(0) invert(1);
+    }
+
+    .company-info {
+      margin-bottom: var(--space-2);
+    }
+
+    .company-name {
+      font-size: var(--text-base);
+      font-weight: 700;
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .role-badge {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      margin-right: var(--space-2);
+    }
+
+    .verified-badge {
+      display: inline-block;
+      background: var(--color-success);
+      color: white;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-4) 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-6);
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-footer {
+      padding: var(--space-6);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
+
+    .sign-out-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: color 0.2s;
+    }
+
+    .sign-out-link:hover {
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      border-bottom: var(--border-default);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .page-title-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .page-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0;
+      color: var(--color-grey-900);
+    }
+
+    .page-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .notification-bell {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--color-grey-100);
+      border: 1px solid var(--color-grey-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-grey-700);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .notification-bell:hover {
+      background: var(--color-primary);
+      color: white;
+      text-decoration: none;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--color-danger);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: 700;
+    }
+
+    .lang-toggle {
+      display: flex;
+      gap: var(--space-1);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-grey-500);
+      transition: all 0.15s;
+      min-height: 28px;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--color-grey-700);
+    }
+
+    .user-avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-sm);
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: var(--space-6);
+      flex: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Page Header */
+    .page-header {
+      margin-bottom: var(--space-6);
+    }
+
+    .page-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-2) 0;
+      color: var(--color-grey-900);
+    }
+
+    .page-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    /* Tabs */
+    .tabs-container {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: var(--border-default);
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: var(--space-4) var(--space-6);
+      border: none;
+      background: none;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-600);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-button:hover {
+      color: var(--color-primary);
+      background: var(--color-grey-50);
+    }
+
+    .tab-button.active {
+      color: var(--color-primary);
+      border-bottom: 2px solid var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .tab-content {
+      display: none;
+      padding: var(--space-8);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Avatar Section */
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+      margin-bottom: var(--space-8);
+      padding-bottom: var(--space-8);
+      border-bottom: var(--border-default);
+    }
+
+    .avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-2xl);
+      flex-shrink: 0;
+    }
+
+    .avatar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .avatar-btn {
+      padding: var(--space-2) var(--space-4);
+      border: 1px solid var(--color-grey-300);
+      border-radius: var(--radius-md);
+      background: white;
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: var(--color-grey-700);
+    }
+
+    .avatar-btn:hover {
+      background: var(--color-grey-50);
+      color: var(--color-primary);
+    }
+
+    /* Form Elements */
+    .form-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-6) 0;
+      color: var(--color-grey-900);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-6);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-grey-700);
+      margin-bottom: var(--space-2);
+    }
+
+    .required-asterisk {
+      color: var(--color-danger);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-3);
+      border: var(--border-strong);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-input:disabled {
+      background: var(--color-grey-100);
+      color: var(--color-grey-500);
+      cursor: not-allowed;
+    }
+
+    .form-helper {
+      font-size: var(--text-sm);
+      color: var(--color-grey-500);
+      margin-top: var(--space-1);
+    }
+
+    /* Password Strength Meter */
+    .password-strength {
+      margin-top: var(--space-2);
+      height: 4px;
+      background: var(--color-grey-200);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      width: 0%;
+      transition: all 0.3s;
+      border-radius: var(--radius-full);
+    }
+
+    .password-strength-bar.weak {
+      width: 33%;
+      background: var(--color-danger);
+    }
+
+    .password-strength-bar.medium {
+      width: 66%;
+      background: var(--color-warning);
+    }
+
+    .password-strength-bar.strong {
+      width: 100%;
+      background: var(--color-success);
+    }
+
+    /* Notification Toggles */
+    .notification-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .notification-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+    }
+
+    .notification-label {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 24px;
+      background: var(--color-grey-300);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--color-primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: var(--radius-full);
+      transition: all 0.2s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+
+    /* Warning Box */
+    .warning-box {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .warning-content {
+      font-size: var(--text-sm);
+      color: var(--color-warning);
+      line-height: 1.6;
+    }
+
+    /* Session Management */
+    .session-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .session-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+    }
+
+    .session-info {
+      flex: 1;
+    }
+
+    .session-device {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      margin-bottom: var(--space-1);
+    }
+
+    .session-details {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .session-status {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-success);
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      min-height: 44px;
+      user-select: none;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
+    .btn-ghost { background: transparent; color: var(--color-grey-700); border: 1px solid var(--color-grey-300); }
+    .btn-ghost:hover { background: var(--color-grey-50); text-decoration: none; }
+    .btn-danger { background: transparent; color: var(--color-danger); border: 1px solid var(--color-danger); }
+    .btn-danger:hover { background: var(--color-danger-bg); text-decoration: none; }
+
+    /* Info Box */
+    .info-box {
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin-top: var(--space-6);
+    }
+
+    .info-content {
+      font-size: var(--text-sm);
+      color: var(--color-info);
+      line-height: 1.6;
+    }
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--color-grey-700);
+      cursor: pointer;
+      padding: var(--space-2);
+    }
+
+    .mobile-menu-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    /* Responsive: Mobile */
+    @media (max-width: 767px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .mobile-overlay.open {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .content-area {
+        padding: var(--space-4);
+      }
+
+      .tabs-header {
+        flex-direction: column;
+      }
+
+      .tab-button {
+        text-align: left;
+        border-bottom: var(--border-default);
+      }
+
+      .tab-button.active {
+        border-bottom: none;
+        border-left: 3px solid var(--color-primary);
+      }
+
+      .avatar-section {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .notification-item,
+      .session-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .btn:active { transform: none; }
+      .sidebar { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <!-- Logo (RULE G-003) -->
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+        
+        <div class="company-info">
+          <h2 class="company-name">TechCorp Vietnam JSC</h2>
+          <div>
+            <span class="role-badge" data-i18n="roleAdmin">Company Admin</span>
+            <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+        <a href="e01-dashboard.html" class="nav-item" data-i18n="navDashboard">
+          <span class="nav-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="e02-job-list.html" class="nav-item" data-i18n="navJobManagement">
+          <span class="nav-icon">💼</span>
+          Job Management
+        </a>
+        <a href="e06-pipeline-kanban.html" class="nav-item" data-i18n="navCandidatePipeline">
+          <span class="nav-icon">👥</span>
+          Candidate Pipeline
+        </a>
+        <a href="e14-team-list.html" class="nav-item" data-i18n="navTeamManagement">
+          <span class="nav-icon">👤</span>
+          Team Management
+        </a>
+        <a href="e18-account-settings.html" class="nav-item active" data-i18n="navSettings">
+          <span class="nav-icon">⚙</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">NH</div>
+          <div class="user-info">
+            <p class="user-name">Nguyễn Thị Haanh</p>
+          </div>
+        </div>
+        <a href="../auth/a01-login.html" class="sign-out-link" data-i18n="signOut">Sign Out</a>
+      </div>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="page-title-section">
+          <!-- Mobile Menu Toggle -->
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <svg class="mobile-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          
+          <div>
+            <h1 class="page-title" data-i18n="pageTitle">Account Settings</h1>
+            <p class="page-subtitle" data-i18n="pageSubtitle">Nguyễn Thị Haanh · Company Admin</p>
+          </div>
+        </div>
+
+        <div class="top-bar-actions">
+          <!-- Notifications -->
+          <a href="e17-notifications.html" class="notification-bell" aria-label="Notifications">
+            🔔
+            <span class="notification-badge">3</span>
+          </a>
+
+          <!-- Language Toggle (RULE G-002) -->
+          <div class="lang-toggle" role="group" aria-label="Language selector">
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          </div>
+
+          <!-- User Avatar -->
+          <div class="user-avatar-circle">NH</div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="pageTitle">Account Settings</h2>
+          <p class="page-subtitle" data-i18n="pageSubtitle">Nguyễn Thị Haanh · Company Admin</p>
+        </div>
+
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+          <!-- Tabs Header -->
+          <div class="tabs-header">
+            <button class="tab-button active" data-tab="profile" data-i18n="tabProfile">Profile</button>
+            <button class="tab-button" data-tab="password" data-i18n="tabPassword">Password</button>
+            <button class="tab-button" data-tab="notifications" data-i18n="tabNotifications">Notifications</button>
+            <button class="tab-button" data-tab="privacy" data-i18n="tabPrivacy">Privacy</button>
+          </div>
+
+          <!-- Tab 1: Profile -->
+          <div class="tab-content active" id="profile-tab">
+            <!-- Avatar Section -->
+            <div class="avatar-section">
+              <div class="avatar-large">NH</div>
+              <div class="avatar-actions">
+                <button class="avatar-btn" data-i18n="uploadPhoto">Upload Photo</button>
+                <button class="avatar-btn" data-i18n="removePhoto">Remove Photo</button>
+              </div>
+            </div>
+
+            <!-- Profile Form -->
+            <div class="form-section">
+              <div class="form-group">
+                <label class="form-label" for="fullName" data-i18n="fullNameLabel">
+                  Full Name <span class="required-asterisk">*</span>
+                </label>
+                <input type="text" class="form-input" id="fullName" value="Nguyễn Thị Haanh" data-i18n-placeholder="fullNamePlaceholder">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="email" data-i18n="emailLabel">
+                  Email <span class="required-asterisk">*</span>
+                </label>
+                <input type="email" class="form-input" id="email" value="haanh@techcorp.vn" disabled>
+                <div class="form-helper" data-i18n="emailHelper">Contact support to change</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="phone" data-i18n="phoneLabel">
+                  Phone <span class="required-asterisk">*</span>
+                </label>
+                <input type="tel" class="form-input" id="phone" value="+84 912 345 678" data-i18n-placeholder="phonePlaceholder">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="jobTitle" data-i18n="jobTitleLabel">Job Title</label>
+                <input type="text" class="form-input" id="jobTitle" value="HR Director" data-i18n-placeholder="jobTitlePlaceholder">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="department" data-i18n="departmentLabel">Department</label>
+                <input type="text" class="form-input" id="department" value="Human Resources" data-i18n-placeholder="departmentPlaceholder">
+              </div>
+
+              <button class="btn btn-primary" data-i18n="saveProfile">Save Profile</button>
+            </div>
+          </div>
+
+          <!-- Tab 2: Password -->
+          <div class="tab-content" id="password-tab">
+            <div class="form-section">
+              <div class="form-group">
+                <label class="form-label" for="currentPassword" data-i18n="currentPasswordLabel">
+                  Current Password <span class="required-asterisk">*</span>
+                </label>
+                <input type="password" class="form-input" id="currentPassword" data-i18n-placeholder="currentPasswordPlaceholder">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newPassword" data-i18n="newPasswordLabel">
+                  New Password <span class="required-asterisk">*</span>
+                </label>
+                <input type="password" class="form-input" id="newPassword" data-i18n-placeholder="newPasswordPlaceholder">
+                <div class="password-strength">
+                  <div class="password-strength-bar" id="passwordStrength"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="confirmPassword" data-i18n="confirmPasswordLabel">
+                  Confirm Password <span class="required-asterisk">*</span>
+                </label>
+                <input type="password" class="form-input" id="confirmPassword" data-i18n-placeholder="confirmPasswordPlaceholder">
+              </div>
+
+              <div class="warning-box">
+                <div class="warning-content" data-i18n="passwordWarning">
+                  ⚠ Changing your password will sign you out of all active sessions immediately.
+                </div>
+              </div>
+
+              <button class="btn btn-primary" data-i18n="updatePassword">Update Password</button>
+            </div>
+          </div>
+
+          <!-- Tab 3: Notifications -->
+          <div class="tab-content" id="notifications-tab">
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="notificationTitle">Email Notification Preferences</h3>
+              
+              <div class="notification-list">
+                <div class="notification-item">
+                  <span class="notification-label" data-i18n="notif1">New application received</span>
+                  <div class="toggle-switch active" data-notif="applications"></div>
+                </div>
+
+                <div class="notification-item">
+                  <span class="notification-label" data-i18n="notif2">Candidate moved by team member</span>
+                  <div class="toggle-switch active" data-notif="candidate-moved"></div>
+                </div>
+
+                <div class="notification-item">
+                  <span class="notification-label" data-i18n="notif3">Interview scheduled</span>
+                  <div class="toggle-switch active" data-notif="interview"></div>
+                </div>
+
+                <div class="notification-item">
+                  <span class="notification-label" data-i18n="notif4">Team member joins workspace</span>
+                  <div class="toggle-switch active" data-notif="team-join"></div>
+                </div>
+
+                <div class="notification-item">
+                  <span class="notification-label" data-i18n="notif5">Company approval / suspension</span>
+                  <div class="toggle-switch active" data-notif="company-status"></div>
+                </div>
+
+                <div class="notification-item">
+                  <span class="notification-label" data-i18n="notif6">Weekly hiring summary digest</span>
+                  <div class="toggle-switch" data-notif="weekly-digest"></div>
+                </div>
+
+                <div class="notification-item">
+                  <span class="notification-label" data-i18n="notif7">Platform announcements</span>
+                  <div class="toggle-switch active" data-notif="announcements"></div>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" data-i18n="savePreferences">Save Preferences</button>
+            </div>
+          </div>
+
+          <!-- Tab 4: Privacy -->
+          <div class="tab-content" id="privacy-tab">
+            <div class="form-section">
+              <h3 class="section-title" data-i18n="privacyTitle">Data & Privacy</h3>
+              
+              <!-- Session Management -->
+              <div class="form-group">
+                <h4 class="section-title" data-i18n="sessionTitle">Active sessions</h4>
+                
+                <div class="session-list">
+                  <div class="session-item">
+                    <div class="session-info">
+                      <div class="session-device" data-i18n="currentDevice">This device</div>
+                      <div class="session-details" data-i18n="currentLocation">Hà Nội, Vietnam · Chrome · Active now</div>
+                    </div>
+                    <span class="session-status" data-i18n="activeStatus">Active</span>
+                  </div>
+
+                  <div class="session-item">
+                    <div class="session-info">
+                      <div class="session-device" data-i18n="mobileDevice">Mobile device</div>
+                      <div class="session-details" data-i18n="mobileLastActive">Last active: 2 hrs ago</div>
+                    </div>
+                    <button class="btn btn-ghost" data-i18n="signOutSession">Sign out</button>
+                  </div>
+                </div>
+
+                <button class="btn btn-ghost" data-i18n="signOutAll">Sign out all other sessions</button>
+              </div>
+
+              <!-- Account Deletion -->
+              <div class="form-group">
+                <h4 class="section-title" data-i18n="deletionTitle">Request account deletion</h4>
+                <p class="form-helper" data-i18n="deletionHelper">
+                  Your data will be retained for 30 days before permanent deletion.
+                </p>
+                <button class="btn btn-danger" data-i18n="requestDeletion">Request Deletion</button>
+              </div>
+
+              <!-- Decree 13/2023 Note -->
+              <div class="info-box">
+                <div class="info-content" data-i18n="decreeInfo">
+                  Your data is processed in accordance with Vietnam's Decree 13/2023 on Personal Data Protection.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- DEV NAVIGATOR — remove in production -->
+  <div id="dev-nav" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:#0F2044; border-radius:8px; padding:12px 16px;
+    font-size:11px; color:white; min-width:180px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <div style="font-size:10px;color:#60A5FA;margin-bottom:8px;font-weight:600;">
+      DEV NAVIGATOR
+    </div>
+    <div style="color:#93C5FD;margin-bottom:6px;">
+      📍 e18: Account Settings
+    </div>
+  </div>
+
+  <script>
+    // ========== MULTILINGUAL SUPPORT (RULE G-002) ==========
+    const LANG = {
+      vi: {
+        skipLink: 'Bỏ qua đến nội dung chính',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        pageTitle: 'Account Settings',
+        pageSubtitle: 'Nguyễn Thị Haanh · Company Admin',
+        tabProfile: 'Profile',
+        tabPassword: 'Password',
+        tabNotifications: 'Notifications',
+        tabPrivacy: 'Privacy',
+        uploadPhoto: 'Upload Photo',
+        removePhoto: 'Remove Photo',
+        fullNameLabel: 'Full Name',
+        fullNamePlaceholder: 'Enter your full name',
+        emailLabel: 'Email',
+        emailHelper: 'Contact support to change',
+        phoneLabel: 'Phone',
+        phonePlaceholder: 'Enter your phone number',
+        jobTitleLabel: 'Job Title',
+        jobTitlePlaceholder: 'Enter your job title',
+        departmentLabel: 'Department',
+        departmentPlaceholder: 'Enter your department',
+        saveProfile: 'Save Profile',
+        currentPasswordLabel: 'Current Password',
+        currentPasswordPlaceholder: 'Enter current password',
+        newPasswordLabel: 'New Password',
+        newPasswordPlaceholder: 'Enter new password',
+        confirmPasswordLabel: 'Confirm Password',
+        confirmPasswordPlaceholder: 'Confirm new password',
+        passwordWarning: '⚠ Changing your password will sign you out of all active sessions immediately.',
+        updatePassword: 'Update Password',
+        notificationTitle: 'Email Notification Preferences',
+        notif1: 'New application received',
+        notif2: 'Candidate moved by team member',
+        notif3: 'Interview scheduled',
+        notif4: 'Team member joins workspace',
+        notif5: 'Company approval / suspension',
+        notif6: 'Weekly hiring summary digest',
+        notif7: 'Platform announcements',
+        savePreferences: 'Save Preferences',
+        privacyTitle: 'Data & Privacy',
+        sessionTitle: 'Active sessions',
+        currentDevice: 'This device',
+        currentLocation: 'Hà Nội, Vietnam · Chrome · Active now',
+        activeStatus: 'Active',
+        mobileDevice: 'Mobile device',
+        mobileLastActive: 'Last active: 2 hrs ago',
+        signOutSession: 'Sign out',
+        signOutAll: 'Sign out all other sessions',
+        deletionTitle: 'Request account deletion',
+        deletionHelper: 'Your data will be retained for 30 days before permanent deletion.',
+        requestDeletion: 'Request Deletion',
+        decreeInfo: 'Your data is processed in accordance with Vietnam\'s Decree 13/2023 on Personal Data Protection.'
+      },
+      en: {
+        skipLink: 'Skip to main content',
+        roleAdmin: 'Company Admin',
+        verifiedBadge: '✓ Verified',
+        navDashboard: 'Dashboard',
+        navJobManagement: 'Job Management',
+        navCandidatePipeline: 'Candidate Pipeline',
+        navTeamManagement: 'Team Management',
+        navSettings: 'Settings',
+        signOut: 'Sign Out',
+        pageTitle: 'Account Settings',
+        pageSubtitle: 'Nguyen Thi Haanh · Company Admin',
+        tabProfile: 'Profile',
+        tabPassword: 'Password',
+        tabNotifications: 'Notifications',
+        tabPrivacy: 'Privacy',
+        uploadPhoto: 'Upload Photo',
+        removePhoto: 'Remove Photo',
+        fullNameLabel: 'Full Name',
+        fullNamePlaceholder: 'Enter your full name',
+        emailLabel: 'Email',
+        emailHelper: 'Contact support to change',
+        phoneLabel: 'Phone',
+        phonePlaceholder: 'Enter your phone number',
+        jobTitleLabel: 'Job Title',
+        jobTitlePlaceholder: 'Enter your job title',
+        departmentLabel: 'Department',
+        departmentPlaceholder: 'Enter your department',
+        saveProfile: 'Save Profile',
+        currentPasswordLabel: 'Current Password',
+        currentPasswordPlaceholder: 'Enter current password',
+        newPasswordLabel: 'New Password',
+        newPasswordPlaceholder: 'Enter new password',
+        confirmPasswordLabel: 'Confirm Password',
+        confirmPasswordPlaceholder: 'Confirm new password',
+        passwordWarning: '⚠ Changing your password will sign you out of all active sessions immediately.',
+        updatePassword: 'Update Password',
+        notificationTitle: 'Email Notification Preferences',
+        notif1: 'New application received',
+        notif2: 'Candidate moved by team member',
+        notif3: 'Interview scheduled',
+        notif4: 'Team member joins workspace',
+        notif5: 'Company approval / suspension',
+        notif6: 'Weekly hiring summary digest',
+        notif7: 'Platform announcements',
+        savePreferences: 'Save Preferences',
+        privacyTitle: 'Data & Privacy',
+        sessionTitle: 'Active sessions',
+        currentDevice: 'This device',
+        currentLocation: 'Hanoi, Vietnam · Chrome · Active now',
+        activeStatus: 'Active',
+        mobileDevice: 'Mobile device',
+        mobileLastActive: 'Last active: 2 hrs ago',
+        signOutSession: 'Sign out',
+        signOutAll: 'Sign out all other sessions',
+        deletionTitle: 'Request account deletion',
+        deletionHelper: 'Your data will be retained for 30 days before permanent deletion.',
+        requestDeletion: 'Request Deletion',
+        decreeInfo: 'Your data is processed in accordance with Vietnam\'s Decree 13/2023 on Personal Data Protection.'
+      }
+    };
+
+    let currentLang = localStorage.getItem('lv360_lang') || 'vi';
+
+    function t(key) {
+      return LANG[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lv360_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = lang === 'vi' ? 'LàmViệc360 — Account Settings | TechCorp Vietnam JSC' : 'LàmViệc360 — Account Settings | TechCorp Vietnam JSC';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+    }
+
+    // Language toggle
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLang(btn.getAttribute('data-lang'));
+      });
+    });
+
+    // Initialize language on load
+    setLang(currentLang);
+
+    // ========== MOBILE SIDEBAR ==========
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    function openMobileSidebar() {
+      sidebar.classList.add('open');
+      mobileOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      mobileOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    mobileMenuToggle.addEventListener('click', openMobileSidebar);
+    mobileOverlay.addEventListener('click', closeMobileSidebar);
+
+    // Close sidebar when clicking nav links on mobile
+    document.querySelectorAll('.nav-item').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 767) {
+          closeMobileSidebar();
+        }
+      });
+    });
+
+    // ========== TAB SWITCHING ==========
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabName = button.getAttribute('data-tab');
+        
+        // Update button states
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        // Update content visibility
+        tabContents.forEach(content => {
+          content.classList.remove('active');
+          if (content.id === `${tabName}-tab`) {
+            content.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // ========== PASSWORD STRENGTH METER ==========
+    const newPasswordInput = document.getElementById('newPassword');
+    const passwordStrength = document.getElementById('passwordStrength');
+
+    newPasswordInput.addEventListener('input', () => {
+      const password = newPasswordInput.value;
+      let strength = 0;
+      
+      if (password.length >= 8) strength++;
+      if (password.match(/[a-z]/)) strength++;
+      if (password.match(/[A-Z]/)) strength++;
+      if (password.match(/[0-9]/)) strength++;
+      if (password.match(/[^a-zA-Z0-9]/)) strength++;
+      
+      passwordStrength.className = 'password-strength-bar';
+      
+      if (password.length === 0) {
+        passwordStrength.style.width = '0%';
+      } else if (strength <= 2) {
+        passwordStrength.classList.add('weak');
+      } else if (strength <= 4) {
+        passwordStrength.classList.add('medium');
+      } else {
+        passwordStrength.classList.add('strong');
+      }
+    });
+
+    // ========== NOTIFICATION TOGGLES ==========
+    const toggleSwitches = document.querySelectorAll('.toggle-switch');
+
+    toggleSwitches.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+        const notifType = toggle.getAttribute('data-notif');
+        console.log('Notification preference changed:', notifType, toggle.classList.contains('active'));
+      });
+    });
+
+    // ========== FORM SUBMISSIONS ==========
+    document.querySelector('[data-i18n="saveProfile"]').addEventListener('click', () => {
+      const fullName = document.getElementById('fullName').value;
+      const phone = document.getElementById('phone').value;
+      const jobTitle = document.getElementById('jobTitle').value;
+      const department = document.getElementById('department').value;
+      
+      console.log('Profile saved:', { fullName, phone, jobTitle, department });
+      alert('Profile saved successfully!');
+    });
+
+    document.querySelector('[data-i18n="updatePassword"]').addEventListener('click', () => {
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        alert('Please fill in all password fields.');
+        return;
+      }
+      
+      if (newPassword !== confirmPassword) {
+        alert('New passwords do not match.');
+        return;
+      }
+      
+      console.log('Password updated');
+      alert('Password updated! You will be signed out of all other sessions.');
+      
+      // Clear form
+      document.getElementById('currentPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+      passwordStrength.style.width = '0%';
+    });
+
+    document.querySelector('[data-i18n="savePreferences"]').addEventListener('click', () => {
+      const preferences = {};
+      toggleSwitches.forEach(toggle => {
+        const notifType = toggle.getAttribute('data-notif');
+        preferences[notifType] = toggle.classList.contains('active');
+      });
+      
+      console.log('Notification preferences saved:', preferences);
+      alert('Notification preferences saved!');
+    });
+
+    document.querySelector('[data-i18n="signOutAll"]').addEventListener('click', () => {
+      if (confirm('Sign out all other sessions?')) {
+        console.log('Signed out all other sessions');
+        alert('All other sessions have been signed out.');
+      }
+    });
+
+    document.querySelector('[data-i18n="requestDeletion"]').addEventListener('click', () => {
+      if (confirm('Are you sure you want to request account deletion? Your data will be retained for 30 days before permanent deletion.')) {
+        console.log('Account deletion requested');
+        alert('Account deletion request submitted. You will receive confirmation via email.');
+      }
+    });
+
+    // ========== AVATAR ACTIONS ==========
+    document.querySelector('[data-i18n="uploadPhoto"]').addEventListener('click', () => {
+      alert('Photo upload functionality would be implemented here.');
+    });
+
+    document.querySelector('[data-i18n="removePhoto"]').addEventListener('click', () => {
+      if (confirm('Remove current photo?')) {
+        console.log('Photo removed');
+        alert('Photo removed successfully.');
+      }
+    });
+
+    // ========== RESPONSIVE HANDLING ==========
+    function handleResize() {
+      if (window.innerWidth > 767) {
+        closeMobileSidebar();
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+  </script>
+</body>
+</html>
