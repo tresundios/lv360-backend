@@ -49,7 +49,7 @@ COPY ./tests ./tests
 COPY ./alembic ./alembic
 COPY ./alembic.ini ./alembic.ini
 COPY ./scripts ./scripts
-COPY --from=builder /ux ./ux
+COPY ./ux ./ux
 
 # Make scripts executable
 RUN chmod +x ./scripts/*.sh 2>/dev/null || true
