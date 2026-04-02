@@ -12,6 +12,23 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LàmViệc360 — Tìm việc làm phù hợp với bạn</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Owl Carousel CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+  
+  <!-- Feather Icons -->
+  <link rel="stylesheet" href="https://thewebmax.org/jobzilla/css/feather.css">
+  
+  <!-- Jobzilla Template CSS (header + hero styles) -->
+  <link rel="stylesheet" href="https://thewebmax.org/jobzilla/css/style.css">
+  
   <style>
     :root {
       /* Brand */
@@ -46,6 +63,15 @@
       --color-grey-300:      #CBD5E1;
       --color-grey-100:      #F1F5F9;
       --color-white:         #FFFFFF;
+
+      /* Logo-based gradient colors */
+      --gradient-primary: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #10B981 100%);
+      --gradient-secondary: linear-gradient(135deg, #B91C1C 0%, #C8922A 50%, #2563EB 100%);
+      --gradient-accent: linear-gradient(135deg, #15803D 0%, #2563EB 50%, #B91C1C 100%);
+      --gradient-hero: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(59, 130, 246, 0.8) 25%, rgba(21, 128, 61, 0.7) 50%, rgba(200, 146, 42, 0.6) 75%, rgba(185, 28, 28, 0.5) 100%);
+      --gradient-section: linear-gradient(135deg, #2563EB 0%, #3B82F6 20%, #15803D 40%, #C8922A 60%, #B91C1C 80%, #2563EB 100%);
+      --gradient-card: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.1) 25%, rgba(21, 128, 61, 0.1) 50%, rgba(200, 146, 42, 0.1) 75%, rgba(185, 28, 28, 0.1) 100%);
+      --gradient-text: linear-gradient(135deg, #2563EB 0%, #3B82F6 33%, #15803D 66%, #C8922A 100%);
 
       /* Typography */
       --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -122,11 +148,38 @@
 
     /* Header */
     .header {
-      background: var(--color-white);
-      border-bottom: var(--border-default);
+      background: transparent;
+      border-bottom: none;
       position: sticky;
       top: 0;
       z-index: 100;
+      transition: background 0.3s ease;
+    }
+
+    .header.scrolled {
+      background: var(--color-white);
+      border-bottom: var(--border-default);
+    }
+
+    .header.scrolled .nav-link {
+      color: var(--color-grey-700);
+    }
+
+    .header.scrolled .nav-link:hover {
+      color: var(--color-primary);
+    }
+
+    .header.scrolled .btn-ghost {
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .header.scrolled .btn-ghost:hover {
+      background: rgba(15, 23, 42, 0.02);
+    }
+
+    .header.scrolled .mobile-menu-toggle {
+      color: var(--color-grey-700);
     }
 
     .header-container {
@@ -136,7 +189,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 72px;
+      height: 52px;
     }
 
     /* Logo styles (RULE G-003) */
@@ -159,10 +212,10 @@
     .nav-link {
       font-size: var(--text-sm);
       font-weight: 600;
-      color: var(--color-grey-700);
+      color: white;
       text-decoration: none;
     }
-    .nav-link:hover { color: var(--color-primary); text-decoration: none; }
+    .nav-link:hover { color: rgba(255, 255, 255, 0.8); text-decoration: none; }
 
     .header-actions {
       display: flex;
@@ -177,6 +230,18 @@
       border-radius: var(--radius-full);
       padding: 4px;
       border: 1px solid var(--color-grey-300);
+    }
+
+    .main-bar {
+      max-width: 1280px !important;
+      border-radius: 0 0 16px 16px;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(37, 99, 235, 0.14), rgba(255,255,255,0) 60%),
+        radial-gradient(900px 450px at 90% 0%, rgba(2, 132, 199, 0.12), rgba(255,255,255,0) 55%),
+        rgba(255, 255, 255, 0.8) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(37, 99, 235, 0.2);
     }
 
     .lang-btn {
@@ -222,8 +287,8 @@
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: var(--color-primary); color: white; }
     .btn-primary:hover { background: var(--color-primary-dark); text-decoration: none; }
-    .btn-ghost { background: transparent; color: var(--color-grey-700); border: 1px solid var(--color-grey-300); }
-    .btn-ghost:hover { background: rgba(15, 23, 42, 0.02); text-decoration: none; }
+    .btn-ghost { background: transparent; color: white; border: 1px solid rgba(255, 255, 255, 0.5); }
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); text-decoration: none; }
 
     /* Mobile menu */
     .mobile-menu-toggle {
@@ -232,6 +297,7 @@
       border: none;
       cursor: pointer;
       padding: var(--space-2);
+      color: white;
     }
 
     .mobile-menu-icon {
@@ -240,57 +306,110 @@
       display: block;
     }
 
-    /* Hero Section */
+    /* Hero Section - Clean Modern Design */
     .hero {
-      background: 
-        linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
-        url('https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat,
-        linear-gradient(135deg, var(--color-primary-light) 0%, rgba(255,255,255,0.8) 50%, var(--color-white) 100%);
-      padding: var(--space-20) var(--space-6);
-      text-align: center;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #1e40af 100%);
+      padding: var(--space-24) var(--space-6);
       position: relative;
-      min-height: 500px;
+      min-height: 600px;
       display: flex;
       align-items: center;
+      overflow: hidden;
     }
 
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(15, 23, 42, 0.9) 100%);
-      z-index: 1;
-    }
-
-    .hero-content {
+    .hero-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
       position: relative;
       z-index: 2;
     }
 
     .hero-content {
-      max-width: 680px;
+      text-align: center;
+      max-width: 800px;
       margin: 0 auto;
     }
 
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 20px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin-bottom: var(--space-6);
+    }
+
     .hero-title {
-      font-size: var(--text-5xl);
+      font-size: 36px;
       font-weight: 800;
-      line-height: 1.1;
+      line-height: 1.2;
       letter-spacing: -0.02em;
       margin: 0 0 var(--space-6) 0;
       color: white;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .hero-subtitle {
       font-size: var(--text-xl);
       color: rgba(255, 255, 255, 0.9);
       margin: 0 0 var(--space-10) 0;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      line-height: 1.6;
     }
+
+    /* Hero Search Container */
+    .hero-search-container {
+      max-width: 700px;
+      margin: 0 auto var(--space-8) auto;
+    }
+
+    .hero-search-bar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      background: white;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-search-input {
+      padding: var(--space-4) var(--space-5);
+      border: none;
+      font-size: var(--text-base);
+      outline: none;
+    }
+
+    .hero-search-input::placeholder {
+      color: var(--color-grey-400);
+    }
+
+    .hero-search-dropdown {
+      padding: var(--space-4) var(--space-5);
+      border: none;
+      border-left: 1px solid var(--color-grey-200);
+      font-size: var(--text-base);
+      outline: none;
+      background: white;
+      cursor: pointer;
+      min-width: 180px;
+    }
+
+    .hero-search-btn {
+      padding: var(--space-4) var(--space-8);
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      font-size: var(--text-base);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .hero-search-btn:hover {
+      background: var(--color-primary-dark);
+    }
+
 
     /* Search Bar */
     .search-container {
@@ -363,8 +482,405 @@
 
     .popular-label {
       font-size: var(--text-sm);
-      color: var(--color-grey-500);
+      color: #64748b;
       margin-bottom: var(--space-3);
+    }
+
+    /* Testimonials Section */
+    .testimonials-section {
+      background: white;
+      padding: var(--space-16) var(--space-6);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-8);
+      margin-top: var(--space-12);
+    }
+
+    .testimonial-card {
+      background: white;
+      border: var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .testimonial-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+
+    .testimonial-quote-icon {
+      font-size: 80px;
+      color: rgba(37, 99, 235, 0.1);
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      line-height: 1;
+    }
+
+    .testimonial-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: var(--space-4);
+    }
+
+    .testimonial-text {
+      font-size: var(--text-base);
+      color: var(--color-grey-700);
+      line-height: 1.6;
+      margin: 0 0 var(--space-6) 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .testimonial-author {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    .testimonial-role {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    /* Blog Section */
+    .blog-section {
+      background: #1e293b;
+      color: white;
+      padding: var(--space-16) var(--space-6);
+    }
+
+    .blog-section .section-title {
+      color: white;
+    }
+
+    .blog-section .section-label {
+      color: var(--color-primary);
+    }
+
+    .blog-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      margin-top: var(--space-12);
+    }
+
+    .blog-featured-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+    }
+
+    .blog-articles {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    .blog-article {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      transition: all 0.3s;
+    }
+
+    .blog-article:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(8px);
+    }
+
+    .blog-article-meta {
+      display: flex;
+      gap: var(--space-4);
+      margin-bottom: var(--space-3);
+      font-size: var(--text-sm);
+    }
+
+    .blog-article-date {
+      background: var(--color-primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+    }
+
+    .blog-article-author {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .blog-article-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: white;
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .blog-article-excerpt {
+      font-size: var(--text-sm);
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0 0 var(--space-3) 0;
+    }
+
+    .blog-article-link {
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .blog-article-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Profile CTA Section */
+    .profile-cta-section {
+      background: white;
+      padding: var(--space-16) var(--space-6);
+    }
+
+    .profile-cta-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .profile-cta-image {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius-xl);
+    }
+
+    .profile-cta-content {
+      padding: var(--space-8);
+    }
+
+    .profile-cta-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .profile-cta-title {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      color: var(--color-grey-900);
+      line-height: 1.2;
+      margin: 0 0 var(--space-6) 0;
+    }
+
+    .profile-cta-text {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      line-height: 1.6;
+      margin: 0 0 var(--space-8) 0;
+    }
+
+    .btn-upload {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    /* Monthly Events Section */
+    .events-section {
+      background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+      padding: var(--space-16) var(--space-6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .events-section::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(251, 146, 60, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .events-section .section-container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .events-section .section-title {
+      color: #1e293b;
+    }
+
+    .events-section .section-subtitle {
+      color: #475569;
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: var(--space-6);
+      margin-top: var(--space-8);
+    }
+
+    .event-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      text-decoration: none;
+    }
+
+    .event-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #ddd6fe 0%, #e0e7ff 100%);
+    }
+
+    .event-content {
+      padding: var(--space-6);
+    }
+
+    .event-date {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: #fef3c7;
+      color: #92400e;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin-bottom: var(--space-3);
+    }
+
+    .event-title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-3) 0;
+      line-height: 1.3;
+    }
+
+    .event-description {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0 0 var(--space-4) 0;
+      line-height: 1.6;
+    }
+
+    .event-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-grey-200);
+    }
+
+    .event-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+    }
+
+    .event-meta-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--color-primary);
+    }
+
+    /* Newsletter Section */
+    .newsletter-section {
+      background: #f1f5f9;
+      padding: var(--space-12) var(--space-6);
+    }
+
+    .newsletter-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-8);
+    }
+
+    .newsletter-text {
+      flex: 1;
+    }
+
+    .newsletter-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-grey-900);
+      margin: 0 0 var(--space-2) 0;
+    }
+
+    .newsletter-subtitle {
+      font-size: var(--text-base);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: var(--space-3);
+      flex: 1;
+      max-width: 500px;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: var(--space-3) var(--space-4);
+      border: var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+    }
+
+    .newsletter-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .section-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-3);
+      display: block;
     }
 
     .search-tags {
@@ -375,113 +891,62 @@
     }
 
     .search-tag {
-      background: var(--color-white);
-      border: 1px solid var(--color-grey-300);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(167, 139, 250, 0.4);
       border-radius: var(--radius-full);
       padding: var(--space-2) var(--space-4);
       font-size: var(--text-sm);
-      color: var(--color-grey-700);
+      color: #6366f1;
       text-decoration: none;
-      transition: all 0.2s;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
     }
 
     .search-tag:hover {
-      border-color: var(--color-primary);
-      color: var(--color-primary);
+      background: #a78bfa;
+      border-color: #7c3aed;
+      color: white;
       text-decoration: none;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+      transform: translateY(-2px);
     }
 
-    /* Advertisement Banners */
-    .ad-banner {
-      max-width: 1280px;
-      margin: var(--space-12) auto;
-      padding: 0 var(--space-6);
-    }
 
-    .ad-slot-a {
-      height: 90px;
-      background: 
-        linear-gradient(rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05)),
-        url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-      border: 2px solid var(--color-primary-light);
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-primary-dark);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .ad-slot-a::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.9);
-      z-index: 1;
-    }
-
-    .ad-slot-a > * {
-      position: relative;
-      z-index: 2;
-    }
-
-    .ad-slot-b {
-      height: 250px;
-      background: 
-        linear-gradient(rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05)),
-        url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-      border: 2px solid var(--color-primary-light);
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-primary-dark);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      margin: var(--space-12) 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .ad-slot-b::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.9);
-      z-index: 1;
-    }
-
-    .ad-slot-b > * {
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Featured Jobs Section */
+    /* Featured Jobs Section - Light Nebula */
     .featured-jobs-section {
-      background: 
-        linear-gradient(rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.98)),
-        url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      background: linear-gradient(180deg, #fef3c7 0%, #fce7f3 100%);
       position: relative;
+      overflow: hidden;
     }
 
+    /* Pastel Nebula Cloud */
     .featured-jobs-section::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(37, 99, 235, 0.02);
-      z-index: 1;
+      top: -100px;
+      left: -150px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(196, 181, 253, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: 0;
+    }
+
+    /* Small Planet */
+    .featured-jobs-section::after {
+      content: '';
+      position: absolute;
+      bottom: 10%;
+      right: 5%;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle at 40% 40%, #fbbf24, #f59e0b);
+      border-radius: 50%;
+      box-shadow: 
+        inset -10px -10px 30px rgba(0, 0, 0, 0.15),
+        0 0 40px rgba(251, 191, 36, 0.3);
+      z-index: 0;
     }
 
     .featured-jobs-section .section-container {
@@ -489,8 +954,16 @@
       z-index: 2;
     }
 
+    .featured-jobs-section .section-title {
+      color: #1e293b;
+    }
+
+    .featured-jobs-section .section-subtitle {
+      color: #475569;
+    }
+
     .section {
-      padding: var(--space-20) var(--space-6);
+      padding: var(--space-16) var(--space-6);
     }
 
     .section-container {
@@ -639,28 +1112,60 @@
       text-decoration: none;
     }
 
-    /* Stats Section */
+    /* Stats Section - Light Cosmic */
     .stats-section {
-      background: 
-        linear-gradient(rgba(239, 246, 255, 0.95), rgba(239, 246, 255, 0.95)),
-        url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      background: linear-gradient(135deg, #ddd6fe 0%, #e0e7ff 100%);
+      padding: var(--space-16) var(--space-6);
       position: relative;
+      overflow: hidden;
     }
 
+    /* Glowing Star */
     .stats-section::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(37, 99, 235, 0.05);
-      z-index: 1;
+      top: 20%;
+      left: 15%;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, #fbbf24 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(40px);
+      animation: star-pulse 4s ease-in-out infinite;
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    @keyframes star-pulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+    }
+
+    /* Asteroid */
+    .stats-section::after {
+      content: '';
+      position: absolute;
+      bottom: 10%;
+      right: 10%;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle at 30% 30%, #94a3b8, #64748b);
+      border-radius: 50%;
+      box-shadow: inset -5px -5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 0;
     }
 
     .stats-section .section-container {
       position: relative;
       z-index: 2;
+    }
+
+    .stats-section .section-title {
+      color: #1e293b;
+    }
+
+    .stats-section .section-subtitle {
+      color: #475569;
     }
 
     .stats-grid {
@@ -677,34 +1182,67 @@
     .stat-number {
       font-size: var(--text-4xl);
       font-weight: 800;
-      color: var(--color-primary);
+      background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 0 0 var(--space-2) 0;
     }
 
     .stat-label {
       font-size: var(--text-lg);
-      color: var(--color-grey-600);
+      color: #475569;
       margin: 0;
     }
 
-    /* For Employers Section */
+    /* For Employers Section - Light Galaxy */
     .employers-section {
-      background: 
-        linear-gradient(rgba(15, 32, 68, 0.95), rgba(15, 32, 68, 0.95)),
-        url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-      color: white;
+      background: linear-gradient(135deg, #bfdbfe 0%, #ddd6fe 50%, #fbcfe8 100%);
+      padding: var(--space-16) var(--space-6);
+      color: #1e293b;
       position: relative;
+      overflow: hidden;
     }
 
+    /* Pastel Galaxy Spiral */
     .employers-section::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(15, 32, 68, 0.8) 100%);
-      z-index: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      width: 800px;
+      height: 800px;
+      background: 
+        radial-gradient(ellipse at 30% 30%, rgba(196, 181, 253, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(147, 197, 253, 0.3) 0%, transparent 50%);
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: galaxy-rotate 60s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes galaxy-rotate {
+      from { transform: translate(-50%, -50%) rotate(45deg); }
+      to { transform: translate(-50%, -50%) rotate(405deg); }
+    }
+
+    /* Ringed Planet */
+    .employers-section::after {
+      content: '';
+      position: absolute;
+      top: 15%;
+      left: 10%;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle at 35% 35%, #22d3ee, #06b6d4);
+      border-radius: 50%;
+      box-shadow: 
+        inset -8px -8px 20px rgba(0, 0, 0, 0.15),
+        0 0 30px rgba(34, 211, 238, 0.3),
+        0 15px 0 -5px rgba(34, 211, 238, 0.15),
+        0 15px 0 -3px rgba(34, 211, 238, 0.2);
+      z-index: 0;
     }
 
     .employers-section .section-container {
@@ -713,11 +1251,11 @@
     }
 
     .employers-section .section-title {
-      color: white;
+      color: #1e293b;
     }
 
     .employers-section .section-subtitle {
-      color: rgba(255, 255, 255, 0.8);
+      color: #475569;
     }
 
     .benefits-grid {
@@ -758,28 +1296,54 @@
       margin: 0;
     }
 
-    /* Top Companies */
+    /* Top Companies - Light Star Cluster */
     .companies-section {
-      background: 
-        linear-gradient(rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0.95)),
-        url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      background: linear-gradient(180deg, #fef3c7 0%, #fce7f3 100%);
       position: relative;
+      overflow: hidden;
     }
 
+    /* Pink Nebula Glow */
     .companies-section::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(37, 99, 235, 0.03);
-      z-index: 1;
+      top: -100px;
+      right: 10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(251, 207, 232, 0.5) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: 0;
+    }
+
+    /* Moon */
+    .companies-section::after {
+      content: '';
+      position: absolute;
+      bottom: 20%;
+      left: 8%;
+      width: 90px;
+      height: 90px;
+      background: radial-gradient(circle at 40% 40%, #f1f5f9, #cbd5e1);
+      border-radius: 50%;
+      box-shadow: 
+        inset -5px -5px 15px rgba(0, 0, 0, 0.15),
+        0 0 20px rgba(203, 213, 225, 0.3);
+      z-index: 0;
     }
 
     .companies-section .section-container {
       position: relative;
       z-index: 2;
+    }
+
+    .companies-section .section-title {
+      color: #1e293b;
+    }
+
+    .companies-section .section-subtitle {
+      color: #475569;
     }
 
     .companies-grid {
@@ -829,9 +1393,26 @@
 
     /* Footer */
     .footer {
-      background: var(--color-grey-900);
+      background: var(--gradient-section);
       color: white;
       padding: var(--space-16) var(--space-6) var(--space-8);
+      position: relative;
+    }
+    
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+      z-index: 1;
+    }
+    
+    .footer > * {
+      position: relative;
+      z-index: 2;
     }
 
     .footer-container {
@@ -912,24 +1493,56 @@
       .nav-links { display: none; }
       .mobile-menu-toggle { display: block; }
       
-      .hero-title { font-size: var(--text-3xl); }
-      .hero-subtitle { font-size: var(--text-lg); }
-      .hero { min-height: 400px; }
-      
-      .search-bar {
-        grid-template-columns: 1fr;
-        gap: var(--space-2);
+      .hero {
+        padding: var(--space-16) var(--space-4);
+        min-height: 500px;
       }
-      
-      .search-dropdown {
+
+      .hero-title { 
+        font-size: var(--text-3xl); 
+      }
+
+      .hero-subtitle { 
+        font-size: var(--text-base); 
+      }
+
+      .hero-search-bar {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .hero-search-dropdown {
         border-left: none;
-        border-top: 1px solid var(--color-grey-300);
+        border-top: 1px solid var(--color-grey-200);
+      }
+
+      .hero-search-btn {
+        padding: var(--space-3) var(--space-6);
       }
       
       .jobs-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr; }
       .benefits-grid { grid-template-columns: 1fr; }
       .companies-grid { grid-template-columns: repeat(2, 1fr); }
+      .events-grid { grid-template-columns: 1fr; }
+
+      .testimonials-grid { grid-template-columns: 1fr; }
+
+      .blog-container {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-cta-container {
+        grid-template-columns: 1fr;
+      }
+
+      .newsletter-container {
+        flex-direction: column;
+      }
+
+      .newsletter-form {
+        max-width: 100%;
+      }
       
       .footer-bottom {
         flex-direction: column;
@@ -939,109 +1552,874 @@
 
     /* Responsive: Tablet */
     @media (min-width: 768px) and (max-width: 1023px) {
+      .hero {
+        padding: var(--space-20) var(--space-6);
+      }
+
+      .hero-title { 
+        font-size: 48px;
+      }
+
+      .hero-search-bar {
+        grid-template-columns: 1fr auto;
+      }
+
       .jobs-grid { grid-template-columns: repeat(2, 1fr); }
       .companies-grid { grid-template-columns: repeat(3, 1fr); }
+      .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .blog-container {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-cta-container {
+        grid-template-columns: 1fr;
+      }
+
+      .newsletter-container {
+        flex-direction: column;
+      }
     }
 
     /* Responsive: Desktop */
     @media (min-width: 1024px) {
-      .hero { padding: var(--space-24) var(--space-6); }
-      .section { padding: var(--space-24) var(--space-6); }
+      .hero { padding: var(--space-20) var(--space-6); }
+      .section { padding: var(--space-20) var(--space-6); }
     }
 
+    /* Reduce motion for accessibility */
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
       .btn:active { transform: none; }
       .job-card:hover { transform: none; }
     }
+
+    /* Bootstrap Enhancements */
+    .hover-shadow {
+      transition: all 0.3s ease;
+    }
+    
+    .hover-shadow:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .card {
+      transition: all 0.3s ease;
+    }
+
+    .navbar {
+      transition: all 0.3s ease;
+    }
+
+    .lang-toggle .lang-btn:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .lang-toggle .lang-btn.active {
+      background: white !important;
+      color: var(--color-primary) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .lang-toggle .lang-btn:not(.active) {
+      background: transparent !important;
+      color: #64748b !important;
+    }
+
+    .lang-toggle .lang-btn:not(.active):hover {
+      background: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* === Jobzilla Overrides for LamViec360 === */
+
+    /* Make sure selectpicker works as native select */
+    .twm-bnr-search-bar .wt-search-bar-select.selectpicker {
+      -webkit-appearance: auto;
+      -moz-appearance: auto;
+      appearance: auto;
+    }
+
+    /* Ensure search bar button text is visible (Jobzilla uses text-shadow trick) */
+    .twm-bnr-search-bar .site-button {
+      color: #fff !important;
+      text-shadow: none !important;
+    }
+    .twm-bnr-search-bar .site-button:hover {
+      color: #fff !important;
+      text-shadow: none !important;
+      background-color: #17171d;
+    }
+
+    /* === Fix Hero Section Image and Stat Blocks Overlap === */
+    .twm-home1-banner-section {
+      padding-top: 80px; /* Move hero section down slightly */
+      min-height: 100vh; /* Full viewport height */
+      box-sizing: border-box;
+      width: 100%;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(37, 99, 235, 0.14), rgba(255,255,255,0) 60%),
+        radial-gradient(900px 450px at 90% 0%, rgba(2, 132, 199, 0.12), rgba(255,255,255,0) 55%),
+        var(--color-grey-100);
+    }
+    
+    /* Ensure hero content fills the height properly */
+    .twm-home1-banner-section > .row {
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 24px;
+      padding-right: 24px;
+      min-height: calc(100vh - 80px);
+      align-items: center;
+      display: flex;
+    }
+    
+    /* Fix left section alignment only */
+    .twm-home1-banner-section .twm-bnr-left-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    /* Keep right section as is to preserve animations */
+    .twm-home1-banner-section .twm-bnr-right-section {
+      position: relative;
+    }
+    
+    .twm-home1-banner-section .twm-bnr-right-content {
+      max-width: 900px;
+      position: relative;
+      margin: 0 auto;
+      padding: 60px 20px;
+      min-height: 600px;
+    }
+
+    /* Position carousel image properly */
+    .twm-home1-banner-section .twm-bnr-right-carousel {
+      position: relative;
+      z-index: 4;
+      text-align: center;
+      margin-bottom: 40px;
+      
+    }
+
+    .twm-home1-banner-section .twm-h1-bnr-carousal .slide-img img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    /* Restore original absolute positioning for stat blocks */
+    .twm-home1-banner-section .twm-bnr-blocks-position-wrap {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 2;
+    }
+
+    .twm-home1-banner-section .twm-bnr-blocks-position-1 {
+      position: absolute;
+      z-index: 4;
+      top: 200px;
+      left: 45px;
+      display: block !important;
+    }
+
+    .twm-home1-banner-section .twm-bnr-blocks-position-2 {
+      position: absolute;
+      z-index: 4;
+      top: 90px;
+      right: 0px;
+      display: block !important;
+    }
+
+    .twm-home1-banner-section .twm-bnr-blocks-position-3 {
+      position: absolute;
+      z-index: 4;
+      bottom: 50px;
+      right: 20px;
+      display: block !important;
+    }
+
+    .twm-home1-banner-section .twm-bnr-blocks,
+    .twm-home1-banner-section .twm-bnr-blocks-3 {
+      background-color: #fff;
+      box-shadow: 0px 0px 40px rgba(56, 152, 226, 0.3);
+      border-radius: 10px;
+     
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* Adjust animated circles for better spacing */
+    .twm-home1-banner-section .twm-img-bg-circle-area {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      
+      left: -160px;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    /* Position Vietnamese flag on circles - middle relative to circles */
+    /* .vietnamese-flag-position {
+      position: absolute;
+      left: 55%;
+      top: 70%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      width: 500px;
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    } */
+
+    /* Responsive adjustments */
+    @media (min-width: 1401px) and (max-width: 1920px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: -140px;
+      }
+      .vietnamese-flag-position {
+           position: absolute;
+        left: 60%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 500px;
+        height: 500px;
+        
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @media (min-width: 1201px) and (max-width: 1400px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: -120px;
+      }
+      .vietnamese-flag-position {
+         position: absolute;
+        left: 35%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 500px;
+        height: 500px;
+       
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @media (min-width: 993px) and (max-width: 1200px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: -100px;
+      }
+      .vietnamese-flag-position {
+
+           position: absolute;
+        left: 40%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 400px;
+        height: 400px;
+       
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 992px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: 80px;
+      }
+      .vietnamese-flag-position {
+         position: absolute;
+        left: 58%;
+        top: 30%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 400px;
+        height: 400px;
+       
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: -90px;
+      }
+      .vietnamese-flag-position {
+          position: absolute;
+        left: 58%;
+        top: 30%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 400px;
+        height: 400px;
+       
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    /* Extra large screens above 1800px */
+    @media (min-width: 1801px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: -160px;
+      }
+      .vietnamese-flag-position {
+          position: absolute;
+        left: 55%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 500px;
+        height: 500px;
+       
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    /* Ensure owl carousel shows only one item at a time */
+    .vietnamese-flag-carousel {
+      overflow: hidden;
+    }
+    .vietnamese-flag-carousel .owl-stage {
+      display: flex;
+    }
+    .vietnamese-flag-carousel .owl-item {
+      min-width: 100%;
+      flex-shrink: 0;
+    }
+    
+   
+
+    /* Ensure sticky header stays on top */
+    .sticky-header {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000 !important;
+      transition: all 0.3s ease;
+    }
+    
+    .sticky-header.stuck {
+     
+    }
+    
+    /* Header color fill effect */
+    .sticky-header .main-bar.color-fill {
+      background-color: #fff !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Protect rest-of-page sections from Jobzilla global resets */
+    .section, .featured-jobs-section, .stats-section, 
+    .employers-section, .companies-section, footer {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
   </style>
 </head>
 <body>
+  
   <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to main content</a>
 
   <!-- Header -->
-  <header class="header">
-    <div class="header-container">
-      <!-- Logo (RULE G-003) -->
-      <a href="p01-homepage.html" class="logo-link" aria-label="LàmViệc360 homepage">
-        <img src="../assets/images/logo.png" alt="LàmViệc360" class="logo-img">
-      </a>
+  <header class="site-header header-style-3 mobile-sider-drawer-menu">
+    <div class="sticky-header main-bar-wraper navbar-expand-lg">
+      <div class="main-bar">
+        <div class="container clearfix">
+          
+          <div class="logo-header">
+            <div class="logo-header-inner logo-header-one">
+              <a href="p01-homepage.html">
+                <img src="../../assets/images/logo.png" alt="LàmViệc360" height="40">
+              </a>
+            </div>
+          </div>
+          
+          <!-- NAV Toggle Button -->
+          <button id="mobile-side-drawer" data-target=".header-nav" data-toggle="collapse" type="button" class="navbar-toggler collapsed">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar icon-bar-first"></span>
+            <span class="icon-bar icon-bar-two"></span>
+            <span class="icon-bar icon-bar-three"></span>
+          </button>
 
-      <!-- Navigation -->
-      <nav class="nav-links" role="navigation" aria-label="Main navigation">
-        <a href="p02-job-search.html" class="nav-link" data-i18n="navFindJobs">Find Jobs</a>
-        <a href="#employers" class="nav-link" data-i18n="navForEmployers">For Employers</a>
-        <a href="p02-job-search.html" class="nav-link" data-i18n="navBrowseCompanies">Browse Companies</a>
-      </nav>
-
-      <!-- Header Actions -->
-      <div class="header-actions">
-        <!-- Language Toggle (RULE G-002) -->
-        <div class="lang-toggle" role="group" aria-label="Language selector">
-          <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
-          <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
+          <!-- MAIN Nav -->
+          <div class="nav-animation header-nav navbar-collapse collapse d-flex justify-content-center">
+            <ul class="nav navbar-nav">
+              <li><a href="p02-job-search.html" data-i18n="navFindJobs">Find Jobs</a></li>
+              <li><a href="#employers" data-i18n="navForEmployers">For Employers</a></li>
+              <li><a href="p02-job-search.html" data-i18n="navBrowseCompanies">Browse Companies</a></li>
+            </ul>
+          </div>
+          
+          <!-- Header Right Section-->
+          <div class="extra-nav header-2-nav">
+            <div class="extra-cell">
+              <div class="header-nav-btn-section">
+                <!-- Language Toggle -->
+                <div class="lang-toggle" role="group" aria-label="Language selector" style="display: inline-flex; gap: 0; background: #f1f5f9; border-radius: 8px; padding: 4px; margin-right: 15px;">
+                  <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt" style="padding: 6px 16px; background: white; border: none; border-radius: 6px; color: #2563eb; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">VI</button>
+                  <button class="lang-btn" data-lang="en" aria-label="English" style="padding: 6px 16px; background: transparent; border: none; border-radius: 6px; color: #64748b; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;">EN</button>
+                </div>
+                
+                <div class="twm-nav-btn-left">
+                  <a class="twm-nav-sign-up" href="../auth/a01-login.html" data-i18n="navSignIn">
+                    <i class="feather-log-in"></i> Sign In
+                  </a>
+                </div>
+                <div class="twm-nav-btn-right">
+                  <a href="../auth/a02-register-role.html" class="twm-nav-post-a-job" data-i18n="navSignUp">
+                    <i class="feather-briefcase"></i> Sign Up
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
         </div>
-
-        <a href="../auth/a01-login.html" class="btn btn-ghost" data-i18n="navSignIn">Sign In</a>
-        <a href="../auth/a02-register-role.html" class="btn btn-primary" data-i18n="navSignUp">Sign Up</a>
-
-        <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle" aria-label="Toggle mobile menu">
-          <svg class="mobile-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
   <main id="main-content">
-    <!-- Hero Section -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-content">
-        <h1 class="hero-title" id="hero-title" data-i18n="heroTitle">Tìm việc làm phù hợp với bạn</h1>
-        <p class="hero-subtitle" data-i18n="heroSubtitle">Hàng ngàn cơ hội việc làm tại Việt Nam</p>
+    <!-- Hero Section / Banner -->
+    <section class="section twm-home1-banner-section site-bg-gray">
+      <div class="row">
+        
+        <!--Left Section-->
+        <div class="col-xl-6 col-lg-6 col-md-12">
+          <div class="twm-bnr-left-section">
+            <div class="twm-bnr-title-small" data-i18n="jobCount">We Have <span class="site-text-primary">208,000+</span> Live Jobs</div>
+            <div class="twm-bnr-title-large" id="hero-title" data-i18n="heroTitle">Find the <span class="site-text-primary">job</span> that fits your life</div>
+            <div class="twm-bnr-discription" data-i18n="heroSubtitle">Type your keyword, then click search to find your perfect job.</div>
 
-        <!-- Search Bar -->
-        <div class="search-container">
-          <form class="search-bar" role="search" aria-label="Job search">
-            <input type="text" class="search-input" 
-                   data-i18n-placeholder="searchPlaceholder"
-                   placeholder="🔍 Job title, keyword, company..."
-                   aria-label="Search jobs">
-            <select class="search-dropdown" aria-label="Select location">
-              <option value="" data-i18n="allProvinces">All Provinces</option>
-              <option value="hanoi" data-i18n="hanoi">Hà Nội</option>
-              <option value="hcmc" data-i18n="hcmc">TP. Hồ Chí Minh</option>
-              <option value="danang" data-i18n="danang">Đà Nẵng</option>
-              <option value="haiphong" data-i18n="haiphong">Hải Phòng</option>
-              <option value="cantho" data-i18n="cantho">Cần Thơ</option>
-              <option value="binhduong" data-i18n="binhduong">Bình Dương</option>
-              <option value="dongnai" data-i18n="dongnai">Đồng Nai</option>
-            </select>
-            <button type="submit" class="search-btn" data-i18n="searchButton">Search</button>
-          </form>
-        </div>
+            <div class="twm-bnr-search-bar">
+              <form>
+                <div class="row">
+                  <!--Title-->
+                  <div class="form-group col-xl-3 col-lg-6 col-md-6">
+                    <label>What</label>
+                    <select class="wt-search-bar-select selectpicker" data-live-search="true" title="" id="j-Job_Title" data-bv-field="size">
+                      <option disabled selected value="">Select Category</option>
+                      <option selected>All Jobs</option>
+                      <optgroup label="Technology & IT">
+                        <option>Software Developer</option>
+                        <option>Web Designer</option>
+                        <option>UI/UX Designer</option>
+                        <option>Data Analyst</option>
+                        <option>Network Administrator</option>
+                        <option>Cybersecurity Specialist</option>
+                        <option>DevOps Engineer</option>
+                        <option>Mobile App Developer</option>
+                        <option>Database Administrator</option>
+                        <option>IT Support</option>
+                      </optgroup>
+                      <optgroup label="Business & Finance">
+                        <option>Accountant</option>
+                        <option>Financial Analyst</option>
+                        <option>Business Analyst</option>
+                        <option>Marketing Manager</option>
+                        <option>Sales Representative</option>
+                        <option>HR Manager</option>
+                        <option>Project Manager</option>
+                        <option>Business Development</option>
+                        <option>Customer Service</option>
+                        <option>Administrative Assistant</option>
+                      </optgroup>
+                      <optgroup label="Blue Collar & Skilled Trades">
+                        <option>Construction Worker</option>
+                        <option>Electrician</option>
+                        <option>Plumber</option>
+                        <option>Carpenter</option>
+                        <option>Mechanic</option>
+                        <option>Welder</option>
+                        <option>Painter</option>
+                        <option>Roofer</option>
+                        <option>HVAC Technician</option>
+                        <option>Heavy Equipment Operator</option>
+                        <option>Truck Driver</option>
+                        <option>Warehouse Worker</option>
+                        <option>Factory Worker</option>
+                        <option>Packer</option>
+                        <option>Quality Control Inspector</option>
+                        <option>Machine Operator</option>
+                        <option>Assembler</option>
+                        <option>Maintenance Technician</option>
+                        <option>Janitor/Cleaner</option>
+                        <option>Security Guard</option>
+                      </optgroup>
+                      <optgroup label="Healthcare & Medical">
+                        <option>Doctor</option>
+                        <option>Nurse</option>
+                        <option>Medical Assistant</option>
+                        <option>Pharmacist</option>
+                        <option>Lab Technician</option>
+                        <option>Physical Therapist</option>
+                        <option>Dental Assistant</option>
+                        <option>Medical Secretary</option>
+                        <option>Home Health Aide</option>
+                        <option>Paramedic</option>
+                      </optgroup>
+                      <optgroup label="Education & Training">
+                        <option>Teacher</option>
+                        <option>Professor</option>
+                        <option>Tutor</option>
+                        <option>Training Instructor</option>
+                        <option>Librarian</option>
+                        <option>Teaching Assistant</option>
+                        <option>Education Administrator</option>
+                        <option>Coach</option>
+                      </optgroup>
+                      <optgroup label="Hospitality & Service">
+                        <option>Waiter/Waitress</option>
+                        <option>Cook/Chef</option>
+                        <option>Hotel Receptionist</option>
+                        <option>Housekeeping Staff</option>
+                        <option>Barista</option>
+                        <option>Bartender</option>
+                        <option>Host/Hostess</option>
+                        <option>Food Server</option>
+                        <option>Event Staff</option>
+                        <option>Tour Guide</option>
+                      </optgroup>
+                      <optgroup label="Retail & Sales">
+                        <option>Sales Associate</option>
+                        <option>Cashier</option>
+                        <option>Store Manager</option>
+                        <option>Merchandiser</option>
+                        <option>Inventory Clerk</option>
+                        <option>Customer Service Rep</option>
+                        <option>Retail Sales</option>
+                        <option>Product Demonstrator</option>
+                      </optgroup>
+                      <optgroup label="Transportation & Logistics">
+                        <option>Delivery Driver</option>
+                        <option>Bus Driver</option>
+                        <option>Taxi Driver</option>
+                        <option>Logistics Coordinator</option>
+                        <option>Supply Chain Analyst</option>
+                        <option>Shipping/Receiving Clerk</option>
+                        <option>Dispatcher</option>
+                        <option>Forklift Operator</option>
+                      </optgroup>
+                      <optgroup label="Creative & Design">
+                        <option>Graphic Designer</option>
+                        <option>Photographer</option>
+                        <option>Video Editor</option>
+                        <option>Content Writer</option>
+                        <option>Social Media Manager</option>
+                        <option>Copywriter</option>
+                        <option>Illustrator</option>
+                        <option>Fashion Designer</option>
+                        <option>Interior Designer</option>
+                      </optgroup>
+                      <optgroup label="Engineering & Technical">
+                        <option>Civil Engineer</option>
+                        <option>Mechanical Engineer</option>
+                        <option>Electrical Engineer</option>
+                        <option>Chemical Engineer</option>
+                        <option>Industrial Engineer</option>
+                        <option>Quality Engineer</option>
+                        <option>Technical Writer</option>
+                        <option>Surveyor</option>
+                        <option>Draftsman</option>
+                      </optgroup>
+                      <optgroup label="Legal & Professional">
+                        <option>Lawyer</option>
+                        <option>Legal Assistant</option>
+                        <option>Paralegal</option>
+                        <option>Notary</option>
+                        <option>Compliance Officer</option>
+                        <option>Auditor</option>
+                        <option>Consultant</option>
+                      </optgroup>
+                      <optgroup label="Agriculture & Environment">
+                        <option>Farm Worker</option>
+                        <option>Agricultural Technician</option>
+                        <option>Landscaper</option>
+                        <option>Environmental Specialist</option>
+                        <option>Forestry Worker</option>
+                        <option>Horticulturist</option>
+                        <option>Pest Control</option>
+                      </optgroup>
+                      <optgroup label="Other Services">
+                        <option>Beautician/Hair Stylist</option>
+                        <option>Massage Therapist</option>
+                        <option>Personal Trainer</option>
+                        <option>Childcare Provider</option>
+                        <option>Elderly Care</option>
+                        <option>Pet Groomer</option>
+                        <option>Real Estate Agent</option>
+                        <option>Insurance Agent</option>
+                        <option>Call Center Agent</option>
+                        <option>Data Entry Clerk</option>
+                      </optgroup>
+                    </select>
+                  </div>
 
-        <!-- Popular Searches -->
-        <div class="popular-searches">
-          <div class="popular-label" data-i18n="popularLabel">Popular:</div>
-          <div class="search-tags">
-            <a href="#" class="search-tag" data-i18n="tagSoftware">Software Engineer</a>
-            <a href="#" class="search-tag" data-i18n="tagMarketing">Marketing</a>
-            <a href="#" class="search-tag" data-i18n="tagAccounting">Kế toán</a>
-            <a href="#" class="search-tag" data-i18n="tagDesign">Thiết kế</a>
-            <a href="#" class="search-tag" data-i18n="tagRemote">Remote</a>
+                  <!--All Category-->
+                  <div class="form-group col-xl-3 col-lg-6 col-md-6">
+                    <label>Type</label>
+                    <select class="wt-search-bar-select selectpicker" data-live-search="true" title="" id="j-All_Category" data-bv-field="size">
+                      <option disabled selected value="">Select Category</option>
+                      <option selected>All Categories</option>
+                      <optgroup label="Industry Sectors">
+                        <option>Technology/IT</option>
+                        <option>Manufacturing</option>
+                        <option>Construction</option>
+                        <option>Healthcare</option>
+                        <option>Education</option>
+                        <option>Retail</option>
+                        <option>Hospitality</option>
+                        <option>Transportation</option>
+                        <option>Banking/Finance</option>
+                        <option>Insurance</option>
+                        <option>Real Estate</option>
+                        <option>Government</option>
+                        <option>Non-profit</option>
+                        <option>Agriculture</option>
+                        <option>Energy/Utilities</option>
+                        <option>Telecommunications</option>
+                        <option>Media/Entertainment</option>
+                        <option>Consulting</option>
+                        <option>Legal</option>
+                        <option>Logistics</option>
+                      </optgroup>
+                      <optgroup label="Employment Type">
+                        <option>Full-time</option>
+                        <option>Part-time</option>
+                        <option>Contract</option>
+                        <option>Temporary</option>
+                        <option>Seasonal</option>
+                        <option>Internship</option>
+                        <option>Freelance</option>
+                        <option>Remote</option>
+                        <option>Hybrid</option>
+                      </optgroup>
+                      <optgroup label="Skill Level">
+                        <option>Entry Level</option>
+                        <option>Mid Level</option>
+                        <option>Senior Level</option>
+                        <option>Manager</option>
+                        <option>Executive</option>
+                        <option>Skilled Labor</option>
+                        <option>Unskilled Labor</option>
+                        <option>Professional</option>
+                        <option>Technical</option>
+                        <option>Administrative</option>
+                      </optgroup>
+                      <optgroup label="Work Environment">
+                        <option>Office</option>
+                        <option>Field Work</option>
+                        <option>Factory/Plant</option>
+                        <option>Construction Site</option>
+                        <option>Warehouse</option>
+                        <option>Retail Store</option>
+                        <option>Restaurant</option>
+                        <option>Hospital/Clinic</option>
+                        <option>School</option>
+                        <option>Home-based</option>
+                        <option>Outdoor</option>
+                        <option>Vehicle-based</option>
+                      </optgroup>
+                    </select>
+                  </div>
+
+                  <!--Location-->
+                  <div class="form-group col-xl-3 col-lg-6 col-md-6">
+                    <label>Location</label>
+                    <div class="twm-inputicon-box">
+                      <select class="wt-search-bar-select selectpicker" data-live-search="true" title="" id="j-Location" data-bv-field="size">
+                        <option disabled selected value="">Select Location</option>
+                        <option selected data-i18n="allProvinces">All Provinces</option>
+                        <option data-i18n="hanoi">Hà Nội</option>
+                        <option data-i18n="hcmc">TP. Hồ Chí Minh</option>
+                        <option data-i18n="danang">Đà Nẵng</option>
+                        <option data-i18n="haiphong">Hải Phòng</option>
+                        <option data-i18n="cantho">Cần Thơ</option>
+                        <option data-i18n="binhduong">Bình Dương</option>
+                        <option data-i18n="dongnai">Đồng Nai</option>
+                        <option>An Giang</option>
+                        <option>Bà Rịa - Vũng Tàu</option>
+                        <option>Bắc Giang</option>
+                        <option>Bắc Kạn</option>
+                        <option>Bạc Liêu</option>
+                        <option>Bắc Ninh</option>
+                        <option>Bến Tre</option>
+                        <option>Bình Định</option>
+                        <option>Bình Dương</option>
+                        <option>Bình Phước</option>
+                        <option>Bình Thuận</option>
+                        <option>Cà Mau</option>
+                        <option>Cao Bằng</option>
+                        <option>Đắk Lắk</option>
+                        <option>Đắk Nông</option>
+                        <option>Điện Biên</option>
+                        <option>Đồng Nai</option>
+                        <option>Đồng Tháp</option>
+                        <option>Gia Lai</option>
+                        <option>Hà Giang</option>
+                        <option>Hà Nam</option>
+                        <option>Hà Tĩnh</option>
+                        <option>Hải Dương</option>
+                        <option>Hậu Giang</option>
+                        <option>Hòa Bình</option>
+                        <option>Hưng Yên</option>
+                        <option>Kiên Giang</option>
+                        <option>Kon Tum</option>
+                        <option>Lai Châu</option>
+                        <option>Lâm Đồng</option>
+                        <option>Lạng Sơn</option>
+                        <option>Lào Cai</option>
+                        <option>Long An</option>
+                        <option>Nam Định</option>
+                        <option>Nghệ An</option>
+                        <option>Ninh Bình</option>
+                        <option>Ninh Thuận</option>
+                        <option>Phú Thọ</option>
+                        <option>Phú Yên</option>
+                        <option>Quảng Bình</option>
+                        <option>Quảng Nam</option>
+                        <option>Quảng Ngãi</option>
+                        <option>Quảng Ninh</option>
+                        <option>Quảng Trị</option>
+                        <option>Sóc Trăng</option>
+                        <option>Sơn La</option>
+                        <option>Tây Ninh</option>
+                        <option>Thái Bình</option>
+                        <option>Thái Nguyên</option>
+                        <option>Thanh Hóa</option>
+                        <option>Thừa Thiên Huế</option>
+                        <option>Tiền Giang</option>
+                        <option>Trà Vinh</option>
+                        <option>Tuyên Quang</option>
+                        <option>Vĩnh Long</option>
+                        <option>Vĩnh Phúc</option>
+                        <option>Yên Bái</option>
+                      </select>
+                      <i class="twm-input-icon fas fa-map-marker-alt"></i>
+                    </div>
+                  </div>
+
+                  <!--Find job btn-->
+                  <div class="form-group col-xl-3 col-lg-6 col-md-6">
+                    <button type="button" class="site-button" data-i18n="searchButton">Find Job</button>
+                  </div>
+
+                </div>
+              </form>
+            </div>
+
+            <div class="twm-bnr-popular-search">
+              <span class="twm-title" data-i18n="popularLabel">Popular Searches:</span>
+              <a href="job-list.html">Kế toán</a> ,
+              <a href="job-list.html">Nhân viên kinh doanh</a> ,
+              <a href="job-list.html">Lập trình viên</a> ,
+              <a href="job-list.html">Kỹ sư</a> ,
+              <a href="job-list.html">Thiết kế đồ họa</a> ,
+              <a href="job-list.html">Marketing</a> ,
+              <a href="job-list.html">Nhân viên văn phòng</a> ,
+              <a href="job-list.html">Công nhân sản xuất</a> ,
+              <a href="job-list.html">Tài xế</a> ,
+              <a href="job-list.html">Phục vụ</a> ...
+            </div>
           </div>
         </div>
+
+        <!--right Section-->
+        <div class="col-xl-6 col-lg-6 col-md-12 twm-bnr-right-section">
+          <div class="twm-bnr-right-content">
+
+            <div class="twm-img-bg-circle-area">
+              <div class="twm-img-bg-circle1 rotate-center"><span></span></div>
+              <div class="twm-img-bg-circle2 rotate-center-reverse"><span></span></div>
+              <div class="twm-img-bg-circle3"><span></span></div>
+            </div>
+
+            
+              <!-- Vietnamese Flag Carousel positioned on circles -->
+              <div class="vietnamese-flag-position">
+                 <img src="../../assets/images/vietnamese1.png" alt="Vietnamese Flag" class="vietnamese-flag-img">
+
+                
+              </div>
+              
+              <!-- <div class="twm-bnr-blocks-position-wrap"> -->
+                <!--icon-block-1-->
+                <!-- <div class="twm-bnr-blocks twm-bnr-blocks-position-1">
+                  <div class="twm-icon">
+                    <i class="fas fa-briefcase" style="font-size: 32px; color: #3b82f6;"></i>
+                  </div>
+                  <div class="twm-content">
+                    <div class="tw-count-number text-clr-sky">
+                      <span class="counter">12</span>K+
+                    </div>
+                    <p class="icon-content-info">Companies Jobs</p>
+                  </div>
+                </div> -->
+
+                <!--icon-block-2-->
+                <!-- <div class="twm-bnr-blocks twm-bnr-blocks-position-2">
+                  <div class="twm-icon">
+                    <i class="fas fa-globe" style="font-size: 32px; color: #ec4899;"></i>
+                  </div>
+                  <div class="twm-content">
+                    <div class="tw-count-number text-clr-pink">
+                      <span class="counter">98</span> +
+                    </div>
+                    <p class="icon-content-info">Job For Countries</p>
+                  </div>
+                </div> -->
+
+                <!--icon-block-3-->
+                <!-- <div class="twm-bnr-blocks-3 twm-bnr-blocks-position-3">
+                  <div class="twm-pics">
+                    <span style="width: 40px; height: 40px; border-radius: 50%; background: #3b82f6; display: inline-block; margin: 0 -5px;"></span>
+                    <span style="width: 40px; height: 40px; border-radius: 50%; background: #8b5cf6; display: inline-block; margin: 0 -5px;"></span>
+                    <span style="width: 40px; height: 40px; border-radius: 50%; background: #ec4899; display: inline-block; margin: 0 -5px;"></span>
+                    <span style="width: 40px; height: 40px; border-radius: 50%; background: #f59e0b; display: inline-block; margin: 0 -5px;"></span>
+                    <span style="width: 40px; height: 40px; border-radius: 50%; background: #10b981; display: inline-block; margin: 0 -5px;"></span>
+                    <span style="width: 40px; height: 40px; border-radius: 50%; background: #06b6d4; display: inline-block; margin: 0 -5px;"></span>
+                  </div>
+                  <div class="twm-content">
+                    <div class="tw-count-number text-clr-green">
+                      <span class="counter">3</span>K+
+                    </div>
+                    <p class="icon-content-info">Jobs Done</p>
+                  </div>
+                </div> -->
+              <!-- </div> -->
+
+           
+
+            <!--Small Ring Left-->
+            <div class="twm-small-ring-l slide-top-animation"></div>
+            <div class="twm-small-ring-2 slide-top-animation"></div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="twm-gradient-text">
+        Jobs
       </div>
     </section>
 
-    <!-- Advertisement Banner A -->
-    <div class="ad-banner">
-      <div class="ad-slot-a" data-i18n="adSlotA">[ AD SLOT A — 728×90 Banner ]</div>
-    </div>
 
     <!-- Featured Jobs Section -->
     <section class="section featured-jobs-section" aria-labelledby="featured-jobs-title">
@@ -1052,113 +2430,113 @@
         </div>
 
         <div class="jobs-grid">
-          <!-- Job Card 1 -->
-          <a href="p03-job-detail.html" class="job-card" aria-label="Senior Backend Engineer at TechCorp Vietnam JSC">
+          <!-- Job Card 1 - Construction Worker -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Công nhân xây dựng tại Xây Dựng Phú Mỹ">
             <div class="job-header">
-              <div class="company-logo">TCV</div>
+              <div class="company-logo">PMP</div>
               <div>
-                <h3 class="job-title">Senior Backend Engineer</h3>
+                <h3 class="job-title">Công nhân xây dựng</h3>
                 <p class="company-name">
-                  TechCorp Vietnam JSC
+                  Xây Dựng Phú Mỹ
                   <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
                 </p>
               </div>
             </div>
             <div class="job-meta">
+              <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
+              <span class="job-meta-item">💰 12.000.000 – 18.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 1 day ago</span>
+            </div>
+            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
+          </a>
+
+          <!-- Job Card 2 - Electrician -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Thợ điện tại Điện Lực Việt Nam">
+            <div class="job-header">
+              <div class="company-logo">ELV</div>
+              <div>
+                <h3 class="job-title">Thợ điện công nghiệp</h3>
+                <p class="company-name">Điện Lực Việt Nam</p>
+              </div>
+            </div>
+            <div class="job-meta">
               <span class="job-meta-item">📍 Hà Nội</span>
-              <span class="job-meta-item">💰 25.000.000 – 40.000.000 VND/tháng</span>
+              <span class="job-meta-item">💰 15.000.000 – 22.000.000 VND/tháng</span>
               <span class="job-meta-item">📅 2 days ago</span>
             </div>
             <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
           </a>
 
-          <!-- Job Card 2 -->
-          <a href="p03-job-detail.html" class="job-card" aria-label="UI/UX Designer at DataVN Ltd">
+          <!-- Job Card 3 - Mechanic -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Thợ sửa chữa xe máy tại Honda Việt Nam">
             <div class="job-header">
-              <div class="company-logo">DVN</div>
+              <div class="company-logo">HVN</div>
               <div>
-                <h3 class="job-title">UI/UX Designer</h3>
-                <p class="company-name">DataVN Ltd</p>
-              </div>
-            </div>
-            <div class="job-meta">
-              <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
-              <span class="job-meta-item">💰 Thương lượng</span>
-              <span class="job-meta-item">📅 3 days ago</span>
-            </div>
-            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
-          </a>
-
-          <!-- Job Card 3 -->
-          <a href="p03-job-detail.html" class="job-card" aria-label="Digital Marketing Manager at FinApp Vietnam">
-            <div class="job-header">
-              <div class="company-logo">FAV</div>
-              <div>
-                <h3 class="job-title">Digital Marketing Manager</h3>
+                <h3 class="job-title">Thợ sửa chữa xe máy</h3>
                 <p class="company-name">
-                  FinApp Vietnam
+                  Honda Việt Nam
                   <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
                 </p>
               </div>
             </div>
             <div class="job-meta">
               <span class="job-meta-item">📍 Đà Nẵng</span>
-              <span class="job-meta-item">💰 18.000.000 – 28.000.000 VND/tháng</span>
-              <span class="job-meta-item">📅 1 week ago</span>
+              <span class="job-meta-item">💰 10.000.000 – 16.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 3 days ago</span>
             </div>
             <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
           </a>
 
-          <!-- Job Card 4 -->
-          <a href="p03-job-detail.html" class="job-card" aria-label="React Frontend Developer at StartupVN">
+          <!-- Job Card 4 - Truck Driver -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Tài xế tải tại Giao Thông Vận Tải">
             <div class="job-header">
-              <div class="company-logo">SVN</div>
+              <div class="company-logo">GTV</div>
               <div>
-                <h3 class="job-title">React Frontend Developer</h3>
-                <p class="company-name">StartupVN</p>
+                <h3 class="job-title">Tài xế tải (B2)</h3>
+                <p class="company-name">Giao Thông Vận Tải</p>
               </div>
             </div>
             <div class="job-meta">
-              <span class="job-meta-item">📍 Hà Nội</span>
-              <span class="job-meta-item">💰 20.000.000 – 35.000.000 VND/tháng</span>
-              <span class="job-meta-item">📅 4 days ago</span>
+              <span class="job-meta-item">📍 Bình Dương</span>
+              <span class="job-meta-item">💰 14.000.000 – 20.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 1 day ago</span>
             </div>
-            <span class="job-type" data-i18n="jobTypeRemote">Remote</span>
+            <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
           </a>
 
-          <!-- Job Card 5 -->
-          <a href="p03-job-detail.html" class="job-card" aria-label="Data Analyst at MegaCorp Vietnam">
+          <!-- Job Card 5 - Warehouse Worker -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Nhân viên kho tại Logistics Việt">
             <div class="job-header">
-              <div class="company-logo">MCV</div>
+              <div class="company-logo">LVN</div>
               <div>
-                <h3 class="job-title">Data Analyst</h3>
+                <h3 class="job-title">Nhân viên kho</h3>
                 <p class="company-name">
-                  MegaCorp Vietnam
+                  Logistics Việt
                   <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
                 </p>
               </div>
             </div>
             <div class="job-meta">
-              <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
-              <span class="job-meta-item">💰 22.000.000 – 30.000.000 VND/tháng</span>
-              <span class="job-meta-item">📅 5 days ago</span>
+              <span class="job-meta-item">📍 Đồng Nai</span>
+              <span class="job-meta-item">💰 8.000.000 – 12.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 2 days ago</span>
             </div>
             <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
           </a>
 
-          <!-- Job Card 6 -->
-          <a href="p03-job-detail.html" class="job-card" aria-label="Product Manager at TechVN Group">
+          <!-- Job Card 6 - Welder -->
+          <a href="p03-job-detail.html" class="job-card" aria-label="Thợ hàn tại Cơ Khí Vina">
             <div class="job-header">
-              <div class="company-logo">TVG</div>
+              <div class="company-logo">CKV</div>
               <div>
-                <h3 class="job-title">Product Manager</h3>
-                <p class="company-name">TechVN Group</p>
+                <h3 class="job-title">Thợ hàn công nghiệp</h3>
+                <p class="company-name">Cơ Khí Vina</p>
               </div>
             </div>
             <div class="job-meta">
-              <span class="job-meta-item">📍 Hà Nội</span>
-              <span class="job-meta-item">💰 Thương lượng</span>
-              <span class="job-meta-item">📅 1 week ago</span>
+              <span class="job-meta-item">📍 Hải Phòng</span>
+              <span class="job-meta-item">💰 16.000.000 – 25.000.000 VND/tháng</span>
+              <span class="job-meta-item">📅 4 days ago</span>
             </div>
             <span class="job-type" data-i18n="jobTypeFullTime">Full-time</span>
           </a>
@@ -1170,10 +2548,118 @@
       </div>
     </section>
 
-    <!-- Advertisement Banner B -->
-    <div class="ad-banner">
-      <div class="ad-slot-b" data-i18n="adSlotB">[ AD SLOT B — 300×250 Rectangle ]</div>
-    </div>
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" aria-labelledby="testimonials-title">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title" id="testimonials-title">What Our Users Say</h2>
+          <p class="section-subtitle">Success stories from job seekers who found their dream careers</p>
+        </div>
+        <div class="testimonials-grid">
+          <!-- Testimonial 1 -->
+          <div class="testimonial-card">
+            <span class="testimonial-quote-icon">"</span>
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Nikola Tesla" class="testimonial-image">
+            <p class="testimonial-text">I just got a job that I applied for via careerfy! I used the site all the time during my job hunt.</p>
+            <p class="testimonial-author">Nikola Tesla</p>
+            <span class="testimonial-role">Accountant</span>
+          </div>
+          <!-- Testimonial 2 -->
+          <div class="testimonial-card">
+            <span class="testimonial-quote-icon">"</span>
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Collis Pong" class="testimonial-image">
+            <p class="testimonial-text">I just got a job that I applied for via careerfy! I used the site all the time during my job hunt.</p>
+            <p class="testimonial-author">Collis Pong</p>
+            <span class="testimonial-role">UI/UX Designer</span>
+          </div>
+          <!-- Testimonial 3 -->
+          <div class="testimonial-card">
+            <span class="testimonial-quote-icon">"</span>
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Nikola Tesla" class="testimonial-image">
+            <p class="testimonial-text">I just got a job that I applied for via careerfy! I used the site all the time during my job hunt.</p>
+            <p class="testimonial-author">Nikola Tesla</p>
+            <span class="testimonial-role">Accountant</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section class="blog-section" aria-labelledby="blog-title">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-label">Our Blogs</span>
+          <h2 class="section-title" id="blog-title">Latest Article</h2>
+        </div>
+        <div class="blog-container">
+          <div>
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Featured blog post" class="blog-featured-image">
+          </div>
+          <div class="blog-articles">
+            <article class="blog-article">
+              <div class="blog-article-meta">
+                <span class="blog-article-date">March 06, 2023</span>
+                <span class="blog-article-author">By David Wish</span>
+              </div>
+              <h3 class="blog-article-title">5 things to know about the March 2023 jobs report</h3>
+              <p class="blog-article-excerpt">New chip traps clusters of migrating tumor cells asperietur, blanditiis.</p>
+              <a href="#" class="blog-article-link">Read More</a>
+            </article>
+            <article class="blog-article">
+              <div class="blog-article-meta">
+                <span class="blog-article-date">March 06, 2023</span>
+                <span class="blog-article-author">By Mike Roe</span>
+              </div>
+              <h3 class="blog-article-title">Job Board is the most important sector in the world</h3>
+              <p class="blog-article-excerpt">New chip traps clusters of migrating tumor cells asperietur, blanditiis.</p>
+              <a href="#" class="blog-article-link">Read More</a>
+            </article>
+            <article class="blog-article">
+              <div class="blog-article-meta">
+                <span class="blog-article-date">April 05, 2023</span>
+                <span class="blog-article-author">By David Wish</span>
+              </div>
+              <h3 class="blog-article-title">How to get a job at Google or Microsoft</h3>
+              <p class="blog-article-excerpt">New chip traps clusters of migrating tumor cells asperietur, blanditiis.</p>
+              <a href="#" class="blog-article-link">Read More</a>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Profile CTA Section -->
+    <section class="profile-cta-section" aria-labelledby="profile-cta-title">
+      <div class="profile-cta-container">
+        <div>
+          <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Person working on laptop" class="profile-cta-image">
+        </div>
+        <div class="profile-cta-content">
+          <span class="profile-cta-label">Explore New Life</span>
+          <h2 class="profile-cta-title" id="profile-cta-title">Build your personal account profile</h2>
+          <p class="profile-cta-text">Lorem ipsum is simply dummy text of the printing and typesetting industry the standard dummy text ever since the when an printer took a galley of type and scrambled it to make a type specimen book.</p>
+          <a href="../auth/a02-register-role.html" class="btn btn-primary btn-upload">
+            <span>Upload Your Resume</span>
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+      <div class="newsletter-container">
+        <div class="newsletter-text">
+          <h3 class="newsletter-title">Join our email subscription now to get updates on new jobs and notifications.</h3>
+        </div>
+        <form class="newsletter-form">
+          <input type="email" class="newsletter-input" placeholder="Enter Your Email" aria-label="Email address">
+          <button type="submit" class="btn btn-primary">Subscribe Now</button>
+        </form>
+      </div>
+    </section>
 
     <!-- Stats Section -->
     <section class="stats-section" aria-labelledby="stats-title">
@@ -1194,6 +2680,126 @@
           <div class="stat-item">
             <div class="stat-number" data-i18n="statCandidates">100.000+</div>
             <p class="stat-label" data-i18n="statCandidatesLabel">Ứng viên</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Monthly Events Section -->
+    <section class="py-5" aria-labelledby="events-title" style="background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%); padding: 64px 24px;">
+      <div class="container" style="max-width: 1280px;">
+        <div class="text-center mb-5">
+          <h2 class="fw-bold" id="events-title" data-i18n="eventsTitle" style="font-size: 36px; color: #1e293b;">Sự kiện tháng này</h2>
+          <p class="text-muted" data-i18n="eventsSubtitle" style="font-size: 18px; color: #475569;">Tham gia các sự kiện kết nối, hội thảo và workshop dành cho người tìm việc</p>
+        </div>
+
+        <div class="row g-4">
+          <!-- Event Card 1 -->
+          <div class="col-lg-4 col-md-6">
+            <a href="#" class="card h-100 text-decoration-none shadow-sm hover-shadow" style="border-radius: 16px; overflow: hidden; border: none;">
+              <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80" 
+                   alt="Career Fair Event" 
+                   class="card-img-top" style="height: 200px; object-fit: cover;">
+              <div class="card-body" style="padding: 24px;">
+                <span class="badge mb-2" style="background: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <span data-i18n="event1Date">15 Tháng 4, 2026</span>
+                </span>
+                <h5 class="card-title fw-bold" data-i18n="event1Title" style="font-size: 20px; color: #0f172a; margin-bottom: 12px;">Tech Career Fair 2026</h5>
+                <p class="card-text text-muted" data-i18n="event1Description" style="font-size: 14px; color: #64748b; line-height: 1.6;">Hội chợ việc làm công nghệ lớn nhất năm với hơn 100 công ty hàng đầu tham gia tuyển dụng.</p>
+              </div>
+              <div class="card-footer bg-white" style="padding: 16px 24px; border-top: 1px solid #e5e7eb;">
+                <div class="d-flex justify-content-between text-muted" style="font-size: 14px; color: #64748b;">
+                  <span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span data-i18n="event1Location">Hà Nội</span>
+                  </span>
+                  <span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <span data-i18n="event1Attendees">500+ tham gia</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Event Card 2 -->
+          <div class="col-lg-4 col-md-6">
+            <a href="#" class="card h-100 text-decoration-none shadow-sm hover-shadow" style="border-radius: 16px; overflow: hidden; border: none;">
+              <img src="https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&q=80" 
+                   alt="Workshop Event" 
+                   class="card-img-top" style="height: 200px; object-fit: cover;">
+              <div class="card-body" style="padding: 24px;">
+                <span class="badge mb-2" style="background: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <span data-i18n="event2Date">20 Tháng 4, 2026</span>
+                </span>
+                <h5 class="card-title fw-bold" data-i18n="event2Title" style="font-size: 20px; color: #0f172a; margin-bottom: 12px;">Workshop: Viết CV Chuyên Nghiệp</h5>
+                <p class="card-text text-muted" data-i18n="event2Description" style="font-size: 14px; color: #64748b; line-height: 1.6;">Học cách tạo CV ấn tượng và thu hút nhà tuyển dụng với các chuyên gia HR hàng đầu.</p>
+              </div>
+              <div class="card-footer bg-white" style="padding: 16px 24px; border-top: 1px solid #e5e7eb;">
+                <div class="d-flex justify-content-between text-muted" style="font-size: 14px; color: #64748b;">
+                  <span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span data-i18n="event2Location">Online</span>
+                  </span>
+                  <span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <span data-i18n="event2Attendees">200+ tham gia</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Event Card 3 -->
+          <div class="col-lg-4 col-md-6">
+            <a href="#" class="card h-100 text-decoration-none shadow-sm hover-shadow" style="border-radius: 16px; overflow: hidden; border: none;">
+              <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80" 
+                   alt="Networking Event" 
+                   class="card-img-top" style="height: 200px; object-fit: cover;">
+              <div class="card-body" style="padding: 24px;">
+                <span class="badge mb-2" style="background: #fef3c7; color: #92400e; padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <span data-i18n="event3Date">25 Tháng 4, 2026</span>
+                </span>
+                <h5 class="card-title fw-bold" data-i18n="event3Title" style="font-size: 20px; color: #0f172a; margin-bottom: 12px;">Networking Night - IT Professionals</h5>
+                <p class="card-text text-muted" data-i18n="event3Description" style="font-size: 14px; color: #64748b; line-height: 1.6;">Buổi gặp gỡ kết nối cho các chuyên gia IT, chia sẻ kinh nghiệm và mở rộng mạng lưới.</p>
+              </div>
+              <div class="card-footer bg-white" style="padding: 16px 24px; border-top: 1px solid #e5e7eb;">
+                <div class="d-flex justify-content-between text-muted" style="font-size: 14px; color: #64748b;">
+                  <span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span data-i18n="event3Location">TP. Hồ Chí Minh</span>
+                  </span>
+                  <span>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <span data-i18n="event3Attendees">150+ tham gia</span>
+                  </span>
+                </div>
+              </div>
+            </a>
           </div>
         </div>
       </div>
@@ -1279,7 +2885,7 @@
       <div class="footer-content">
         <!-- Logo (RULE G-003) -->
         <div class="footer-column">
-          <img src="../assets/images/logo.png" alt="LàmViệc360" class="logo-img" style="height: 28px; margin-bottom: var(--space-4);">
+          <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo-img" style="height: 40px; margin-bottom: var(--space-4);">
           <p style="color: rgba(255,255,255,0.6); font-size: var(--text-sm); margin: 0;" data-i18n="footerDesc">
             Your trusted partner for finding the perfect job in Vietnam
           </p>
@@ -1358,6 +2964,7 @@
         navBrowseCompanies: 'Browse Companies',
         navSignIn: 'Sign In',
         navSignUp: 'Sign Up',
+        jobCount: 'Chúng tôi có <span class="site-text-primary">208.000+</span> việc làm',
         heroTitle: 'Tìm việc làm phù hợp với bạn',
         heroSubtitle: 'Hàng ngàn cơ hội việc làm tại Việt Nam',
         searchPlaceholder: '🔍 Job title, keyword, company...',
@@ -1383,6 +2990,19 @@
         jobTypeFullTime: 'Full-time',
         jobTypeRemote: 'Remote',
         viewAllJobs: 'View all jobs →',
+        // Blue Collar Jobs
+        jobConstructionWorker: 'Công nhân xây dựng',
+        jobElectrician: 'Thợ điện công nghiệp',
+        jobMechanic: 'Thợ sửa chữa xe máy',
+        jobTruckDriver: 'Tài xế tải (B2)',
+        jobWarehouseWorker: 'Nhân viên kho',
+        jobWelder: 'Thợ hàn công nghiệp',
+        companyPhuMy: 'Xây Dựng Phú Mỹ',
+        companyElectricVietnam: 'Điện Lực Việt Nam',
+        companyHondaVietnam: 'Honda Việt Nam',
+        companyTransportVietnam: 'Giao Thông Vận Tải',
+        companyLogisticsVietnam: 'Logistics Việt',
+        companyMechanicVietnam: 'Cơ Khí Vina',
         adSlotB: '[ AD SLOT B — 300×250 Rectangle ]',
         statsTitle: 'Được tin tưởng bởi chuyên gia Việt Nam',
         statJobs: '10.000+',
@@ -1419,7 +3039,24 @@
         footerContact: 'Contact',
         footerPrivacy: 'Privacy Policy',
         footerTerms: 'Terms of Service',
-        footerCopyright: '© 2026 LàmViệc360 · Zebra Global Pte Ltd · Decree 13/2023 Compliant'
+        footerCopyright: '© 2026 LàmViệc360 · Zebra Global Pte Ltd · Decree 13/2023 Compliant',
+        eventsTitle: 'Sự kiện tháng này',
+        eventsSubtitle: 'Tham gia các sự kiện kết nối, hội thảo và workshop dành cho người tìm việc',
+        event1Title: 'Tech Career Fair 2026',
+        event1Description: 'Hội chợ việc làm công nghệ lớn nhất năm với hơn 100 công ty hàng đầu tham gia tuyển dụng.',
+        event1Location: 'Hà Nội',
+        event1Attendees: '500+ tham gia',
+        event2Title: 'Workshop: Viết CV Chuyên Nghiệp',
+        event2Description: 'Học cách tạo CV ấn tượng và thu hút nhà tuyển dụng với các chuyên gia HR hàng đầu.',
+        event2Location: 'Online',
+        event2Attendees: '200+ tham gia',
+        event3Title: 'Networking Night - IT Professionals',
+        event3Description: 'Buổi gặp gỡ kết nối cho các chuyên gia IT, chia sẻ kinh nghiệm và mở rộng mạng lưới.',
+        event3Location: 'TP. Hồ Chí Minh',
+        event3Attendees: '150+ tham gia',
+        event1Date: '15 Tháng 4, 2026',
+        event2Date: '20 Tháng 4, 2026',
+        event3Date: '25 Tháng 4, 2026'
       },
       en: {
         skipLink: 'Skip to main content',
@@ -1428,6 +3065,7 @@
         navBrowseCompanies: 'Browse Companies',
         navSignIn: 'Sign In',
         navSignUp: 'Sign Up',
+        jobCount: 'We Have <span class="site-text-primary">208,000+</span> Live Jobs',
         heroTitle: 'Find the job that fits you',
         heroSubtitle: 'Thousands of opportunities across Vietnam',
         searchPlaceholder: '🔍 Job title, keyword, company...',
@@ -1489,7 +3127,24 @@
         footerContact: 'Contact',
         footerPrivacy: 'Privacy Policy',
         footerTerms: 'Terms of Service',
-        footerCopyright: '© 2026 LàmViệc360 · Zebra Global Pte Ltd · Decree 13/2023 Compliant'
+        footerCopyright: '© 2026 LàmViệc360 · Zebra Global Pte Ltd · Decree 13/2023 Compliant',
+        eventsTitle: 'Monthly Events',
+        eventsSubtitle: 'Join networking events, seminars and workshops for job seekers',
+        event1Title: 'Tech Career Fair 2026',
+        event1Description: 'The biggest tech career fair of the year with over 100 leading companies recruiting.',
+        event1Location: 'Hanoi',
+        event1Attendees: '500+ attendees',
+        event2Title: 'Workshop: Professional CV Writing',
+        event2Description: 'Learn how to create impressive CVs that attract recruiters with top HR experts.',
+        event2Location: 'Online',
+        event2Attendees: '200+ attendees',
+        event3Title: 'Networking Night - IT Professionals',
+        event3Description: 'Networking event for IT professionals to share experiences and expand networks.',
+        event3Location: 'Ho Chi Minh City',
+        event3Attendees: '150+ attendees',
+        event1Date: 'April 15, 2026',
+        event2Date: 'April 20, 2026',
+        event3Date: 'April 25, 2026'
       }
     };
 
@@ -1508,7 +3163,14 @@
       // Update all elements with data-i18n
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (LANG[lang][key]) el.textContent = LANG[lang][key];
+        if (LANG[lang][key]) {
+          // Check if translation contains HTML tags
+          if (LANG[lang][key].includes('<span')) {
+            el.innerHTML = LANG[lang][key];
+          } else {
+            el.textContent = LANG[lang][key];
+          }
+        }
       });
 
       // Update placeholders
@@ -1534,76 +3196,95 @@
     setLang(currentLang);
 
     // ========== SEARCH FUNCTIONALITY ==========
-    document.querySelector('.search-bar').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const searchInput = document.querySelector('.search-input').value;
-      const location = document.querySelector('.search-dropdown').value;
-      
-      // In real app, would navigate to search results with query parameters
-      console.log('Search:', searchInput, 'Location:', location);
-      window.location.href = 'p02-job-search.html';
-    });
+    const searchBtn = document.querySelector('.twm-bnr-search-bar .site-button');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'p02-job-search.html';
+      });
+    }
 
     // ========== SMOOTH SCROLLING ==========
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const target = document.querySelector(href);
         if (target) {
           target.scrollIntoView({ behavior: 'smooth' });
         }
       });
     });
 
-    // ========== MOBILE MENU ==========
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const navLinks = document.querySelector('.nav-links');
-    
-    if (mobileMenuToggle) {
-      mobileMenuToggle.addEventListener('click', () => {
-        navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-        navLinks.style.position = 'absolute';
-        navLinks.style.top = '72px';
-        navLinks.style.left = '0';
-        navLinks.style.right = '0';
-        navLinks.style.background = 'white';
-        navLinks.style.flexDirection = 'column';
-        navLinks.style.padding = 'var(--space-4)';
-        navLinks.style.boxShadow = 'var(--shadow-lg)';
-        navLinks.style.borderBottom = 'var(--border-default)';
+    // ========== JOBZILLA MOBILE NAV TOGGLE ==========
+    const mobileDrawer = document.getElementById('mobile-side-drawer');
+    const headerNav = document.querySelector('.header-nav');
+    if (mobileDrawer && headerNav) {
+      mobileDrawer.addEventListener('click', () => {
+        headerNav.classList.toggle('show');
+        mobileDrawer.classList.toggle('collapsed');
       });
     }
+  </script>
 
-    // ========== RESPONSIVE SEARCH BAR ==========
-    function handleResize() {
-      const searchBar = document.querySelector('.search-bar');
-      const searchInput = document.querySelector('.search-input');
-      const searchDropdown = document.querySelector('.search-dropdown');
-      const searchBtn = document.querySelector('.search-btn');
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Waypoints for sticky header -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+  
+  <!-- Owl Carousel JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  <!-- Jobzilla Sticky Header Script -->
+  <script>
+    jQuery(document).ready(function($) {
+      // Initialize Vietnamese Flag Carousel
+      var owl = $('.vietnamese-flag-carousel').owlCarousel({
+        items: 1,
+        loop: false,
+        rewind: true,
+        nav: false,
+        dots: false,
+        autoplay: true,
+        autoplayTimeout: 3000,
+        autoplayHoverPause: true,
+        touchDrag: false,
+        mouseDrag: false,
+        smartSpeed: 500,
+        fluidSpeed: true,
+      });
       
-      if (window.innerWidth < 768) {
-        // Mobile layout
-        searchBar.style.gridTemplateColumns = '1fr';
-        searchDropdown.style.borderLeft = 'none';
-        searchDropdown.style.borderTop = '1px solid var(--color-grey-300)';
-        searchDropdown.style.paddingTop = 'var(--space-3)';
-        searchDropdown.style.paddingBottom = 'var(--space-3)';
-        searchBtn.style.width = '100%';
-        searchBtn.style.marginTop = 'var(--space-2)';
-      } else {
-        // Desktop layout
-        searchBar.style.gridTemplateColumns = '1fr auto auto';
-        searchDropdown.style.borderLeft = '1px solid var(--color-grey-300)';
-        searchDropdown.style.borderTop = 'none';
-        searchDropdown.style.paddingTop = 'var(--space-3)';
-        searchDropdown.style.paddingBottom = 'var(--space-3)';
-        searchBtn.style.width = 'auto';
-        searchBtn.style.marginTop = '0';
+      // Color fill header on scroll
+      function color_fill_header() {
+        var scroll = $(window).scrollTop();
+        if(scroll >= 40) {
+          $(".main-bar").addClass("color-fill");
+          $(".sticky-header").addClass("stuck");
+        } else {
+          $(".main-bar").removeClass("color-fill");
+          $(".sticky-header").removeClass("stuck");
+        }
       }
-    }
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Initial call
+      
+      // Handle scroll events for color fill
+      $(window).on('scroll', function() {
+        color_fill_header();
+      });
+      
+      // Initial check for color fill
+      color_fill_header();
+      
+      // Mobile nav toggle
+      $('#mobile-side-drawer').on('click', function() {
+        $('.header-nav').toggleClass('show');
+        $(this).toggleClass('collapsed');
+      });
+    });
   </script>
 </body>
 </html>

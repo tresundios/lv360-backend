@@ -326,11 +326,11 @@
 
     /* Main Layout */
     .main-container {
-      max-width: 1280px;
+      max-width: 1400px;
       margin: var(--space-6) auto;
       padding: 0 var(--space-6);
       display: grid;
-      grid-template-columns: 260px 1fr 300px;
+      grid-template-columns: 280px 1fr;
       gap: var(--space-8);
       min-height: calc(100vh - 200px);
     }
@@ -530,15 +530,23 @@
       padding: var(--space-6);
       margin-bottom: var(--space-4);
       transition: all 0.2s;
-      text-decoration: none;
-      color: inherit;
-      display: block;
+      position: relative;
     }
 
     .job-card:hover {
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
       transform: translateY(-2px);
+    }
+
+    .job-card-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      cursor: pointer;
+    }
+
+    .job-card-link:hover {
       text-decoration: none;
       color: inherit;
     }
@@ -642,6 +650,8 @@
       gap: var(--space-3);
       align-items: center;
       margin-top: var(--space-4);
+      position: relative;
+      z-index: 2;
     }
 
     .save-btn {
@@ -788,22 +798,6 @@
       color: var(--color-grey-500);
     }
 
-    /* Advertisement Sidebar */
-    .ad-sidebar {
-      width: 300px;
-      height: 600px;
-      background: var(--color-grey-100);
-      border: 2px dashed var(--color-grey-300);
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-grey-500);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      position: sticky;
-      top: 100px;
-    }
 
     /* Mobile Filter Button */
     .mobile-filter-btn {
@@ -893,7 +887,6 @@
 
       .filter-panel { display: none; }
       .mobile-filter-btn { display: block; }
-      .ad-sidebar { display: none; }
 
       .search-bar {
         grid-template-columns: 1fr;
@@ -930,10 +923,8 @@
     /* Responsive: Tablet */
     @media (min-width: 768px) and (max-width: 1023px) {
       .main-container {
-        grid-template-columns: 220px 1fr;
+        grid-template-columns: 240px 1fr;
       }
-      
-      .ad-sidebar { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -951,7 +942,7 @@
     <div class="header-container">
       <!-- Logo (RULE G-003) -->
       <a href="p01-homepage.html" class="logo-link" aria-label="LàmViệc360 homepage">
-        <img src="../assets/images/logo.png" alt="LàmViệc360" class="logo-img">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="logo-img">
       </a>
 
       <!-- Navigation -->
@@ -1152,248 +1143,264 @@
       <!-- Job Cards -->
       <div class="job-list">
         <!-- Job Card 1 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="Senior Frontend Developer at TechCorp Vietnam JSC">
-          <div class="job-header">
-            <div class="company-logo">TCV</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">TechCorp Vietnam JSC</p>
-                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="Senior Frontend Developer at TechCorp Vietnam JSC">
+            <div class="job-header">
+              <div class="company-logo">TCV</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">TechCorp Vietnam JSC</p>
+                  <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                </div>
+                <h3 class="job-title">Senior Frontend Developer</h3>
               </div>
-              <h3 class="job-title">Senior Frontend Developer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 Hà Nội</span>
-            <span class="job-meta-item">🏷 Full-time</span>
-            <span class="job-meta-item">📅 2 days ago</span>
-            <span class="job-meta-item">💰 25.000.000 – 40.000.000 VND/tháng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">React</span>
-            <span class="skill-tag">TypeScript</span>
-            <span class="skill-tag">Next.js</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Hà Nội</span>
+              <span class="job-meta-item">🏷 Full-time</span>
+              <span class="job-meta-item">📅 2 days ago</span>
+              <span class="job-meta-item">💰 25.000.000 – 40.000.000 VND/tháng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">React</span>
+              <span class="skill-tag">TypeScript</span>
+              <span class="skill-tag">Next.js</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn" aria-label="Save job">
+            <button class="save-btn" aria-label="Save job" onclick="event.stopPropagation();">
               <span>♡</span> <span data-i18n="saveJob">Save</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
 
         <!-- Job Card 2 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="Backend Engineer at DataVN Ltd">
-          <div class="job-header">
-            <div class="company-logo">DVN</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">DataVN Ltd</p>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="Backend Engineer at DataVN Ltd">
+            <div class="job-header">
+              <div class="company-logo">DVN</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">DataVN Ltd</p>
+                </div>
+                <h3 class="job-title">Backend Engineer</h3>
               </div>
-              <h3 class="job-title">Backend Engineer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
-            <span class="job-meta-item">🏷 Full-time</span>
-            <span class="job-meta-item">📅 3 days ago</span>
-            <span class="job-meta-item">💰 Thương lượng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">Node.js</span>
-            <span class="skill-tag">Python</span>
-            <span class="skill-tag">PostgreSQL</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
+              <span class="job-meta-item">🏷 Full-time</span>
+              <span class="job-meta-item">📅 3 days ago</span>
+              <span class="job-meta-item">💰 Thương lượng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">Node.js</span>
+              <span class="skill-tag">Python</span>
+              <span class="skill-tag">PostgreSQL</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn" aria-label="Save job">
+            <button class="save-btn" aria-label="Save job" onclick="event.stopPropagation();">
               <span>♡</span> <span data-i18n="saveJob">Save</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
 
         <!-- Job Card 3 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="Full Stack Developer at FinApp Vietnam">
-          <div class="job-header">
-            <div class="company-logo">FAV</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">FinApp Vietnam</p>
-                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="Full Stack Developer at FinApp Vietnam">
+            <div class="job-header">
+              <div class="company-logo">FAV</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">FinApp Vietnam</p>
+                  <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                </div>
+                <h3 class="job-title">Full Stack Developer</h3>
               </div>
-              <h3 class="job-title">Full Stack Developer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 Đà Nẵng</span>
-            <span class="job-meta-item">🏷 Remote</span>
-            <span class="job-meta-item">📅 1 week ago</span>
-            <span class="job-meta-item">💰 30.000.000 – 45.000.000 VND/tháng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">Vue.js</span>
-            <span class="skill-tag">Django</span>
-            <span class="skill-tag">AWS</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Đà Nẵng</span>
+              <span class="job-meta-item">🏷 Remote</span>
+              <span class="job-meta-item">📅 1 week ago</span>
+              <span class="job-meta-item">💰 30.000.000 – 45.000.000 VND/tháng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">Vue.js</span>
+              <span class="skill-tag">Django</span>
+              <span class="skill-tag">AWS</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn saved" aria-label="Remove saved job">
+            <button class="save-btn saved" aria-label="Remove saved job" onclick="event.stopPropagation();">
               <span>♥</span> <span data-i18n="savedJob">Saved</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
 
         <!-- Job Card 4 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="React Developer at StartupVN">
-          <div class="job-header">
-            <div class="company-logo">SVN</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">StartupVN</p>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="React Developer at StartupVN">
+            <div class="job-header">
+              <div class="company-logo">SVN</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">StartupVN</p>
+                </div>
+                <h3 class="job-title">React Developer</h3>
               </div>
-              <h3 class="job-title">React Developer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 Hà Nội</span>
-            <span class="job-meta-item">🏷 Full-time</span>
-            <span class="job-meta-item">📅 4 days ago</span>
-            <span class="job-meta-item">💰 20.000.000 – 35.000.000 VND/tháng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">React</span>
-            <span class="skill-tag">Redux</span>
-            <span class="skill-tag">MongoDB</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Hà Nội</span>
+              <span class="job-meta-item">🏷 Full-time</span>
+              <span class="job-meta-item">📅 4 days ago</span>
+              <span class="job-meta-item">💰 20.000.000 – 35.000.000 VND/tháng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">React</span>
+              <span class="skill-tag">Redux</span>
+              <span class="skill-tag">MongoDB</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn" aria-label="Save job">
+            <button class="save-btn" aria-label="Save job" onclick="event.stopPropagation();">
               <span>♡</span> <span data-i18n="saveJob">Save</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
 
         <!-- Job Card 5 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="Mobile Developer at MegaCorp Vietnam">
-          <div class="job-header">
-            <div class="company-logo">MCV</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">MegaCorp Vietnam</p>
-                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="Mobile Developer at MegaCorp Vietnam">
+            <div class="job-header">
+              <div class="company-logo">MCV</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">MegaCorp Vietnam</p>
+                  <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                </div>
+                <h3 class="job-title">Mobile Developer</h3>
               </div>
-              <h3 class="job-title">Mobile Developer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
-            <span class="job-meta-item">🏷 Full-time</span>
-            <span class="job-meta-item">📅 5 days ago</span>
-            <span class="job-meta-item">💰 22.000.000 – 38.000.000 VND/tháng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">React Native</span>
-            <span class="skill-tag">Flutter</span>
-            <span class="skill-tag">iOS</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 TP. Hồ Chí Minh</span>
+              <span class="job-meta-item">🏷 Full-time</span>
+              <span class="job-meta-item">📅 5 days ago</span>
+              <span class="job-meta-item">💰 22.000.000 – 38.000.000 VND/tháng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">React Native</span>
+              <span class="skill-tag">Flutter</span>
+              <span class="skill-tag">iOS</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn" aria-label="Save job">
+            <button class="save-btn" aria-label="Save job" onclick="event.stopPropagation();">
               <span>♡</span> <span data-i18n="saveJob">Save</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
 
         <!-- Job Card 6 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="DevOps Engineer at TechVN Group">
-          <div class="job-header">
-            <div class="company-logo">TVG</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">TechVN Group</p>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="DevOps Engineer at TechVN Group">
+            <div class="job-header">
+              <div class="company-logo">TVG</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">TechVN Group</p>
+                </div>
+                <h3 class="job-title">DevOps Engineer</h3>
               </div>
-              <h3 class="job-title">DevOps Engineer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 Hà Nội</span>
-            <span class="job-meta-item">🏷 Full-time</span>
-            <span class="job-meta-item">📅 6 days ago</span>
-            <span class="job-meta-item">💰 28.000.000 – 42.000.000 VND/tháng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">Docker</span>
-            <span class="skill-tag">Kubernetes</span>
-            <span class="skill-tag">CI/CD</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Hà Nội</span>
+              <span class="job-meta-item">🏷 Full-time</span>
+              <span class="job-meta-item">📅 6 days ago</span>
+              <span class="job-meta-item">💰 28.000.000 – 42.000.000 VND/tháng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">Docker</span>
+              <span class="skill-tag">Kubernetes</span>
+              <span class="skill-tag">CI/CD</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn" aria-label="Save job">
+            <button class="save-btn" aria-label="Save job" onclick="event.stopPropagation();">
               <span>♡</span> <span data-i18n="saveJob">Save</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
 
         <!-- Job Card 7 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="QA Engineer at DataSoft Vietnam">
-          <div class="job-header">
-            <div class="company-logo">DSV</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">DataSoft Vietnam</p>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="QA Engineer at DataSoft Vietnam">
+            <div class="job-header">
+              <div class="company-logo">DSV</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">DataSoft Vietnam</p>
+                </div>
+                <h3 class="job-title">QA Engineer</h3>
               </div>
-              <h3 class="job-title">QA Engineer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 Hải Phòng</span>
-            <span class="job-meta-item">🏷 Full-time</span>
-            <span class="job-meta-item">📅 1 week ago</span>
-            <span class="job-meta-item">💰 18.000.000 – 30.000.000 VND/tháng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">Selenium</span>
-            <span class="skill-tag">Jest</span>
-            <span class="skill-tag">Agile</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Hải Phòng</span>
+              <span class="job-meta-item">🏷 Full-time</span>
+              <span class="job-meta-item">📅 1 week ago</span>
+              <span class="job-meta-item">💰 18.000.000 – 30.000.000 VND/tháng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">Selenium</span>
+              <span class="skill-tag">Jest</span>
+              <span class="skill-tag">Agile</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn" aria-label="Save job">
+            <button class="save-btn" aria-label="Save job" onclick="event.stopPropagation();">
               <span>♡</span> <span data-i18n="saveJob">Save</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
 
         <!-- Job Card 8 -->
-        <a href="p03-job-detail.html" class="job-card" aria-label="UI/UX Designer at CreativeVN">
-          <div class="job-header">
-            <div class="company-logo">CVN</div>
-            <div class="job-info">
-              <div class="company-row">
-                <p class="company-name">CreativeVN</p>
-                <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+        <div class="job-card">
+          <a href="p03-job-detail.html" class="job-card-link" aria-label="UI/UX Designer at CreativeVN">
+            <div class="job-header">
+              <div class="company-logo">CVN</div>
+              <div class="job-info">
+                <div class="company-row">
+                  <p class="company-name">CreativeVN</p>
+                  <span class="verified-badge" data-i18n="verifiedBadge">✓ Verified</span>
+                </div>
+                <h3 class="job-title">UI/UX Designer</h3>
               </div>
-              <h3 class="job-title">UI/UX Designer</h3>
             </div>
-          </div>
-          <div class="job-meta">
-            <span class="job-meta-item">📍 Cần Thơ</span>
-            <span class="job-meta-item">🏷 Part-time</span>
-            <span class="job-meta-item">📅 2 weeks ago</span>
-            <span class="job-meta-item">💰 Thương lượng</span>
-          </div>
-          <div class="skills-tags">
-            <span class="skill-tag">Figma</span>
-            <span class="skill-tag">Adobe XD</span>
-            <span class="skill-tag">Prototyping</span>
-          </div>
+            <div class="job-meta">
+              <span class="job-meta-item">📍 Cần Thơ</span>
+              <span class="job-meta-item">🏷 Part-time</span>
+              <span class="job-meta-item">📅 2 weeks ago</span>
+              <span class="job-meta-item">💰 Thương lượng</span>
+            </div>
+            <div class="skills-tags">
+              <span class="skill-tag">Figma</span>
+              <span class="skill-tag">Adobe XD</span>
+              <span class="skill-tag">Prototyping</span>
+            </div>
+          </a>
           <div class="job-actions">
-            <button class="save-btn" aria-label="Save job">
+            <button class="save-btn" aria-label="Save job" onclick="event.stopPropagation();">
               <span>♡</span> <span data-i18n="saveJob">Save</span>
             </button>
-            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow">Apply Now</a>
+            <a href="p03-job-detail.html" class="btn btn-secondary btn-apply" data-i18n="applyNow" onclick="event.stopPropagation();">Apply Now</a>
           </div>
-        </a>
+        </div>
       </div>
 
       <!-- Pagination -->
@@ -1430,10 +1437,6 @@
       </div>
     </div>
 
-    <!-- Advertisement Sidebar (Desktop Only) -->
-    <aside class="ad-sidebar" aria-label="Advertisement">
-      [ AD SLOT D — Sidebar Banner ]
-    </aside>
   </main>
 
   <!-- Mobile Filter Sheet -->

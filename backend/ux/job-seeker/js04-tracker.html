@@ -204,7 +204,7 @@
     .main-content {
       flex: 1;
       padding: var(--space-6) var(--space-4) var(--space-20) var(--space-4);
-      max-width: 800px;
+      max-width: 1200px;
       margin: 0 auto;
       width: 100%;
     }
@@ -230,10 +230,9 @@
     /* Filter Tabs */
     .filter-tabs {
       display: flex;
+      flex-wrap: wrap;
       gap: var(--space-2);
       margin-bottom: var(--space-6);
-      overflow-x: auto;
-      padding-bottom: var(--space-2);
     }
 
     .filter-tab {
@@ -425,80 +424,168 @@
       color: var(--color-danger);
     }
 
-    /* Progress Bar */
+    /* Progress Bar - Modern Design */
     .progress-container {
-      margin-bottom: var(--space-4);
+      margin-bottom: var(--space-5);
+      background: var(--color-grey-100);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
     }
 
     .progress-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       position: relative;
-      margin-bottom: var(--space-2);
-    }
-
-    .progress-line {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--color-grey-200);
-      z-index: 1;
-    }
-
-    .progress-fill {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      height: 2px;
-      background: var(--color-primary);
-      z-index: 2;
-      transition: width 0.3s ease;
+      padding: var(--space-6) 0;
     }
 
     .progress-steps {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      align-items: start;
       position: relative;
-      z-index: 3;
+      width: 100%;
+      gap: 0;
+    }
+
+    /* Background track */
+    .progress-steps::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 8.33%;
+      right: 8.33%;
+      height: 4px;
+      background: var(--color-grey-300);
+      border-radius: var(--radius-full);
+      z-index: 0;
+    }
+
+    /* Progress fill */
+    .progress-steps::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 8.33%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-primary) 0%, #3B82F6 100%);
+      border-radius: var(--radius-full);
+      z-index: 1;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }
 
     .progress-step {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: var(--space-1);
-      min-width: 60px;
+      gap: var(--space-2);
+      position: relative;
+      z-index: 2;
     }
 
     .progress-dot {
-      width: 12px;
-      height: 12px;
+      width: 20px;
+      height: 20px;
       border-radius: var(--radius-full);
-      background: var(--color-grey-200);
-      border: 2px solid white;
-      transition: all 0.2s;
+      background: white;
+      border: 3px solid var(--color-grey-300);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-dot::after {
+      content: '';
+      width: 0;
+      height: 0;
+      background: white;
+      border-radius: var(--radius-full);
+      transition: all 0.3s ease;
     }
 
     .progress-dot.completed {
       background: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15), 0 3px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    .progress-dot.completed::after {
+      content: '✓';
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      width: auto;
+      height: auto;
+      background: transparent;
     }
 
     .progress-dot.current {
       background: var(--color-primary);
-      animation: pulse 2s infinite;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2), 0 4px 12px rgba(37, 99, 235, 0.4);
+      animation: pulse-modern 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      transform: scale(1.2);
+    }
+
+    .progress-dot.current::after {
+      width: 8px;
+      height: 8px;
+      background: white;
+      animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
     .progress-dot.rejected {
       background: var(--color-danger);
+      border-color: var(--color-danger);
+      box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.15), 0 3px 10px rgba(185, 28, 28, 0.3);
     }
 
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    .progress-dot.rejected::after {
+      content: '✕';
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      width: auto;
+      height: auto;
+      background: transparent;
+    }
+
+    /* Progress fill widths - Grid columns at 8.33%, 25%, 41.67%, 58.33%, 75%, 91.67% */
+    /* Fill starts at 8.33% (center of first dot) and extends to center of current dot */
+    .progress-bar[data-progress="0"] .progress-steps::after { width: 0%; }
+    .progress-bar[data-progress="1"] .progress-steps::after { width: 16.67%; }
+    .progress-bar[data-progress="2"] .progress-steps::after { width: 33.33%; }
+    .progress-bar[data-progress="3"] .progress-steps::after { width: 50%; }
+    .progress-bar[data-progress="4"] .progress-steps::after { width: 66.67%; }
+    .progress-bar[data-progress="5"] .progress-steps::after { width: 83.33%; }
+    .progress-bar[data-progress="rejected"] .progress-steps::after { 
+      width: 16.67%; 
+      background: linear-gradient(90deg, var(--color-danger) 0%, #DC2626 100%);
+      box-shadow: 0 2px 8px rgba(185, 28, 28, 0.3);
+    }
+
+    @keyframes pulse-modern {
+      0%, 100% { 
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2), 0 4px 12px rgba(37, 99, 235, 0.4);
+        transform: scale(1.2);
+      }
+      50% { 
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.1), 0 6px 16px rgba(37, 99, 235, 0.5);
+        transform: scale(1.25);
+      }
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { 
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% { 
+        transform: scale(1.3);
+        opacity: 0.8;
+      }
     }
 
     .progress-label {
@@ -506,6 +593,14 @@
       color: var(--color-grey-600);
       text-align: center;
       white-space: nowrap;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .progress-step:has(.completed) .progress-label,
+    .progress-step:has(.current) .progress-label {
+      color: var(--color-grey-900);
+      font-weight: 600;
     }
 
     /* Application Details */
@@ -874,7 +969,7 @@
     <!-- Top Navigation -->
     <header class="top-nav">
       <div class="nav-left">
-        <img src="../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
         <h1 class="nav-title" data-i18n="pageTitle">My Applications</h1>
       </div>
       
@@ -956,9 +1051,7 @@
           </div>
           
           <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-line"></div>
-              <div class="progress-fill" style="width: 60%;"></div>
+            <div class="progress-bar" data-progress="2">
               <div class="progress-steps">
                 <div class="progress-step">
                   <div class="progress-dot completed"></div>
@@ -1025,9 +1118,7 @@
           </div>
           
           <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-line"></div>
-              <div class="progress-fill" style="width: 80%;"></div>
+            <div class="progress-bar" data-progress="3">
               <div class="progress-steps">
                 <div class="progress-step">
                   <div class="progress-dot completed"></div>
@@ -1092,9 +1183,7 @@
           </div>
           
           <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-line"></div>
-              <div class="progress-fill" style="width: 40%;"></div>
+            <div class="progress-bar" data-progress="1">
               <div class="progress-steps">
                 <div class="progress-step">
                   <div class="progress-dot completed"></div>
@@ -1155,9 +1244,7 @@
           </div>
           
           <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-line"></div>
-              <div class="progress-fill" style="width: 20%;"></div>
+            <div class="progress-bar" data-progress="0">
               <div class="progress-steps">
                 <div class="progress-step">
                   <div class="progress-dot current"></div>
@@ -1210,9 +1297,7 @@
           </div>
           
           <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-line"></div>
-              <div class="progress-fill" style="width: 30%; background: var(--color-danger);"></div>
+            <div class="progress-bar" data-progress="rejected">
               <div class="progress-steps">
                 <div class="progress-step">
                   <div class="progress-dot completed"></div>

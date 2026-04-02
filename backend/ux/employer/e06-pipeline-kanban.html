@@ -13,6 +13,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LàmViệc360 — Candidate Pipeline | TechCorp Vietnam JSC</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  
   <style>
     :root {
       /* Brand */
@@ -47,6 +51,12 @@
       --color-grey-300:      #CBD5E1;
       --color-grey-100:      #F1F5F9;
       --color-white:         #FFFFFF;
+
+      /* Logo-based gradient colors */
+      --gradient-primary: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #10B981 100%);
+      --gradient-secondary: linear-gradient(135deg, #B91C1C 0%, #C8922A 50%, #2563EB 100%);
+      --gradient-accent: linear-gradient(135deg, #15803D 0%, #2563EB 50%, #B91C1C 100%);
+      --gradient-sidebar: linear-gradient(135deg, #0F2044 0%, #2563EB 50%, #3B82F6 100%);
 
       /* Typography */
       --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -132,17 +142,19 @@
     /* Sidebar */
     .sidebar {
       width: 240px;
-      background: var(--color-navy);
+      background: var(--gradient-sidebar);
       color: white;
       display: flex;
       flex-direction: column;
+      height: 100vh;
       position: fixed;
-      top: 0;
       left: 0;
-      bottom: 0;
+      top: 0;
       z-index: 1000;
-      transform: translateX(0);
+      overflow-x: hidden;
+      overflow-y: auto;
       transition: transform 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     }
 
     .sidebar-header {
@@ -155,7 +167,7 @@
       width: auto;
       display: block;
       margin-bottom: var(--space-4);
-      filter: brightness(0) invert(1);
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.5)) saturate(1.5) brightness(1.2);
     }
 
     .company-info {
@@ -209,14 +221,21 @@
 
     .nav-item:hover {
       color: white;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.1);
       text-decoration: none;
+      border-radius: 0.375rem;
+      margin: 0 0.5rem;
+      padding: 0.5rem 1rem;
     }
 
     .nav-item.active {
       color: white;
-      background: rgba(255, 255, 255, 0.1);
-      border-left: 3px solid var(--color-primary);
+      background: rgba(255, 255, 255, 0.2);
+      border-left: 4px solid #fff;
+      border-radius: 0.375rem;
+      margin: 0 0.5rem;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
     }
 
     .nav-icon {
@@ -574,30 +593,139 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* Kanban Board */
-    .kanban-board {
+    /* Accordion Pipeline - Bootstrap Enhanced */
+    .pipeline-accordion {
       flex: 1;
-      overflow-x: auto;
-      overflow-y: hidden;
-      background: var(--color-grey-50);
-      padding: var(--space-6);
-    }
-
-    .kanban-columns {
-      display: flex;
-      gap: var(--space-4);
-      min-height: 100%;
-      padding-bottom: var(--space-6);
-    }
-
-    .kanban-column {
-      min-width: 280px;
-      background: white;
+      background: var(--color-grey-100);
       border-radius: var(--radius-lg);
-      border: var(--border-default);
-      display: flex;
-      flex-direction: column;
+      padding: var(--space-6);
+      overflow: visible;
+      display: block;
+      visibility: visible;
+    }
+
+    .accordion-item {
+      background: white;
+      border: 1px solid var(--color-grey-200);
+      border-radius: var(--radius-lg) !important;
+      margin-bottom: var(--space-4);
+      overflow: hidden;
+      transition: all 0.3s ease;
       box-shadow: var(--shadow-sm);
+    }
+
+    .accordion-item:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .accordion-button {
+      background: white;
+      border: none;
+      padding: var(--space-4) var(--space-6);
+      font-weight: 600;
+      color: var(--color-grey-900);
+      border-radius: var(--radius-lg) !important;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .accordion-button:not(.collapsed) {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: none;
+    }
+
+    .accordion-button::after {
+      display: none;
+    }
+
+    .accordion-button:focus {
+      box-shadow: none;
+      border: none;
+    }
+
+    .stage-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex: 1;
+    }
+
+    .stage-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gradient-primary);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .accordion-button:not(.collapsed) .stage-icon {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .stage-info {
+      flex: 1;
+    }
+
+    .stage-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .stage-description {
+      font-size: var(--text-sm);
+      color: var(--color-grey-600);
+      margin: 0;
+    }
+
+    .accordion-button:not(.collapsed) .stage-description {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .stage-badge {
+      background: var(--gradient-primary);
+      color: white;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease;
+    }
+
+    .accordion-button:not(.collapsed) .stage-badge {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .stage-badge:hover {
+      transform: scale(1.1);
+    }
+
+    .accordion-collapse {
+      border: none;
+    }
+
+    .accordion-body {
+      padding: 0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .candidate-list {
+      padding: var(--space-4);
     }
 
     .column-header {
@@ -606,21 +734,62 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .column-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-primary);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .kanban-column:hover .column-header::after {
+      transform: scaleX(1);
     }
 
     .column-title {
       font-size: var(--text-base);
       font-weight: 700;
       margin: 0;
+      color: var(--color-grey-900);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .column-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gradient-primary);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      font-weight: 700;
     }
 
     .column-count {
-      background: var(--color-grey-100);
-      color: var(--color-grey-700);
-      padding: var(--space-1) var(--space-2);
+      background: var(--gradient-primary);
+      color: white;
+      padding: var(--space-1) var(--space-3);
       border-radius: var(--radius-full);
       font-size: var(--text-xs);
-      font-weight: 600;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease;
+    }
+
+    .column-count:hover {
+      transform: scale(1.1);
     }
 
     .column-content {
@@ -641,41 +810,90 @@
     .column-hired .column-header { background: var(--color-success-bg); }
     .column-rejected .column-header { background: var(--color-danger-bg); }
 
-    /* Candidate Cards */
+    /* Candidate Cards - Bootstrap Enhanced with Horizontal Layout */
     .candidate-card {
       background: white;
-      border: var(--border-default);
-      border-radius: var(--radius-md);
+      border: 1px solid var(--color-grey-200);
+      border-radius: var(--radius-lg);
       padding: var(--space-4);
+      margin-bottom: var(--space-4);
       position: relative;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      grid-template-areas: "header info score actions";
+      gap: var(--space-3);
+      align-items: center;
+    }
+
+    .candidate-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
     .candidate-card:hover {
-      box-shadow: var(--shadow-md);
+      box-shadow: var(--shadow-lg);
       transform: translateY(-2px);
+      border-color: var(--color-primary);
     }
 
-    .candidate-checkbox {
-      position: absolute;
-      top: var(--space-3);
-      left: var(--space-3);
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .candidate-card:hover .candidate-checkbox {
+    .candidate-card:hover::before {
       opacity: 1;
     }
 
+    /* Click-to-Select functionality */
+    .candidate-card {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .candidate-card.selected {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      background: rgba(59, 130, 246, 0.02);
+    }
+
+    .candidate-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
     .candidate-header {
+      grid-area: header;
       display: flex;
       align-items: center;
       gap: var(--space-3);
-      margin-bottom: var(--space-3);
+      min-width: 0;
+    }
+
+    .candidate-info {
+      grid-area: info;
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .ai-score {
+      grid-area: score;
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .candidate-actions {
+      grid-area: actions;
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
     }
 
     .candidate-avatar {
@@ -721,34 +939,108 @@
 
     .candidate-meta {
       display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      font-size: var(--text-sm);
-      color: var(--color-grey-600);
+      flex-direction: row;
+      gap: var(--space-3);
+      font-size: var(--text-xs);
+      color: var(--color-grey-500);
+      flex-wrap: wrap;
+    }
+
+    /* Stage Bulk Actions */
+    .stage-bulk-actions {
+      border-top: 1px solid var(--color-grey-200);
+      padding: var(--space-4);
+      background: var(--color-grey-50);
+      margin-top: var(--space-3);
+    }
+
+    .bulk-actions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: var(--space-3);
     }
 
-    .candidate-actions {
+    .bulk-selected-count {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .bulk-clear-btn {
+      background: none;
+      border: none;
+      color: var(--color-grey-600);
+      cursor: pointer;
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      transition: all 0.2s ease;
+    }
+
+    .bulk-clear-btn:hover {
+      background: var(--color-grey-200);
+      color: var(--color-grey-900);
+    }
+
+    .bulk-actions-buttons {
       display: flex;
       gap: var(--space-2);
+      flex-wrap: wrap;
     }
+
+    .bulk-action-btn {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .bulk-action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .bulk-action-btn.secondary {
+      background: white;
+      color: var(--color-grey-700);
+      border: 1px solid var(--color-grey-300);
+    }
+
+    .bulk-action-btn.secondary:hover {
+      background: var(--color-grey-100);
+    }
+
+    /* Candidate Actions - Optimized for Horizontal Layout */
 
     .move-dropdown {
       position: relative;
     }
 
     .move-button {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
       padding: var(--space-2) var(--space-3);
-      border: 1px solid var(--color-grey-300);
       border-radius: var(--radius-md);
-      background: white;
-      font-size: var(--text-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
     }
 
     .move-button:hover {
-      background: var(--color-grey-50);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
 
     .dropdown-menu {
@@ -756,31 +1048,46 @@
       top: 100%;
       left: 0;
       background: white;
-      border: var(--border-default);
+      border: 1px solid var(--color-grey-200);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-lg);
-      min-width: 160px;
       z-index: 1000;
+      min-width: 160px;
       display: none;
+      margin-top: var(--space-1);
+      overflow: hidden;
     }
 
-    .dropdown-menu.open {
+    .dropdown-menu.show {
       display: block;
+      animation: slideDown 0.2s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .dropdown-item {
       display: block;
-      padding: var(--space-3) var(--space-4);
+      padding: var(--space-2) var(--space-3);
       color: var(--color-grey-700);
       text-decoration: none;
       font-size: var(--text-sm);
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
     }
 
     .dropdown-item:hover {
-      background: var(--color-grey-50);
-      color: var(--color-grey-900);
-      text-decoration: none;
+      background: var(--color-grey-100);
+      border-left-color: var(--color-primary);
+      padding-left: var(--space-4);
     }
 
     .dropdown-item.danger {
@@ -789,18 +1096,11 @@
 
     .dropdown-item.danger:hover {
       background: var(--color-danger-bg);
-      color: var(--color-danger);
+      border-left-color: var(--color-danger);
     }
 
     .view-profile {
-      padding: var(--space-2) var(--space-3);
-      border: 1px solid var(--color-primary);
-      border-radius: var(--radius-md);
-      background: var(--color-primary);
-      color: white;
-      font-size: var(--text-sm);
-      font-weight: 600;
-      cursor: pointer;
+      color: var(--color-primary);
       transition: all 0.2s;
       text-decoration: none;
     }
@@ -1169,58 +1469,11 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* Mobile View */
-    .mobile-view {
-      display: none;
-    }
+    /* Mobile View removed - using accordion instead */
 
-    .mobile-stage-tabs {
-      display: flex;
-      gap: var(--space-2);
-      overflow-x: auto;
-      padding: var(--space-4) var(--space-6);
-      background: white;
-      border-bottom: var(--border-default);
-    }
+    /* Mobile stage tabs removed - using accordion instead */
 
-    .mobile-stage-tab {
-      padding: var(--space-3) var(--space-4);
-      border: 1px solid var(--color-grey-300);
-      border-radius: var(--radius-full);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--color-grey-700);
-      background: white;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .mobile-stage-tab:hover {
-      border-color: var(--color-primary);
-      color: var(--color-primary);
-    }
-
-    .mobile-stage-tab.active {
-      background: var(--color-primary);
-      color: white;
-      border-color: var(--color-primary);
-    }
-
-    .mobile-candidate-list {
-      padding: var(--space-4) var(--space-6);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .mobile-candidate-card {
-      background: white;
-      border: var(--border-default);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4);
-      box-shadow: var(--shadow-sm);
-    }
+    /* Mobile candidate CSS removed - using accordion instead */
 
     /* Mobile Menu Toggle */
     .mobile-menu-toggle {
@@ -1250,6 +1503,14 @@
 
     /* Responsive: Mobile */
     @media (max-width: 767px) {
+      /* Hide everything except accordion and bulk actions */
+      .top-bar,
+      .controls-bar,
+      .ai-screening-panel,
+      .mobile-menu-toggle {
+        display: none !important;
+      }
+
       .sidebar {
         transform: translateX(-100%);
       }
@@ -1264,18 +1525,291 @@
 
       .main-content {
         margin-left: 0;
+        padding: 0;
+        background: var(--color-grey-100);
       }
 
-      .mobile-menu-toggle {
-        display: block;
+      /* Accordion Mobile Responsive */
+      .pipeline-accordion {
+        padding: var(--space-2);
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+        text-align: left;
+        align-items: flex-start;
+      }
+
+      .accordion-item {
+        text-align: left;
+      }
+
+      .accordion-body {
+        text-align: left;
+      }
+
+      .candidate-list {
+        text-align: left;
+      }
+
+      .accordion-item {
+        margin-bottom: var(--space-2);
+        width: 100%;
+      }
+
+      .accordion-button {
+        padding: var(--space-2);
+        font-size: var(--text-sm);
+        min-height: 60px; /* Ensure good touch target size */
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .stage-header {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .stage-info {
+        min-width: 0;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .stage-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .stage-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+      }
+
+      .stage-description {
+        font-size: var(--text-xs);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .candidate-card {
+        padding: var(--space-2);
+        margin-bottom: var(--space-2);
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .stage-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+
+      .candidate-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: var(--text-xs);
+      }
+
+      .candidate-name {
+        font-size: var(--text-sm);
+      }
+
+      .candidate-details {
+        font-size: var(--text-xs);
+      }
+
+      .move-button {
+        font-size: 10px;
+        padding: 4px 8px;
+      }
+
+      .view-profile {
+        font-size: var(--text-xs);
+      }
+
+      /* Ensure accordion is always visible */
+      .pipeline-accordion {
+        display: block !important;
+        visibility: visible !important;
       }
 
       .desktop-view {
-        display: none;
+        display: block !important;
+        visibility: visible !important;
       }
 
-      .mobile-view {
-        display: block;
+      /* Responsive adjustments for mobile - Stacked Layout */
+      .candidate-card {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: var(--space-3);
+        padding: var(--space-3);
+        grid-template-columns: unset !important;
+        grid-template-areas: unset !important;
+        text-align: left !important;
+        align-items: flex-start !important;
+        cursor: pointer !important;
+        position: relative;
+      }
+
+      .candidate-card.selected {
+        border-color: var(--color-primary) !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+        background: rgba(59, 130, 246, 0.02) !important;
+      }
+
+      .candidate-header {
+        display: flex !important;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-2);
+        grid-area: unset !important;
+      }
+
+      /* Checkbox functionality removed - using click-to-select */
+
+      .candidate-info {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        margin-bottom: var(--space-2);
+        grid-area: unset !important;
+      }
+
+      .candidate-meta {
+        flex-direction: column;
+        gap: var(--space-1);
+        margin-bottom: var(--space-2);
+      }
+
+      .ai-score {
+        align-self: flex-start;
+        margin-bottom: var(--space-2);
+        grid-area: unset !important;
+        text-align: left !important;
+      }
+
+      .candidate-actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        align-items: flex-start;
+        width: auto;
+        grid-area: unset !important;
+      }
+
+      .move-dropdown {
+        width: auto;
+      }
+
+      .move-button {
+        width: auto;
+        justify-content: flex-start;
+      }
+
+      .view-profile {
+        text-align: left;
+      }
+
+      /* Mobile bulk action bar improvements */
+      .bulk-action-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid var(--color-grey-200);
+        padding: var(--space-3);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .bulk-action-text {
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--color-primary);
+      }
+
+      .bulk-action-buttons {
+        display: flex;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+      }
+
+      .bulk-btn {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        font-size: var(--text-xs);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .bulk-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+
+      .bulk-btn.danger {
+        background: var(--color-danger);
+      }
+
+      .bulk-cancel {
+        background: none;
+        border: none;
+        color: var(--color-grey-600);
+        font-size: var(--text-lg);
+        cursor: pointer;
+        padding: var(--space-1);
+        border-radius: var(--radius-sm);
+      }
+
+      .bulk-cancel:hover {
+        background: var(--color-grey-200);
+      }
+
+      /* Additional mobile improvements */
+      .accordion-body {
+        padding: var(--space-3);
+        padding-bottom: var(--space-20); /* Add space for fixed bulk bar */
+      }
+
+      .candidate-list {
+        gap: var(--space-2);
+      }
+
+      .candidate-meta {
+        font-size: 10px;
+        gap: var(--space-1);
+      }
+
+      .candidate-actions {
+        flex-direction: column;
+        gap: var(--space-2);
+        align-items: stretch;
+      }
+
+      .move-dropdown {
+        width: 100%;
+      }
+
+      .move-button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        width: 100%;
+        min-width: unset;
       }
 
       .controls-bar {
@@ -1325,7 +1859,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <!-- Logo (RULE G-003) -->
-        <img src="../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="sidebar-logo">
         
         <div class="company-info">
           <h2 class="company-name">TechCorp Vietnam JSC</h2>
@@ -1494,478 +2028,430 @@
             </div>
           </div>
 
-          <!-- Kanban Board -->
-          <div class="kanban-board">
-            <div class="kanban-columns">
-              <!-- Applied Column -->
-              <div class="kanban-column column-applied">
-                <div class="column-header">
-                  <h2 class="column-title" data-i18n="applied">Applied</h2>
-                  <span class="column-count">12</span>
-                </div>
-                <div class="column-content">
-                  <!-- Candidate Card 1 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">NT</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate1Name">Nguyễn Thị Thu</h3>
-                        <p class="candidate-details" data-i18n="candidate1Details">3 năm · Backend</p>
+          <!-- Pipeline Accordion -->
+          <div class="desktop-view">
+            <div class="pipeline-accordion">
+              <div class="accordion" id="pipelineAccordion">
+              <!-- Applied Stage -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingApplied">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApplied" aria-expanded="true" aria-controls="collapseApplied">
+                    <div class="stage-header">
+                      <div class="stage-icon">📥</div>
+                      <div class="stage-info">
+                        <div class="stage-title" data-i18n="applied">Applied</div>
+                        <div class="stage-description">New applications received</div>
                       </div>
                     </div>
-                    <div class="ai-score" data-i18n="candidate1Score">82% ●blue badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="appliedDate">Applied: 10 Tháng 3</span>
-                      <span data-i18n="source">Source: Portal</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="screening" data-i18n="moveToScreening">→ Screening</a>
-                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
-                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                    <span class="stage-badge">12</span>
+                  </button>
+                </h2>
+                <div id="collapseApplied" class="accordion-collapse collapse show" aria-labelledby="headingApplied" data-bs-parent="#pipelineAccordion">
+                  <div class="accordion-body">
+                    <div class="candidate-list">
+                      <!-- Candidate Card 1 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">NT</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate1Name">Nguyễn Thị Thu</h3>
+                            <p class="candidate-details" data-i18n="candidate1Details">3 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate1Score">82% ●blue badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="appliedDate">Applied: 10 Tháng 3</span>
+                          <span data-i18n="source">Source: Portal</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="screening" data-i18n="moveToScreening">→ Screening</a>
+                              <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                              <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
 
-                  <!-- Candidate Card 2 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">TB</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate2Name">Trần Văn Bình</h3>
-                        <p class="candidate-details" data-i18n="candidate2Details">2 năm · Fullstack</p>
-                      </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate2Score">71% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="appliedDate">Applied: 8 Tháng 3</span>
-                      <span data-i18n="source">Source: Referral</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="screening" data-i18n="moveToScreening">→ Screening</a>
-                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
-                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                      <!-- Candidate Card 2 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">TB</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate2Name">Trần Văn Bình</h3>
+                            <p class="candidate-details" data-i18n="candidate2Details">2 năm · Fullstack</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate2Score">71% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="appliedDate">Applied: 11 Tháng 3</span>
+                          <span data-i18n="source">Source: Referral</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="screening" data-i18n="moveToScreening">→ Screening</a>
+                              <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                              <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
 
-                  <!-- Show More -->
-                  <div class="show-more" data-i18n="showMore">Show 10 more ↓</div>
-                </div>
-              </div>
-
-              <!-- Screening Column -->
-              <div class="kanban-column column-screening">
-                <div class="column-header">
-                  <h2 class="column-title" data-i18n="screening">Screening</h2>
-                  <span class="column-count">8</span>
-                </div>
-                <div class="column-content">
-                  <!-- Candidate Card 1 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">LC</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate3Name">Lê Văn Cường</h3>
-                        <p class="candidate-details" data-i18n="candidate3Details">4 năm · Backend</p>
+                      <!-- Show More -->
+                      <div class="show-more" data-i18n="showMore">Show 10 more ↓</div>
+                    </div>
+                    
+                    <!-- Stage Bulk Actions -->
+                    <div class="stage-bulk-actions" id="appliedBulkActions" style="display: none;">
+                      <div class="bulk-actions-header">
+                        <span class="bulk-selected-count" id="appliedBulkCount">0 candidates selected</span>
+                        <button class="bulk-clear-btn" id="appliedBulkClear">Clear</button>
                       </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate3Score">91% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="contactInfo">📞 0912345678</span>
-                      <span data-i18n="contactEmail">✉️ le.cuong@email.com</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
-                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
-                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
-                        </div>
+                      <div class="bulk-actions-buttons">
+                        <button class="bulk-action-btn" data-stage="screening" data-i18n="moveToScreening">Move to Screening</button>
+                        <button class="bulk-action-btn" data-stage="shortlisted" data-i18n="moveToShortlisted">Move to Shortlisted</button>
+                        <button class="bulk-action-btn" data-stage="rejected" data-i18n="moveToRejected">Move to Rejected</button>
+                        <button class="bulk-action-btn secondary" data-i18n="sendNotification">Send Notification</button>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
-
-                  <!-- Candidate Card 2 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">PM</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate4Name">Phạm Thị Mai</h3>
-                        <p class="candidate-details" data-i18n="candidate4Details">3 năm · Frontend</p>
-                      </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate4Score">78% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="contactInfo">📞 0987654321</span>
-                      <span data-i18n="contactEmail">✉️ mai.pham@email.com</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
-                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
-                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
-                        </div>
-                      </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
-
-                  <!-- Candidate Card 3 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">HN</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate5Name">Hoàng Nam</h3>
-                        <p class="candidate-details" data-i18n="candidate5Details">5 năm · Fullstack</p>
-                      </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate5Score">85% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="contactInfo">📞 0912345678</span>
-                      <span data-i18n="contactEmail">✉️ hoang.nam@email.com</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
-                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
-                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
-                        </div>
-                      </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Shortlisted Column -->
-              <div class="kanban-column column-shortlisted">
-                <div class="column-header">
-                  <h2 class="column-title" data-i18n="shortlisted">Shortlisted</h2>
-                  <span class="column-count">4</span>
-                </div>
-                <div class="column-content">
-                  <!-- Candidate Card 1 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">VT</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate6Name">Võ Thị Thu</h3>
-                        <p class="candidate-details" data-i18n="candidate6Details">6 năm · Backend</p>
+              <!-- Screening Stage -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingScreening">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseScreening" aria-expanded="false" aria-controls="collapseScreening">
+                    <div class="stage-header">
+                      <div class="stage-icon">🔍</div>
+                      <div class="stage-info">
+                        <div class="stage-title" data-i18n="screening">Screening</div>
+                        <div class="stage-description">Initial review and assessment</div>
                       </div>
                     </div>
-                    <div class="ai-score" data-i18n="candidate6Score">94% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="contactInfo">📞 0912345678</span>
-                      <span data-i18n="contactEmail">✉️ vo.thu@email.com</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
-                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
-                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                    <span class="stage-badge">8</span>
+                  </button>
+                </h2>
+                <div id="collapseScreening" class="accordion-collapse collapse" aria-labelledby="headingScreening" data-bs-parent="#pipelineAccordion">
+                  <div class="accordion-body">
+                    <div class="candidate-list">
+                      <!-- Candidate Card 1 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">LC</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate3Name">Lê Văn Cường</h3>
+                            <p class="candidate-details" data-i18n="candidate3Details">4 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate3Score">91% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="contactInfo">📞 0912345678</span>
+                          <span data-i18n="contactEmail">✉️ le.cuong@email.com</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                              <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                              <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
 
-                  <!-- Candidate Card 2 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">DN</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate7Name">Đỗ Nam</h3>
-                        <p class="candidate-details" data-i18n="candidate7Details">4 năm · DevOps</p>
-                      </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate7Score">88% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="contactInfo">📞 0987654321</span>
-                      <span data-i18n="contactEmail">✉️ do.nam@email.com</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
-                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
-                          <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                      <!-- Candidate Card 2 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">TH</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate4Name">Trần Hoàng</h3>
+                            <p class="candidate-details" data-i18n="candidate4Details">3 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate4Score">87% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="contactInfo">📞 0987654321</span>
+                          <span data-i18n="contactEmail">✉️ tran.hoang@email.com</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="shortlisted" data-i18n="moveToShortlisted">→ Shortlisted</a>
+                              <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                              <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                    </div>
+                    
+                    <!-- Stage Bulk Actions -->
+                    <div class="stage-bulk-actions" id="screeningBulkActions" style="display: none;">
+                      <div class="bulk-actions-header">
+                        <span class="bulk-selected-count" id="screeningBulkCount">0 candidates selected</span>
+                        <button class="bulk-clear-btn" id="screeningBulkClear">Clear</button>
+                      </div>
+                      <div class="bulk-actions-buttons">
+                        <button class="bulk-action-btn" data-stage="shortlisted" data-i18n="moveToShortlisted">Move to Shortlisted</button>
+                        <button class="bulk-action-btn" data-stage="interview" data-i18n="moveToInterview">Move to Interview</button>
+                        <button class="bulk-action-btn" data-stage="rejected" data-i18n="moveToRejected">Move to Rejected</button>
+                        <button class="bulk-action-btn secondary" data-i18n="sendNotification">Send Notification</button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Interview Scheduled Column -->
-              <div class="kanban-column column-interview">
-                <div class="column-header">
-                  <h2 class="column-title" data-i18n="interview">Interview Scheduled</h2>
-                  <span class="column-count">2</span>
-                </div>
-                <div class="column-content">
-                  <!-- Candidate Card 1 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">TK</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate8Name">Trần Kim</h3>
-                        <p class="candidate-details" data-i18n="candidate8Details">7 năm · Backend</p>
+              <!-- Shortlisted Stage -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingShortlisted">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShortlisted" aria-expanded="false" aria-controls="collapseShortlisted">
+                    <div class="stage-header">
+                      <div class="stage-icon">⭐</div>
+                      <div class="stage-info">
+                        <div class="stage-title" data-i18n="shortlisted">Shortlisted</div>
+                        <div class="stage-description">Qualified candidates</div>
                       </div>
                     </div>
-                    <div class="ai-score" data-i18n="candidate8Score">96% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="interviewDate">Interview: 15 Tháng 3, 14:00</span>
-                      <span data-i18n="contactInfo">📞 0912345678</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
-                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                    <span class="stage-badge">4</span>
+                  </button>
+                </h2>
+                <div id="collapseShortlisted" class="accordion-collapse collapse" aria-labelledby="headingShortlisted" data-bs-parent="#pipelineAccordion">
+                  <div class="accordion-body">
+                    <div class="candidate-list">
+                      <!-- Candidate Card 1 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">VT</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate6Name">Võ Thị Thu</h3>
+                            <p class="candidate-details" data-i18n="candidate6Details">6 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate6Score">94% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="contactInfo">📞 0912345678</span>
+                          <span data-i18n="contactEmail">✉️ vo.thu@email.com</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="interview" data-i18n="moveToInterview">→ Interview</a>
+                              <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
+                              <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
-
-                  <!-- Candidate Card 2 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">LQ</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate9Name">Lâm Quang</h3>
-                        <p class="candidate-details" data-i18n="candidate9Details">5 năm · Backend</p>
-                      </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate9Score">92% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="interviewDate">Interview: 16 Tháng 3, 10:00</span>
-                      <span data-i18n="contactInfo">📞 0987654321</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
-                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
-                        </div>
-                      </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Offer Sent Column -->
-              <div class="kanban-column column-offer">
-                <div class="column-header">
-                  <h2 class="column-title" data-i18n="offer">Offer Sent</h2>
-                  <span class="column-count">1</span>
-                </div>
-                <div class="column-content">
-                  <!-- Candidate Card 1 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">PT</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate10Name">Phạm Tuấn</h3>
-                        <p class="candidate-details" data-i18n="candidate10Details">8 năm · Backend</p>
+              <!-- Interview Stage -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingInterview">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInterview" aria-expanded="false" aria-controls="collapseInterview">
+                    <div class="stage-header">
+                      <div class="stage-icon">📅</div>
+                      <div class="stage-info">
+                        <div class="stage-title" data-i18n="interview">Interview Scheduled</div>
+                        <div class="stage-description">Interviews in progress</div>
                       </div>
                     </div>
-                    <div class="ai-score" data-i18n="candidate10Score">98% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="offerDate">Offer: 12 Tháng 3</span>
-                      <span data-i18n="contactInfo">📞 0912345678</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="hired" data-i18n="moveToHired">→ Hired</a>
-                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                    <span class="stage-badge">2</span>
+                  </button>
+                </h2>
+                <div id="collapseInterview" class="accordion-collapse collapse" aria-labelledby="headingInterview" data-bs-parent="#pipelineAccordion">
+                  <div class="accordion-body">
+                    <div class="candidate-list">
+                      <!-- Candidate Card 1 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">TK</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate8Name">Trần Kim</h3>
+                            <p class="candidate-details" data-i18n="candidate8Details">7 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate8Score">93% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="interviewDate">Interview: 15 Tháng 3, 14:00</span>
+                          <span data-i18n="contactInfo">📞 0912345678</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="offer" data-i18n="moveToOffer">→ Offer</a>
+                              <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Hired Column -->
-              <div class="kanban-column column-hired">
-                <div class="column-header">
-                  <h2 class="column-title" data-i18n="hired">Hired</h2>
-                  <span class="column-count">1</span>
-                </div>
-                <div class="column-content">
-                  <!-- Candidate Card 1 -->
-                  <div class="candidate-card">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">NV</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate11Name">Nguyễn Văn</h3>
-                        <p class="candidate-details" data-i18n="candidate11Details">6 năm · Backend</p>
+              <!-- Offer Stage -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOffer">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOffer" aria-expanded="false" aria-controls="collapseOffer">
+                    <div class="stage-header">
+                      <div class="stage-icon">📧</div>
+                      <div class="stage-info">
+                        <div class="stage-title" data-i18n="offer">Offer Sent</div>
+                        <div class="stage-description">Offers extended</div>
                       </div>
                     </div>
-                    <div class="ai-score" data-i18n="candidate11Score">95% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="hiredDate">Hired: 5 Tháng 3</span>
-                      <span data-i18n="contactInfo">📞 0912345678</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                    <span class="stage-badge">1</span>
+                  </button>
+                </h2>
+                <div id="collapseOffer" class="accordion-collapse collapse" aria-labelledby="headingOffer" data-bs-parent="#pipelineAccordion">
+                  <div class="accordion-body">
+                    <div class="candidate-list">
+                      <!-- Candidate Card 1 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">PT</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate10Name">Phạm Tuấn</h3>
+                            <p class="candidate-details" data-i18n="candidate10Details">8 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate10Score">98% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="offerDate">Offer: 18 Tháng 3</span>
+                          <span data-i18n="contactInfo">📞 0912345678</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="hired" data-i18n="moveToHired">→ Hired</a>
+                              <a href="#" class="dropdown-item danger" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Rejected Column -->
-              <div class="kanban-column column-rejected">
-                <div class="column-header">
-                  <h2 class="column-title" data-i18n="rejected">Rejected</h2>
-                  <span class="column-count">3</span>
-                </div>
-                <div class="column-content">
-                  <!-- Candidate Card 1 -->
-                  <div class="candidate-card" style="opacity: 0.7;">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">HT</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate12Name">Hoàng Thị</h3>
-                        <p class="candidate-details" data-i18n="candidate12Details">1 năm · Backend</p>
+              <!-- Hired Stage -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingHired">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHired" aria-expanded="false" aria-controls="collapseHired">
+                    <div class="stage-header">
+                      <div class="stage-icon">✅</div>
+                      <div class="stage-info">
+                        <div class="stage-title" data-i18n="hired">Hired</div>
+                        <div class="stage-description">Successfully onboarded</div>
                       </div>
                     </div>
-                    <div class="ai-score" data-i18n="candidate12Score">45% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="rejectedDate">Rejected: 8 Tháng 3</span>
-                      <span data-i18n="rejectReason">Reason: Not enough experience</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="applied" data-i18n="moveToApplied">→ Applied</a>
+                    <span class="stage-badge">1</span>
+                  </button>
+                </h2>
+                <div id="collapseHired" class="accordion-collapse collapse" aria-labelledby="headingHired" data-bs-parent="#pipelineAccordion">
+                  <div class="accordion-body">
+                    <div class="candidate-list">
+                      <!-- Candidate Card 1 -->
+                      <div class="candidate-card">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">NV</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate11Name">Nguyễn Văn</h3>
+                            <p class="candidate-details" data-i18n="candidate11Details">6 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate11Score">95% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="hiredDate">Hired: 5 Tháng 3</span>
+                          <span data-i18n="contactInfo">📞 0912345678</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="rejected" data-i18n="moveToRejected">→ Rejected</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                         </div>
                       </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
-
-                  <!-- Candidate Card 2 -->
-                  <div class="candidate-card" style="opacity: 0.7;">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">QL</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate13Name">Quốc Luân</h3>
-                        <p class="candidate-details" data-i18n="candidate13Details">2 năm · Frontend</p>
-                      </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate13Score">52% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="rejectedDate">Rejected: 10 Tháng 3</span>
-                      <span data-i18n="rejectReason">Reason: Role mismatch</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="applied" data-i18n="moveToApplied">→ Applied</a>
-                        </div>
-                      </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
-                    </div>
-                  </div>
-
-                  <!-- Candidate Card 3 -->
-                  <div class="candidate-card" style="opacity: 0.7;">
-                    <input type="checkbox" class="candidate-checkbox">
-                    <div class="candidate-header">
-                      <div class="candidate-avatar">TN</div>
-                      <div class="candidate-info">
-                        <h3 class="candidate-name" data-i18n="candidate14Name">Trần Nam</h3>
-                        <p class="candidate-details" data-i18n="candidate14Details">3 năm · Backend</p>
-                      </div>
-                    </div>
-                    <div class="ai-score" data-i18n="candidate14Score">58% badge</div>
-                    <div class="candidate-meta">
-                      <span data-i18n="rejectedDate">Rejected: 12 Tháng 3</span>
-                      <span data-i18n="rejectReason">Reason: Poor communication</span>
-                    </div>
-                    <div class="candidate-actions">
-                      <div class="move-dropdown">
-                        <button class="move-button" data-i18n="moveTo">Move to ▾</button>
-                        <div class="dropdown-menu">
-                          <a href="#" class="dropdown-item" data-stage="applied" data-i18n="moveToApplied">→ Applied</a>
-                        </div>
-                      </div>
-                      <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <!-- Rejected Stage -->
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingRejected">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRejected" aria-expanded="false" aria-controls="collapseRejected">
+                    <div class="stage-header">
+                      <div class="stage-icon">❌</div>
+                      <div class="stage-info">
+                        <div class="stage-title" data-i18n="rejected">Rejected</div>
+                        <div class="stage-description">Not suitable for this role</div>
+                      </div>
+                    </div>
+                    <span class="stage-badge">3</span>
+                  </button>
+                </h2>
+                <div id="collapseRejected" class="accordion-collapse collapse" aria-labelledby="headingRejected" data-bs-parent="#pipelineAccordion">
+                  <div class="accordion-body">
+                    <div class="candidate-list">
+                      <!-- Candidate Card 1 -->
+                      <div class="candidate-card" style="opacity: 0.7;">
+                                                <div class="candidate-header">
+                          <div class="candidate-avatar">HT</div>
+                          <div class="candidate-info">
+                            <h3 class="candidate-name" data-i18n="candidate12Name">Hoàng Thị</h3>
+                            <p class="candidate-details" data-i18n="candidate12Details">1 năm · Backend</p>
+                          </div>
+                        </div>
+                        <div class="ai-score" data-i18n="candidate12Score">45% badge</div>
+                        <div class="candidate-meta">
+                          <span data-i18n="rejectedDate">Rejected: 12 Tháng 3</span>
+                          <span data-i18n="rejectReason">Reason: Poor communication</span>
+                        </div>
+                        <div class="candidate-actions">
+                          <div class="move-dropdown">
+                            <button class="move-button" data-i18n="moveTo">Move to ▾</button>
+                            <div class="dropdown-menu">
+                              <a href="#" class="dropdown-item" data-stage="applied" data-i18n="moveToApplied">→ Applied</a>
+                            </div>
+                          </div>
+                          <a href="e07-candidate-detail.html" class="view-profile" data-i18n="viewProfile">View Profile →</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Mobile View -->
-        <div class="mobile-view">
-          <!-- Mobile Stage Tabs -->
-          <div class="mobile-stage-tabs">
-            <button class="mobile-stage-tab active" data-stage="applied" data-i18n="appliedMobile">Applied(12)</button>
-            <button class="mobile-stage-tab" data-stage="screening" data-i18n="screeningMobile">Screening(8)</button>
-            <button class="mobile-stage-tab" data-stage="shortlisted" data-i18n="shortlistedMobile">Shortlisted(4)</button>
-            <button class="mobile-stage-tab" data-stage="interview" data-i18n="interviewMobile">Interview(2)</button>
-            <button class="mobile-stage-tab" data-stage="offer" data-i18n="offerMobile">Offer(1)</button>
-            <button class="mobile-stage-tab" data-stage="hired" data-i18n="hiredMobile">Hired(1)</button>
-            <button class="mobile-stage-tab" data-stage="rejected" data-i18n="rejectedMobile">Rejected(3)</button>
-          </div>
-
-          <!-- Mobile Candidate List -->
-          <div class="mobile-candidate-list" id="mobileCandidateList">
-            <!-- Candidates will be populated here based on selected stage -->
-          </div>
-        </div>
-
+        
         <!-- AI Screening Panel -->
         <div class="ai-screening-panel" id="aiScreeningPanel">
           <div class="ai-panel-header">
@@ -2540,19 +3026,41 @@
     const bulkCancel = document.getElementById('bulkCancel');
     const selectedCheckboxes = new Set();
 
-    // Checkbox management
-    document.querySelectorAll('.candidate-checkbox').forEach(checkbox => {
-      checkbox.addEventListener('change', (e) => {
-        const card = e.target.closest('.candidate-card');
+    // Click-to-Select management with touch support
+    document.querySelectorAll('.candidate-card').forEach(card => {
+      // Handle both click and touch events for mobile
+      const handleSelection = (e) => {
+        // Don't select if clicking on action buttons or links
+        if (e.target.closest('.candidate-actions') || e.target.closest('.move-dropdown') || e.target.closest('.view-profile')) {
+          return;
+        }
+        
+        e.preventDefault(); // Prevent any default behavior on mobile
+        e.stopPropagation();
+        
         const candidateId = card.querySelector('.candidate-name').textContent;
         
-        if (e.target.checked) {
-          selectedCheckboxes.add(candidateId);
-        } else {
+        if (selectedCheckboxes.has(candidateId)) {
           selectedCheckboxes.delete(candidateId);
+          card.classList.remove('selected');
+        } else {
+          selectedCheckboxes.add(candidateId);
+          card.classList.add('selected');
         }
         
         updateBulkActionBar();
+      };
+
+      // Add both click and touch event listeners
+      card.addEventListener('click', handleSelection);
+      card.addEventListener('touchend', handleSelection);
+      
+      // Prevent touch events from bubbling to avoid conflicts
+      card.addEventListener('touchstart', (e) => {
+        // Don't prevent touchstart on action buttons
+        if (!e.target.closest('.candidate-actions') && !e.target.closest('.move-dropdown') && !e.target.closest('.view-profile')) {
+          e.stopPropagation();
+        }
       });
     });
 
@@ -2817,5 +3325,8 @@
       });
     });
   </script>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 </html>

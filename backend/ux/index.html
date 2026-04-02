@@ -530,10 +530,10 @@
   <header class="header">
     <div class="header-content">
       <div class="header-left">
-        <img src="assets/images/logo.png" alt="LàmViệc360" class="logo">
+        <img src="../assets/images/logo.png" alt="LàmViệc360" class="logo">
         <div>
           <h1 class="header-title">LàmViệc360 — Stage 1 Screen Index</h1>
-          <p class="header-subtitle">54 screens across 6 modules · Click any screen to open</p>
+          <p class="header-subtitle">59 screens across 6 modules · Click any screen to open</p>
         </div>
       </div>
       
@@ -550,7 +550,7 @@
   <div class="stats-row">
     <div class="stat-item">
       <span class="stat-label">Total Screens:</span>
-      <span>54</span>
+      <span>59</span>
     </div>
     <div class="stat-item">
       <span class="stat-label">Modules:</span>
@@ -562,7 +562,7 @@
     </div>
     <div class="stat-item">
       <span class="stat-label">PRD:</span>
-      <span>LV360-PRD-001 v1.0</span>
+      <span>LV360-PRD-001 v1.2</span>
     </div>
   </div>
 
@@ -581,7 +581,7 @@
     <!-- Module 1: Public Portal -->
     <section class="module-section" id="public-portal">
       <div class="module-header">
-        <h2 class="module-title">🌐 Public Portal — 5 screens</h2>
+        <h2 class="module-title">🌐 Public Portal — 6 screens</h2>
         <p class="module-description">Consumer-facing job discovery layer. No login required. Mobile-first.</p>
       </div>
       
@@ -634,6 +634,16 @@
           <h3 class="card-title">Company Directory</h3>
           <p class="card-prd">PRD refs: JSP-FR-001, BR-008</p>
           <a href="public/p05-company-directory.html" class="card-action">Open Screen →</a>
+        </div>
+
+        <div class="screen-card">
+          <div class="card-header">
+            <span class="screen-id">[p06]</span>
+            <span class="card-status status-built">✓ Built</span>
+          </div>
+          <h3 class="card-title">Monthly Events</h3>
+          <p class="card-prd">PRD refs: JSP-FR-013</p>
+          <a href="public/p06-monthly-events.html" class="card-action">Open Screen →</a>
         </div>
       </div>
     </section>
@@ -781,7 +791,7 @@
     <!-- Module 4: Employer Workspace -->
     <section class="module-section" id="employer">
       <div class="module-header">
-        <h2 class="module-title">💼 Employer Workspace — 19 screens</h2>
+        <h2 class="module-title">💼 Employer Workspace — 20 screens</h2>
         <p class="module-description">Full SaaS hiring workspace. Navy sidebar. Jobs, pipeline, team, settings.</p>
       </div>
       
@@ -979,13 +989,23 @@
           <p class="card-prd">EMP-FR-001, BR-008</p>
           <a href="employer/e19-company-profile.html" class="card-action">Open →</a>
         </div>
+
+        <div class="screen-card">
+          <div class="card-header">
+            <span class="screen-id">[e20]</span>
+            <span class="card-status status-built">✓ Built</span>
+          </div>
+          <h3 class="card-title">Document Request - Recruiter View</h3>
+          <p class="card-prd">EMP-FR-026b, BR-005, BR-016</p>
+          <a href="employer/e20-document-request.html" class="card-action">Open →</a>
+        </div>
       </div>
     </section>
 
     <!-- Module 5: Super Admin Panel -->
     <section class="module-section" id="super-admin">
       <div class="module-header">
-        <h2 class="module-title">⚙ Super Admin Panel — 11 screens</h2>
+        <h2 class="module-title">⚙ Super Admin Panel — 12 screens</h2>
         <p class="module-description">Platform control plane. Dark purple sidebar. Company approvals, users, analytics, config.</p>
       </div>
       
@@ -1102,19 +1122,29 @@
           <p class="card-prd">BR-010, AUTH-FR-006</p>
           <a href="admin/sa11-settings.html" class="card-action">Open →</a>
         </div>
+
+        <div class="screen-card">
+          <div class="card-header">
+            <span class="screen-id">[sa12]</span>
+            <span class="card-status status-built">✓ Built</span>
+          </div>
+          <h3 class="card-title">Account Lockout Management</h3>
+          <p class="card-prd">SAP-FR-009, BR-015</p>
+          <a href="admin/sa12-account-lockout.html" class="card-action">Open →</a>
+        </div>
       </div>
     </section>
 
     <!-- Module 6: Job Seeker Portal -->
     <section class="module-section" id="job-seeker">
       <div class="module-header">
-        <h2 class="module-title">🔍 Job Seeker Portal — 11 screens</h2>
+        <h2 class="module-title">🔍 Job Seeker Portal — 13 screens</h2>
         <p class="module-description">Consumer job search and application layer. Mobile-first. Zalo-native. Bottom tab bar.</p>
       </div>
       
-      <!--<div class="note-box">
+      <div class="note-box">
         <p class="note-content">ℹ Screen IDs js02 and js08 are intentionally skipped. See .windsurf/rules.md for explanation.</p>
-      </div>-->
+      </div>
       
       <div class="card-grid">
         <div class="screen-card">
@@ -1227,9 +1257,28 @@
             <span class="card-status status-built">✓ Built</span>
           </div>
           <h3 class="card-title">Account Settings</h3>
-          <p class="card-subtitle">4 tabs</p>
           <p class="card-prd">NTF-FR-005, BR-011, BR-012</p>
           <a href="job-seeker/js13-settings.html" class="card-action">Open →</a>
+        </div>
+
+        <div class="screen-card">
+          <div class="card-header">
+            <span class="screen-id">[js15]</span>
+            <span class="card-status status-built">✓ Built</span>
+          </div>
+          <h3 class="card-title">Privacy Settings</h3>
+          <p class="card-prd">JSP-FR-015, BR-017</p>
+          <a href="job-seeker/js15-privacy-settings.html" class="card-action">Open →</a>
+        </div>
+
+        <div class="screen-card">
+          <div class="card-header">
+            <span class="screen-id">[js16]</span>
+            <span class="card-status status-built">✓ Built</span>
+          </div>
+          <h3 class="card-title">Document Request - Candidate Response</h3>
+          <p class="card-prd">EMP-FR-026b, BR-016</p>
+          <a href="job-seeker/js16-document-request.html" class="card-action">Open →</a>
         </div>
       </div>
     </section>
@@ -1326,8 +1375,8 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-content">
-      <h3 class="footer-title">LàmViệc360 Stage 1 Screen Index · LV360-PRD-001 v1.0 · tresundios Software · March 2026</h3>
-      <p class="footer-subtitle">54 screens · 7 batches · 6 modules</p>
+      <h3 class="footer-title">LàmViệc360 Stage 1 Screen Index · LV360-PRD-001 v1.2 · tresundios Software · March 2026</h3>
+      <p class="footer-subtitle">59 screens · 7 batches · 6 modules</p>
     </div>
   </footer>
 
@@ -1337,7 +1386,7 @@
       vi: {
         skipLink: 'Bỏ qua đến nội dung chính',
         headerTitle: 'LàmViệc360 — Stage 1 Screen Index',
-        headerSubtitle: '54 screens across 6 modules · Click any screen to open',
+        headerSubtitle: '59 screens across 6 modules · Click any screen to open',
         statTotalScreens: 'Total Screens:',
         statModules: 'Modules:',
         statBuild: 'Build:',
@@ -1348,27 +1397,27 @@
         employer: 'Employer',
         superAdmin: 'Super Admin',
         jobSeeker: 'Job Seeker',
-        publicPortalTitle: '🌐 Public Portal — 5 screens',
+        publicPortalTitle: '🌐 Public Portal — 6 screens',
         publicPortalDesc: 'Consumer-facing job discovery layer. No login required. Mobile-first.',
         authTitle: '🔐 Authentication — 7 screens',
         authDesc: 'Login, registration wizard, OTP, social login. 4-step registration flow for all user types.',
         onboardingTitle: '🏢 Onboarding Wizard — 4 screens',
         onboardingDesc: 'Company Admin workspace setup. 3-step wizard. Pending approval state included.',
-        employerTitle: '💼 Employer Workspace — 19 screens',
+        employerTitle: '💼 Employer Workspace — 20 screens',
         employerDesc: 'Full SaaS hiring workspace. Navy sidebar. Jobs, pipeline, team, settings.',
-        superAdminTitle: '⚙ Super Admin Panel — 11 screens',
+        superAdminTitle: '⚙ Super Admin Panel — 12 screens',
         superAdminDesc: 'Platform control plane. Dark purple sidebar. Company approvals, users, analytics, config.',
-        jobSeekerTitle: '🔍 Job Seeker Portal — 11 screens',
+        jobSeekerTitle: '🔍 Job Seeker Portal — 13 screens',
         jobSeekerDesc: 'Consumer job search and application layer. Mobile-first. Zalo-native. Bottom tab bar.',
         businessRulesTitle: '📋 Business Rules Quick Reference',
         businessRulesSubtitle: 'All 14 BR rules from PRD v2.0 and which screens implement them',
-        footerTitle: 'LàmViệc360 Stage 1 Screen Index · LV360-PRD-001 v1.0 · tresundios Software · March 2026',
-        footerSubtitle: '54 screens · 7 batches · 6 modules'
+        footerTitle: 'LàmViệc360 Stage 1 Screen Index · LV360-PRD-001 v1.2 · tresundios Software · March 2026',
+        footerSubtitle: '59 screens · 7 batches · 6 modules'
       },
       en: {
         skipLink: 'Skip to main content',
         headerTitle: 'LàmViệc360 — Stage 1 Screen Index',
-        headerSubtitle: '54 screens across 6 modules · Click any screen to open',
+        headerSubtitle: '59 screens across 6 modules · Click any screen to open',
         statTotalScreens: 'Total Screens:',
         statModules: 'Modules:',
         statBuild: 'Build:',
@@ -1379,22 +1428,22 @@
         employer: 'Employer',
         superAdmin: 'Super Admin',
         jobSeeker: 'Job Seeker',
-        publicPortalTitle: '🌐 Public Portal — 5 screens',
+        publicPortalTitle: '🌐 Public Portal — 6 screens',
         publicPortalDesc: 'Consumer-facing job discovery layer. No login required. Mobile-first.',
         authTitle: '🔐 Authentication — 7 screens',
         authDesc: 'Login, registration wizard, OTP, social login. 4-step registration flow for all user types.',
         onboardingTitle: '🏢 Onboarding Wizard — 4 screens',
         onboardingDesc: 'Company Admin workspace setup. 3-step wizard. Pending approval state included.',
-        employerTitle: '💼 Employer Workspace — 19 screens',
+        employerTitle: '💼 Employer Workspace — 20 screens',
         employerDesc: 'Full SaaS hiring workspace. Navy sidebar. Jobs, pipeline, team, settings.',
-        superAdminTitle: '⚙ Super Admin Panel — 11 screens',
+        superAdminTitle: '⚙ Super Admin Panel — 12 screens',
         superAdminDesc: 'Platform control plane. Dark purple sidebar. Company approvals, users, analytics, config.',
-        jobSeekerTitle: '🔍 Job Seeker Portal — 11 screens',
+        jobSeekerTitle: '🔍 Job Seeker Portal — 13 screens',
         jobSeekerDesc: 'Consumer job search and application layer. Mobile-first. Zalo-native. Bottom tab bar.',
         businessRulesTitle: '📋 Business Rules Quick Reference',
         businessRulesSubtitle: 'All 14 BR rules from PRD v2.0 and which screens implement them',
-        footerTitle: 'LàmViệc360 Stage 1 Screen Index · LV360-PRD-001 v1.0 · tresundios Software · March 2026',
-        footerSubtitle: '54 screens · 7 batches · 6 modules'
+        footerTitle: 'LàmViệc360 Stage 1 Screen Index · LV360-PRD-001 v1.2 · tresundios Software · March 2026',
+        footerSubtitle: '59 screens · 7 batches · 6 modules'
       }
     };
 

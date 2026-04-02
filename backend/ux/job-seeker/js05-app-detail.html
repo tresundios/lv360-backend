@@ -338,32 +338,33 @@
     }
 
     .progress-timeline {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       position: relative;
       min-width: 600px;
-      padding: var(--space-4) 0;
+      padding: var(--space-8) 0;
     }
 
     .timeline-line {
       position: absolute;
-      top: 50%;
+      top: 9px;
       left: 0;
       right: 0;
       height: 2px;
-      background: var(--color-grey-200);
+      background: linear-gradient(to right, var(--color-grey-200) 0%, var(--color-grey-300) 100%);
       z-index: 1;
+      margin: 0 40px;
+      border-radius: var(--radius-full);
     }
 
     .timeline-fill {
       position: absolute;
-      top: 50%;
-      left: 0;
+      top: 9px;
+      left: 40px;
       height: 2px;
-      background: var(--color-success);
+      background: linear-gradient(to right, var(--color-success) 0%, #10B981 100%);
       z-index: 2;
-      width: 60%;
+      width: calc(40% - 40px);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: var(--radius-full);
     }
 
     .timeline-steps {
@@ -372,6 +373,7 @@
       position: relative;
       z-index: 3;
       width: 100%;
+      align-items: flex-start;
     }
 
     .timeline-step {
@@ -383,38 +385,57 @@
     }
 
     .timeline-dot {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       border-radius: var(--radius-full);
-      background: var(--color-grey-200);
-      border: 3px solid white;
-      transition: all 0.2s;
+      background: white;
+      border: 3px solid var(--color-grey-300);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
 
     .timeline-dot.completed {
       background: var(--color-success);
+      border-color: var(--color-success);
+      box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .timeline-dot.current {
       background: var(--color-success);
-      animation: pulse 2s infinite;
+      border-color: var(--color-success);
+      box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.2), 0 2px 8px rgba(21, 128, 61, 0.3);
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      transform: scale(1.1);
     }
 
     .timeline-dot.future {
-      background: var(--color-grey-200);
+      background: white;
+      border-color: var(--color-grey-300);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
 
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(21, 128, 61, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0); }
+      0%, 100% { 
+        box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.2), 0 2px 8px rgba(21, 128, 61, 0.3);
+      }
+      50% { 
+        box-shadow: 0 0 0 6px rgba(21, 128, 61, 0.1), 0 2px 12px rgba(21, 128, 61, 0.4);
+      }
     }
 
     .timeline-label {
       font-size: var(--text-xs);
-      color: var(--color-grey-600);
+      color: var(--color-grey-700);
       text-align: center;
       white-space: nowrap;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .timeline-step:has(.completed) .timeline-label,
+    .timeline-step:has(.current) .timeline-label {
+      color: var(--color-grey-900);
     }
 
     .timeline-date {
@@ -422,6 +443,13 @@
       color: var(--color-grey-500);
       text-align: center;
       white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .timeline-step:has(.completed) .timeline-date,
+    .timeline-step:has(.current) .timeline-date {
+      color: var(--color-success);
+      font-weight: 600;
     }
 
     .timeline-estimate {
@@ -815,7 +843,7 @@
     <!-- Top Navigation -->
     <header class="top-nav">
       <div class="nav-left">
-        <img src="../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
+        <img src="../../assets/images/logo.png" alt="LàmViệc360" class="nav-logo">
         <a href="js04-tracker.html" class="nav-back">
           ← <span data-i18n="navBack">My Applications</span>
         </a>
@@ -867,9 +895,9 @@
         <h2 class="timeline-header" data-i18n="timelineHeader">Application Progress</h2>
         
         <div class="progress-timeline">
-          <div class="timeline-line"></div>
-          <div class="timeline-fill"></div>
           <div class="timeline-steps">
+            <div class="timeline-line"></div>
+            <div class="timeline-fill"></div>
             <div class="timeline-step">
               <div class="timeline-dot completed"></div>
               <div class="timeline-label" data-i18n="stepApplied">Applied</div>
