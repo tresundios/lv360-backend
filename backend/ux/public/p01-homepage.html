@@ -1764,28 +1764,32 @@
       z-index: 0;
       pointer-events: none;
     }
-    
-    /* Position Vietnamese flag on circles - middle relative to circles */
-    /* .vietnamese-flag-position {
-      position: absolute;
-      left: 55%;
-      top: 70%;
-      transform: translate(-50%, -50%);
-      z-index: 20;
-      width: 500px;
-      height: 500px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    } */
 
     /* Responsive adjustments */
-    @media (min-width: 1401px) and (max-width: 1920px) {
+    @media (min-width: 1401px) and (max-width: 1600px) {
       .twm-home1-banner-section .twm-img-bg-circle-area {
         left: -140px;
       }
       .vietnamese-flag-position {
-           position: absolute;
+        position: absolute;
+        left: 30%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 500px;
+        height: 500px;
+        
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+     @media (min-width: 1601px) and (max-width: 1780px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: -140px;
+      }
+      .vietnamese-flag-position {
+        position: absolute;
         left: 60%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -1793,6 +1797,24 @@
         width: 500px;
         height: 500px;
         
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    @media (min-width: 1781px) and (max-width: 1920px) {
+      .twm-home1-banner-section .twm-img-bg-circle-area {
+        left: -160px;
+      }
+      .vietnamese-flag-position {
+        position: absolute;
+        left: 55%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        width: 500px;
+        height: 500px;
+       
         align-items: center;
         justify-content: center;
       }
@@ -1821,8 +1843,7 @@
         left: -100px;
       }
       .vietnamese-flag-position {
-
-           position: absolute;
+        position: absolute;
         left: 40%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -1840,7 +1861,7 @@
         left: 80px;
       }
       .vietnamese-flag-position {
-         position: absolute;
+        position: absolute;
         left: 58%;
         top: 30%;
         transform: translate(-50%, -50%);
@@ -1865,25 +1886,6 @@
         z-index: 20;
         width: 400px;
         height: 400px;
-       
-        align-items: center;
-        justify-content: center;
-      }
-    }
-
-    /* Extra large screens above 1800px */
-    @media (min-width: 1801px) {
-      .twm-home1-banner-section .twm-img-bg-circle-area {
-        left: -160px;
-      }
-      .vietnamese-flag-position {
-          position: absolute;
-        left: 55%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 20;
-        width: 500px;
-        height: 500px;
        
         align-items: center;
         justify-content: center;
