@@ -3071,6 +3071,39 @@ footer {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+/* Mobile controls section */
+.mobile-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  margin: 0.5rem 0;
+}
+
+.mobile-lang-toggle {
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-lang-toggle .lang-toggle {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-full);
+  padding: 3px;
+  backdrop-filter: blur(12px);
+}
+
+.mobile-theme-toggle {
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-theme-toggle .theme-toggle {
+  transform: scale(0.9);
+}
+
 /* ═══════════════════════════════════════════════
    ANIMATIONS
 ═══════════════════════════════════════════════ */
@@ -3111,6 +3144,14 @@ footer {
   .reels-grid { grid-template-columns: repeat(2,1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
 }
+
+@media (max-width: 991px) {
+  .nav-right .lang-toggle,
+  .nav-right .theme-toggle {
+    display: none !important;
+  }
+}
+
 @media (max-width: 767px) {
   body { cursor: auto; }
   #cursor, #cursor-ring { display: none; }
@@ -3121,7 +3162,7 @@ footer {
   .nav-logo-fallback { font-size: 1.4rem; }
   .nav.scrolled .nav-logo-fallback { font-size: 1.3rem; }
   .nav-logo::after { display: none; }
-  .nav-links, .nav-right .btn-glass { display: none; }
+  .nav-links, .nav-right .btn-glass, .nav-right .lang-toggle, .nav-right .theme-toggle { display: none !important; }
   .hamburger { display: flex; }
   .features-grid { grid-template-columns: 1fr; }
   .steps-grid { grid-template-columns: 1fr; }
@@ -3203,11 +3244,27 @@ footer {
     <button class="mobile-nav-close" id="closeNav" aria-label="Close">✕</button>
     <ul class="mobile-links" role="list">
       <li><a href="#jobs" data-vi="Tìm Việc" data-en="Find Jobs">Tìm Việc / Find Jobs</a></li>
-      <li><a href="#reels" data-vi="Video Tuyển Dụng" data-en="Job Reels">Video Tuyển Dụng / Job Reels</a></li>
       <li><a href="#employers" data-vi="Nhà Tuyển Dụng" data-en="Employers">Nhà Tuyển Dụng / Employers</a></li>
       <li><a href="p02-job-search.html" data-i18n="navBrowseCompanies" data-vi="Duyệt Công Ty" data-en="Browse Companies">Duyệt Công Ty / Browse Companies</a></li>
       <li><a href="#how" data-vi="Cách Thức" data-en="How It Works">Cách Thức / How It Works</a></li>
     </ul>
+    
+    <!-- Language and theme toggles inside mobile menu -->
+    <div class="mobile-controls">
+      <div class="mobile-lang-toggle">
+        <div class="lang-toggle" role="group" aria-label="Language selection">
+          <button class="lang-btn active" id="mobileBtnVI" onclick="setLang('vi')">VI</button>
+          <button class="lang-btn" id="mobileBtnEN" onclick="setLang('en')">EN</button>
+        </div>
+      </div>
+      <div class="mobile-theme-toggle">
+        <button class="theme-toggle" id="mobileThemeToggle" aria-label="Toggle theme" onclick="toggleTheme()">
+          <span class="theme-toggle-icon moon">🌙</span>
+          <span class="theme-toggle-icon sun">☀️</span>
+        </button>
+      </div>
+    </div>
+    
     <a href="#" class="btn btn-primary btn-md" data-vi="Đăng Tuyển Ngay" data-en="Post a Job">Đăng Tuyển Ngay / Post a Job</a>
     <a href="#" class="btn btn-glass btn-md" data-vi="Đăng Nhập" data-en="Sign In">Đăng Nhập / Sign In</a>
   </div>
