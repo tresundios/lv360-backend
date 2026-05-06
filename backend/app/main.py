@@ -8,10 +8,11 @@ from app.config import get_settings
 from fastapi.openapi.docs import get_redoc_html
 from app.crud import create_task, delete_task, get_task, get_tasks, update_task
 from app.database import Base, SessionLocal, engine, get_db, wait_for_db
-from app.models import HelloWorld
+from app.models.base import HelloWorld
 from app.redis_client import check_redis_health
 from app.routers.hello import router as hello_router
-from app.schemas import TaskCreate, TaskResponse, TaskUpdate
+from app.routers.auth import router as auth_router
+from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from fastapi.staticfiles import StaticFiles
 
 settings = get_settings()
@@ -72,6 +73,7 @@ app.add_middleware(
 
 # --- Routers ---
 app.include_router(hello_router)
+app.include_router(auth_router)
 
 
 @app.get("/")

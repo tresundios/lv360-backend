@@ -234,3 +234,71 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ### License
 
 MIT License - see LICENSE file for details.
+
+
+### Complete fresh local setup sequence
+```bash
+# 1. Clone and enter
+cd lv360-backend
+ 
+# 2. Copy env file (first time only)
+cp .env.example .env.local   # edit values as needed
+ 
+# 3. Force clean build and start
+make down
+docker compose -f docker-compose.local.yml --env-file .env.local build --no-cache backend
+make up
+ 
+# 4. Migrate and seed
+make migrate
+make seed
+ 
+# 5. Verify
+docker logs lv360-backend --tail 5
+curl http://localhost:8000/health
+```
+
+### Subsequent restarts (already built)
+
+```bash
+make down && make up
+make migrate   # only needed after new migrations
+```
+
+### Reset everything
+
+```bash
+make down
+make seed-reset
+```
+
+# Validate Seed
+
+### 1. Rebuild with PyJWT fix (if not done yet)
+
+```bash
+make down
+docker compose -f docker-compose.local.yml --env-file .env.local build --no-cache backend
+make up
+```
+
+### 2. Migrate + seed
+
+```bash
+make migrate
+make seed
+```
+
+### 3. Validate all 5 acceptance criteria
+```bash
+make validate-seed
+```
+
+### 4. Run only unit tests for PF-004
+```bash
+make down
+docker compose -f docker-compose.local.yml --env-file .env.local build --no-cache backend
+make up
+make test-seed
+```
+

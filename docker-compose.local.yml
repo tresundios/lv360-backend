@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: lv360-backend
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
@@ -30,6 +31,7 @@ services:
       start_period: 5s
 
   postgres:
+    container_name: lv360-postgres
     image: postgres:15-alpine
     environment:
       - POSTGRES_DB=lv360
@@ -48,6 +50,7 @@ services:
       retries: 3
 
   redis:
+    container_name: lv360-redis
     image: redis:7-alpine
     ports:
       - "6379:6379"

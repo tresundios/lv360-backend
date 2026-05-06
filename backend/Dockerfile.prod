@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------
 # Stage 1: Build dependencies in a full Python image
 # ---------------------------------------------------------------------------
-FROM python:3.12-slim AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /build
 
@@ -24,7 +24,7 @@ RUN python -m venv /venv && \
 # ---------------------------------------------------------------------------
 # Stage 2: Production runtime — lean image
 # ---------------------------------------------------------------------------
-FROM python:3.12-slim AS runtime
+FROM python:3.11-slim AS runtime
 
 # Security: run as non-root
 RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser

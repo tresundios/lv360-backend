@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.models import Task
-from app.schemas import TaskCreate, TaskUpdate
+from app.models.base import Task
+from app.schemas.task import TaskCreate, TaskUpdate
 
 
 def get_tasks(db: Session, skip: int = 0, limit: int = 100) -> list[Task]:

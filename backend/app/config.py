@@ -25,10 +25,30 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_URL: str = "redis://redis:6379/0"
 
-    # --- Auth ---
+    # --- Auth / JWT ---
     JWT_SECRET: str = "local-jwt-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRATION_MINUTES: int = 60
+    JWT_EXPIRY_MINUTES: int = 60
+    JWT_REFRESH_DAYS: int = 30
+
+    # --- OTP ---
+    OTP_TTL_MINUTES: int = 10
+
+    # --- Team Invite ---
+    INVITE_TTL_HOURS: int = 72
+
+    # --- SendGrid ---
+    SENDGRID_API_KEY: str = ""
+    SENDGRID_FROM_EMAIL: str = "noreply@lamviec360.com"
+
+    # --- Frontend ---
+    FRONTEND_URL: str = "http://localhost:3080"
+
+    # --- OAuth (placeholder — credentials pending) ---
+    AUTH_GOOGLE_CLIENT_ID: str = ""
+    AUTH_GOOGLE_CLIENT_SECRET: str = ""
+    AUTH_ZALO_APP_ID: str = ""
+    AUTH_ZALO_APP_SECRET: str = ""
 
     # --- CORS ---
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"

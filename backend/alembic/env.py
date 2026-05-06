@@ -13,7 +13,8 @@ from app.config import get_settings
 from app.database import Base
 
 # Import all models so Alembic autogenerate can detect them
-from app.models import HelloWorld, Task  # noqa: F401
+from app.models.base import HelloWorld, Task  # noqa: F401
+from app.models.user import User, RefreshToken, TeamInvitation, SocialAccount  # noqa: F401
 
 config = context.config
 

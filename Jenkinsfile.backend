@@ -121,8 +121,9 @@ pipeline {
                         # Run tests in a named container (not --rm) so we can copy results out
                         docker run --name test-runner-${BUILD_NUMBER} \
                             --entrypoint "" \
+                            -e PYTHONPATH=/app \
                             ${DOCKER_REPO}:test-${BUILD_NUMBER} \
-                            python -m pytest tests/ -v --tb=short --junitxml=/tmp/results.xml || true
+                            python -m pytest /app/tests/ -v --tb=short --junitxml=/tmp/results.xml || true
 
                         # Copy JUnit XML from container to workspace
                         docker cp test-runner-${BUILD_NUMBER}:/tmp/results.xml ./results.xml || true
@@ -302,7 +303,7 @@ ENDSSH
                             cd ${REMOTE_PROJECT_DIR}
                             echo "Waiting for FastAPI container to start and run migrations..."
                             # Wait for container to be healthy (migrations run during startup)
-                            timeout 120 bash -c 'until docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} ps fastapi | grep -q "healthy"; do sleep 3; done'
+                            timeout 120 bash -c 'until docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} ps backend | grep -q "healthy"; do sleep 3; done'
                             echo "FastAPI container is healthy - migrations completed."
 ENDSSH
                     """
@@ -325,7 +326,7 @@ ENDSSH
                             cd ${REMOTE_PROJECT_DIR}
                             # Check container logs for debugging
                             echo "Checking FastAPI container logs..."
-                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} logs --tail=50 fastapi
+                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} logs --tail=50 backend
                             
                             # Wait a bit more for app to fully start
                             echo "Waiting for application to be ready..."
