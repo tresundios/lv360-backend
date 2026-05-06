@@ -1,0 +1,786 @@
+{
+  "info": {
+    "name": "PF-004 Seed Validation — Dev (dev.lamviec360.com)",
+    "description": "PF-004 acceptance criteria validation against the dev environment.\n\nBase URL: https://dev.lamviec360.com\nIf the backend runs on port 8000 directly, change the baseUrl variable to https://dev.lamviec360.com:8000\n\nAll seed accounts use password: Test1234!\n\nWorkflow:\n1. Run folder '00 — Health' first to confirm the server is up\n2. Run 'AC1 — User Roles' top to bottom — tokens are auto-saved\n3. Run 'Token Lifecycle' to validate refresh/logout\n4. Run 'RBAC' to validate role enforcement\n5. Run 'AC5 — seed-reset Recovery' after running seed-reset on the server",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://dev.lamviec360.com",
+      "description": "Change to https://dev.lamviec360.com:8000 if no reverse proxy is in front",
+      "type": "string"
+    },
+    { "key": "accessToken",  "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" },
+    { "key": "userId",       "value": "", "type": "string" },
+    { "key": "caUserId",     "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "00 — Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Backend healthy', () => {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.status).to.eql('healthy');",
+                  "});",
+                  "pm.test('Environment is development', () => {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.environment).to.eql('development');",
+                  "});",
+                  "pm.test('Redis connected', () => {",
+                  "  const j = pm.response.json();",
+                  "  pm.expect(j.redis).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "Root",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          }
+        },
+        {
+          "name": "Swagger UI accessible",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Swagger UI returns 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/docs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AC1 — User Roles",
+      "item": [
+        {
+          "name": "T01 Login super_admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('No 2FA required', () => pm.expect(j.requires_2fa).to.be.false);",
+                  "pm.test('access_token present', () => pm.expect(j.access_token).to.be.a('string').and.not.empty);",
+                  "pm.test('Role is super_admin', () => pm.expect(j.user.role).to.eql('super_admin'));",
+                  "pm.test('Status is active', () => pm.expect(j.user.status).to.eql('active'));",
+                  "pm.test('first_login_complete true', () => pm.expect(j.user.first_login_complete).to.be.true);",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);",
+                  "pm.collectionVariables.set('userId', j.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T02 GET /me as super_admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Email matches', () => pm.expect(j.email).to.eql('superadmin@seed.lamviec360.com'));",
+                  "pm.test('Role is super_admin', () => pm.expect(j.role).to.eql('super_admin'));",
+                  "pm.test('Status active', () => pm.expect(j.status).to.eql('active'));",
+                  "pm.test('first_login_complete true', () => pm.expect(j.first_login_complete).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me"
+          }
+        },
+        {
+          "name": "T03 Login company_admin — ca.techcorp (triggers 2FA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('2FA required', () => pm.expect(j.requires_2fa).to.be.true);",
+                  "pm.test('access_token empty before 2FA', () => pm.expect(j.access_token).to.eql(''));",
+                  "pm.test('Role is company_admin', () => pm.expect(j.user.role).to.eql('company_admin'));",
+                  "pm.test('Status active', () => pm.expect(j.user.status).to.eql('active'));",
+                  "pm.collectionVariables.set('caUserId', j.user.id);",
+                  "console.log('caUserId saved:', j.user.id);",
+                  "console.log('Run: ssh deploy@103.175.146.37 \"docker logs lv360_backend_dev --tail 5 2>&1 | grep OTP\" then fill T04');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ca.techcorp@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T04 Complete 2FA — company_admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('access_token present after 2FA', () => pm.expect(j.access_token).to.be.a('string').and.not.empty);",
+                  "pm.test('requires_2fa false', () => pm.expect(j.requires_2fa).to.be.false);",
+                  "pm.test('refresh_token present', () => pm.expect(j.refresh_token).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{caUserId}}\",\n  \"otp_code\": \"REPLACE_WITH_OTP_FROM_SERVER_LOGS\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login/2fa"
+          }
+        },
+        {
+          "name": "T05 Login company_admin — ca.startupvn (triggers 2FA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('2FA required', () => pm.expect(j.requires_2fa).to.be.true);",
+                  "pm.test('Role is company_admin', () => pm.expect(j.user.role).to.eql('company_admin'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ca.startupvn@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T06 Login hr_recruiter — hr.techcorp1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('No 2FA', () => pm.expect(j.requires_2fa).to.be.false);",
+                  "pm.test('Role is hr_recruiter', () => pm.expect(j.user.role).to.eql('hr_recruiter'));",
+                  "pm.test('Status active', () => pm.expect(j.user.status).to.eql('active'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hr.techcorp1@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T07 Login hr_recruiter — hr.techcorp2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Role is hr_recruiter', () => pm.expect(j.user.role).to.eql('hr_recruiter'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hr.techcorp2@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T08 Login hr_recruiter — hr.startupvn",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Role is hr_recruiter', () => pm.expect(j.user.role).to.eql('hr_recruiter'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hr.startupvn@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T09 Login job_seeker — js.01 (consent check)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('No 2FA', () => pm.expect(j.requires_2fa).to.be.false);",
+                  "pm.test('Role is job_seeker', () => pm.expect(j.user.role).to.eql('job_seeker'));",
+                  "pm.test('consent_given true', () => pm.expect(j.user.consent_given).to.be.true);",
+                  "pm.test('Status active', () => pm.expect(j.user.status).to.eql('active'));",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"js.01@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T10 Login job_seeker — js.02",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Role is job_seeker', () => pm.expect(j.user.role).to.eql('job_seeker'));",
+                  "pm.test('consent_given true', () => pm.expect(j.user.consent_given).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"js.02@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T11 Login job_seeker — js.03",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"js.03@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T12 Login job_seeker — js.04",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"js.04@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T13 Login job_seeker — js.05",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Role is job_seeker', () => pm.expect(j.user.role).to.eql('job_seeker'));",
+                  "pm.test('consent_given true', () => pm.expect(j.user.consent_given).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"js.05@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T14 Wrong password — expect 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@seed.lamviec360.com\",\n  \"password\": \"WrongPassword\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T15 Non-existent email — expect 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ghost@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AC4 — Idempotency",
+      "item": [
+        {
+          "name": "T16 Login after 2nd seed run — same credentials still work",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// On dev server: docker exec lv360_backend_dev python -m app.db.seed",
+                  "// Run that command, then send this request to confirm no duplicates"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — no duplicate users created', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('access_token present', () => pm.expect(j.access_token).to.be.a('string').and.not.empty);",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Token Lifecycle",
+      "item": [
+        {
+          "name": "T17 Refresh token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('New access_token issued', () => pm.expect(j.access_token).to.be.a('string').and.not.empty);",
+                  "pm.test('New refresh_token issued', () => pm.expect(j.refresh_token).to.be.a('string').and.not.empty);",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/refresh"
+          }
+        },
+        {
+          "name": "T18 Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/logout"
+          }
+        },
+        {
+          "name": "T19 Refresh after logout — expect 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — token revoked after logout', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/refresh"
+          }
+        },
+        {
+          "name": "T20 GET /me with no token — expect 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me"
+          }
+        },
+        {
+          "name": "T21 GET /me with expired/invalid token — expect 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "invalid.token.here", "type": "string" }]
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RBAC — Role Enforcement",
+      "item": [
+        {
+          "name": "T22 job_seeker cannot create invite — expect 403",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// accessToken must be a job_seeker token — run T09 first to populate it"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 403 — job_seeker cannot invite', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newhr@example.com\",\n  \"role\": \"hr_recruiter\",\n  \"company_id\": \"00000000-0000-0000-0000-000000000001\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/invite"
+          }
+        },
+        {
+          "name": "T23 hr_recruiter cannot create invite — expect 403",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// accessToken must be an hr_recruiter token — run T06 first and copy the token manually"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 403 — hr_recruiter cannot invite', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newhr@example.com\",\n  \"role\": \"hr_recruiter\",\n  \"company_id\": \"00000000-0000-0000-0000-000000000001\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/invite"
+          }
+        },
+        {
+          "name": "T24 OTP resend — unknown user returns 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"purpose\": \"registration\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/otp/resend"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AC5 — seed-reset Recovery",
+      "item": [
+        {
+          "name": "T25 Login super_admin after seed-reset",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Run on dev server first:",
+                  "// docker exec lv360_backend_dev python -m app.db.seed --reset",
+                  "// Then send this request"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — seed-reset restored users', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('access_token present', () => pm.expect(j.access_token).to.be.a('string').and.not.empty);",
+                  "pm.test('Role is super_admin', () => pm.expect(j.user.role).to.eql('super_admin'));",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "T26 Login js.05 after seed-reset — consent still true",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Role is job_seeker', () => pm.expect(j.user.role).to.eql('job_seeker'));",
+                  "pm.test('consent_given true after reseed', () => pm.expect(j.user.consent_given).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"js.05@seed.lamviec360.com\",\n  \"password\": \"Test1234!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        }
+      ]
+    }
+  ]
+}

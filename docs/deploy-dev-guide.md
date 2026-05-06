@@ -267,7 +267,7 @@ Or simply re-trigger Jenkins with the previous known-good commit checked out.
 docker logs lv360_backend_dev --tail 50 -f
 
 # Check for OTP codes during testing
-docker logs lv360_backend_dev --tail 20 | grep OTP
+docker logs lv360_backend_dev --tail 20 2>&1 | grep OTP
 
 # Postgres logs
 docker logs lv360_postgres_dev --tail 30
