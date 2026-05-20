@@ -12,6 +12,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.core.i18n import DEFAULT_LANG, Lang, MessageCode, t
 from app.core.security import (
     create_access_token,
     create_invite_token,
@@ -91,20 +92,21 @@ def register_step2(
     account_type: AccountType,
     consent_given: bool,
     db: Session,
+    lang: Lang = DEFAULT_LANG,
 ) -> dict:
     """Create user (pending) + store OTP in Redis. Returns user_id."""
     # BR-011: consent mandatory for job seekers
     if account_type == AccountType.job_seeker and not consent_given:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Người tìm việc phải đồng ý với điều khoản sử dụng (BR-011).",
+            detail={"code": MessageCode.CONSENT_REQUIRED, "message": t(MessageCode.CONSENT_REQUIRED, lang)},
         )
 
     existing = db.query(User).filter(User.email == email).first()
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email đã được sử dụng.",
+            detail={"code": MessageCode.EMAIL_TAKEN, "message": t(MessageCode.EMAIL_TAKEN, lang)},
         )
 
     role = _role_for_account_type(account_type)
@@ -134,10 +136,10 @@ def register_step2(
     # TODO: send OTP via SMS/email (SendGrid) in production
     print(f"[OTP] Registration OTP for {user.email}: {otp}")
 
-    return {"user_id": user.id, "message": "OTP đã được gửi. Vui lòng kiểm tra."}
+    return {"user_id": user.id, "code": MessageCode.OTP_SENT, "message": t(MessageCode.OTP_SENT, lang)}
 
 
-def register_verify(user_id: UUID, otp_code: str, db: Session) -> dict:
+def register_verify(user_id: UUID, otp_code: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Verify registration OTP → activate user → return tokens."""
     redis = get_redis_client()
     key = _otp_redis_key(user_id, "registration")
@@ -146,13 +148,13 @@ def register_verify(user_id: UUID, otp_code: str, db: Session) -> dict:
     if stored is None:
         raise HTTPException(
             status_code=status.HTTP_410_GONE,
-            detail="OTP đã hết hạn. Vui lòng yêu cầu mã mới.",
+            detail={"code": MessageCode.OTP_EXPIRED, "message": t(MessageCode.OTP_EXPIRED, lang)},
         )
 
     if stored != otp_code:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="OTP không chính xác.",
+            detail={"code": MessageCode.OTP_INVALID, "message": t(MessageCode.OTP_INVALID, lang)},
         )
 
     redis.delete(key)
@@ -160,7 +162,10 @@ def register_verify(user_id: UUID, otp_code: str, db: Session) -> dict:
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Người dùng không tồn tại.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": MessageCode.USER_NOT_FOUND, "message": t(MessageCode.USER_NOT_FOUND, lang)},
+        )
 
     user.status = UserStatus.active
     db.commit()
@@ -170,28 +175,31 @@ def register_verify(user_id: UUID, otp_code: str, db: Session) -> dict:
 
 # ── Login ──────────────────────────────────────────────────────────────
 
-def login(email: str, password: str, db: Session) -> dict:
+def login(email: str, password: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Authenticate user. company_admin requires 2FA."""
     user = db.query(User).filter(User.email == email).first()
     if not user or not user.password_hash:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email hoặc mật khẩu không chính xác.",
+            detail={"code": MessageCode.INVALID_CREDENTIALS, "message": t(MessageCode.INVALID_CREDENTIALS, lang)},
         )
 
     if not verify_password(password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email hoặc mật khẩu không chính xác.",
+            detail={"code": MessageCode.INVALID_CREDENTIALS, "message": t(MessageCode.INVALID_CREDENTIALS, lang)},
         )
 
     if user.status == UserStatus.suspended:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tài khoản đã bị tạm ngưng.")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": MessageCode.ACCOUNT_SUSPENDED, "message": t(MessageCode.ACCOUNT_SUSPENDED, lang)},
+        )
 
     if user.status == UserStatus.pending:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Tài khoản chưa được xác minh. Vui lòng xác minh OTP.",
+            detail={"code": MessageCode.ACCOUNT_PENDING, "message": t(MessageCode.ACCOUNT_PENDING, lang)},
         )
 
     # company_admin requires 2FA (AUTH-FR-009)
@@ -214,31 +222,40 @@ def login(email: str, password: str, db: Session) -> dict:
     return {**_issue_tokens(user, db), "requires_2fa": False}
 
 
-def login_2fa(user_id: UUID, otp_code: str, db: Session) -> dict:
+def login_2fa(user_id: UUID, otp_code: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Verify 2FA OTP for company_admin login."""
     redis = get_redis_client()
     key = _otp_redis_key(user_id, "login_2fa")
     stored = redis.get(key)
 
     if stored is None:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="OTP đã hết hạn.")
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail={"code": MessageCode.OTP_EXPIRED, "message": t(MessageCode.OTP_EXPIRED, lang)},
+        )
 
     if stored != otp_code:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="OTP không chính xác.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": MessageCode.OTP_INVALID, "message": t(MessageCode.OTP_INVALID, lang)},
+        )
 
     redis.delete(key)
     redis.delete(_otp_resend_key(user_id, "login_2fa"))
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Người dùng không tồn tại.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": MessageCode.USER_NOT_FOUND, "message": t(MessageCode.USER_NOT_FOUND, lang)},
+        )
 
     return {**_issue_tokens(user, db), "requires_2fa": False}
 
 
 # ── OTP Resend ─────────────────────────────────────────────────────────
 
-def resend_otp(user_id: UUID, purpose: str, db: Session) -> dict:
+def resend_otp(user_id: UUID, purpose: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Resend OTP — max 3 attempts per session."""
     redis = get_redis_client()
     resend_key = _otp_resend_key(user_id, purpose)
@@ -247,14 +264,14 @@ def resend_otp(user_id: UUID, purpose: str, db: Session) -> dict:
     if remaining_raw is None:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="OTP đã hết hạn. Vui lòng bắt đầu lại.",
+            detail={"code": MessageCode.OTP_START_OVER, "message": t(MessageCode.OTP_START_OVER, lang)},
         )
 
     remaining = int(remaining_raw)
     if remaining <= 0:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Bạn đã vượt quá số lần gửi lại OTP (tối đa 3).",
+            detail={"code": MessageCode.OTP_RESEND_LIMIT, "message": t(MessageCode.OTP_RESEND_LIMIT, lang)},
         )
 
     otp = _generate_otp()
@@ -265,12 +282,12 @@ def resend_otp(user_id: UUID, purpose: str, db: Session) -> dict:
     user = db.query(User).filter(User.id == user_id).first()
     print(f"[OTP] Resend OTP for {user.email if user else user_id}: {otp}")
 
-    return {"message": "OTP đã được gửi lại.", "remaining_attempts": remaining - 1}
+    return {"code": MessageCode.OTP_RESENT, "message": t(MessageCode.OTP_RESENT, lang), "remaining_attempts": remaining - 1}
 
 
 # ── Token Refresh ──────────────────────────────────────────────────────
 
-def refresh_tokens(raw_refresh: str, db: Session) -> dict:
+def refresh_tokens(raw_refresh: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Exchange valid refresh token for new access + refresh pair."""
     token_hash = hash_token(raw_refresh)
     rt = (
@@ -286,7 +303,7 @@ def refresh_tokens(raw_refresh: str, db: Session) -> dict:
     if not rt:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "SESSION_INVALIDATED", "message": "Phiên đã hết hạn. Vui lòng đăng nhập lại."},
+            detail={"code": MessageCode.SESSION_INVALIDATED, "message": t(MessageCode.SESSION_INVALIDATED, lang)},
         )
 
     # Revoke old
@@ -295,26 +312,29 @@ def refresh_tokens(raw_refresh: str, db: Session) -> dict:
 
     user = db.query(User).filter(User.id == rt.user_id).first()
     if not user or user.status == UserStatus.suspended:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Tài khoản không hợp lệ.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": MessageCode.ACCOUNT_INVALID, "message": t(MessageCode.ACCOUNT_INVALID, lang)},
+        )
 
     return _issue_tokens(user, db)
 
 
 # ── Logout ─────────────────────────────────────────────────────────────
 
-def logout(raw_refresh: str, db: Session) -> dict:
+def logout(raw_refresh: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Revoke refresh token."""
     token_hash = hash_token(raw_refresh)
     rt = db.query(RefreshToken).filter(RefreshToken.token_hash == token_hash).first()
     if rt:
         rt.revoked = True
         db.commit()
-    return {"message": "Đăng xuất thành công."}
+    return {"code": MessageCode.LOGOUT_SUCCESS, "message": t(MessageCode.LOGOUT_SUCCESS, lang)}
 
 
 # ── Forgot / Reset Password ───────────────────────────────────────────
 
-def forgot_password(email: str, db: Session) -> dict:
+def forgot_password(email: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Send password-reset link (JWT, 30 min). Always return success to avoid email enumeration."""
     user = db.query(User).filter(User.email == email).first()
     if user:
@@ -323,19 +343,25 @@ def forgot_password(email: str, db: Session) -> dict:
         # TODO: send via SendGrid in production
         print(f"[RESET] Password reset link for {user.email}: {reset_link}")
 
-    return {"message": "Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu."}
+    return {"code": MessageCode.FORGOT_PASSWORD_SENT, "message": t(MessageCode.FORGOT_PASSWORD_SENT, lang)}
 
 
-def reset_password(token: str, new_password: str, db: Session) -> dict:
+def reset_password(token: str, new_password: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Validate reset JWT → update password → revoke all refresh tokens."""
     payload = decode_reset_token(token)
     if not payload:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Liên kết đặt lại không hợp lệ hoặc đã hết hạn.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": MessageCode.RESET_LINK_INVALID, "message": t(MessageCode.RESET_LINK_INVALID, lang)},
+        )
 
     user_id = UUID(payload["sub"])
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Người dùng không tồn tại.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": MessageCode.USER_NOT_FOUND, "message": t(MessageCode.USER_NOT_FOUND, lang)},
+        )
 
     user.password_hash = hash_password(new_password)
 
@@ -346,12 +372,12 @@ def reset_password(token: str, new_password: str, db: Session) -> dict:
     ).update({"revoked": True})
 
     db.commit()
-    return {"message": "Mật khẩu đã được đặt lại thành công."}
+    return {"code": MessageCode.PASSWORD_RESET_SUCCESS, "message": t(MessageCode.PASSWORD_RESET_SUCCESS, lang)}
 
 
 # ── Team Invite ────────────────────────────────────────────────────────
 
-def create_invitation(email: str, role: UserRole, company_id: UUID, invited_by: UUID, db: Session) -> dict:
+def create_invitation(email: str, role: UserRole, company_id: UUID, invited_by: UUID, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Create team invite → send email with JWT link."""
     from uuid import uuid4
 
@@ -374,36 +400,51 @@ def create_invitation(email: str, role: UserRole, company_id: UUID, invited_by: 
     # TODO: send via SendGrid in production
     print(f"[INVITE] Team invite for {email}: {invite_link}")
 
-    return {"invitation_id": invite_id, "message": "Lời mời đã được gửi."}
+    return {"invitation_id": invite_id, "code": MessageCode.INVITE_SENT, "message": t(MessageCode.INVITE_SENT, lang)}
 
 
-def get_invitation(token: str, db: Session) -> TeamInvitation:
+def get_invitation(token: str, db: Session, lang: Lang = DEFAULT_LANG) -> TeamInvitation:
     """Validate invite JWT → return invitation details."""
     payload = decode_invite_token(token)
     if not payload:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Lời mời không hợp lệ hoặc đã hết hạn.")
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail={"code": MessageCode.INVITE_INVALID, "message": t(MessageCode.INVITE_INVALID, lang)},
+        )
 
     invite_id = UUID(payload["sub"])
     invitation = db.query(TeamInvitation).filter(TeamInvitation.id == invite_id).first()
     if not invitation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lời mời không tồn tại.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": MessageCode.INVITE_NOT_FOUND, "message": t(MessageCode.INVITE_NOT_FOUND, lang)},
+        )
 
     if invitation.revoked or invitation.accepted:
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Lời mời đã được sử dụng hoặc thu hồi.")
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail={"code": MessageCode.INVITE_USED_OR_REVOKED, "message": t(MessageCode.INVITE_USED_OR_REVOKED, lang)},
+        )
 
     if invitation.expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Lời mời đã hết hạn.")
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail={"code": MessageCode.INVITE_EXPIRED, "message": t(MessageCode.INVITE_EXPIRED, lang)},
+        )
 
     return invitation
 
 
-def accept_invitation(token: str, full_name: str, password: str, db: Session) -> dict:
+def accept_invitation(token: str, full_name: str, password: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Accept invite → create user → return tokens."""
-    invitation = get_invitation(token, db)
+    invitation = get_invitation(token, db, lang)
 
     existing = db.query(User).filter(User.email == invitation.email).first()
     if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email đã được sử dụng.")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": MessageCode.EMAIL_TAKEN, "message": t(MessageCode.EMAIL_TAKEN, lang)},
+        )
 
     account_type = AccountType.employer if invitation.role in (
         UserRole.company_admin, UserRole.hr_recruiter, UserRole.viewer
@@ -428,15 +469,15 @@ def accept_invitation(token: str, full_name: str, password: str, db: Session) ->
 
 # ── First Login Complete ───────────────────────────────────────────────
 
-def complete_first_login(user: User, db: Session) -> dict:
+def complete_first_login(user: User, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     user.first_login_complete = True
     db.commit()
-    return {"message": "Onboarding đã hoàn tất.", "first_login_complete": True}
+    return {"code": MessageCode.ONBOARDING_COMPLETE, "message": t(MessageCode.ONBOARDING_COMPLETE, lang), "first_login_complete": True}
 
 
 # ── AI Abuse (BR-006) ─────────────────────────────────────────────────
 
-def record_ai_abuse(user: User, db: Session) -> dict:
+def record_ai_abuse(user: User, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     user.ai_abuse_count += 1
     terminated = False
 
@@ -454,7 +495,7 @@ def record_ai_abuse(user: User, db: Session) -> dict:
     if terminated:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "SESSION_TERMINATED"},
+            detail={"code": MessageCode.SESSION_TERMINATED, "message": t(MessageCode.SESSION_TERMINATED, lang)},
         )
 
     return {"ai_abuse_count": user.ai_abuse_count, "session_terminated": False}

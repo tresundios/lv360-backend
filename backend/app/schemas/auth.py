@@ -39,7 +39,8 @@ class RegisterStep1Request(BaseModel):
 
 class RegisterStep1Response(BaseModel):
     account_type: AccountType
-    message: str = "Đã chọn loại tài khoản."
+    code: str
+    message: str
 
 
 class RegisterStep2Request(BaseModel):
@@ -54,7 +55,8 @@ class RegisterStep2Request(BaseModel):
 
 class RegisterStep2Response(BaseModel):
     user_id: UUID
-    message: str = "OTP đã được gửi. Vui lòng kiểm tra."
+    code: str
+    message: str
 
 
 class RegisterVerifyRequest(BaseModel):
@@ -110,7 +112,8 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ForgotPasswordResponse(BaseModel):
-    message: str = "Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu."
+    code: str
+    message: str
 
 
 class ResetPasswordRequest(BaseModel):
@@ -119,7 +122,8 @@ class ResetPasswordRequest(BaseModel):
 
 
 class ResetPasswordResponse(BaseModel):
-    message: str = "Mật khẩu đã được đặt lại thành công."
+    code: str
+    message: str
 
 
 # ── OTP resend (AUTH-FR-003) ──────────────────────────────────────────
@@ -130,7 +134,8 @@ class OTPResendRequest(BaseModel):
 
 
 class OTPResendResponse(BaseModel):
-    message: str = "OTP đã được gửi lại."
+    code: str
+    message: str
     remaining_attempts: int
 
 
@@ -144,7 +149,8 @@ class InviteCreateRequest(BaseModel):
 
 class InviteCreateResponse(BaseModel):
     invitation_id: UUID
-    message: str = "Lời mời đã được gửi."
+    code: str
+    message: str
 
 
 class InviteDetailResponse(BaseModel):
@@ -174,7 +180,8 @@ class InviteAcceptResponse(BaseModel):
 # ── First login (AUTH-FR-008) ─────────────────────────────────────────
 
 class FirstLoginCompleteResponse(BaseModel):
-    message: str = "Onboarding đã hoàn tất."
+    code: str
+    message: str
     first_login_complete: bool = True
 
 
@@ -188,4 +195,5 @@ class AbuseEventResponse(BaseModel):
 # ── Generic ───────────────────────────────────────────────────────────
 
 class MessageResponse(BaseModel):
+    code: str
     message: str

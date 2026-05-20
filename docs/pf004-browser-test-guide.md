@@ -433,10 +433,23 @@ make validate-seed
 
 
 
+### Useful DB Commands
+
+```bash
+# Get company ID (needed for invite tests)
+docker exec lv360-postgres psql -U postgres -d lv360 -c "SELECT id FROM companies LIMIT 1;"
+
+# Count users by role
+docker exec lv360-postgres psql -U postgres -d lv360 -c "SELECT role, COUNT(*) FROM users GROUP BY role;"
+
+# List all seed accounts
+docker exec lv360-postgres psql -U postgres -d lv360 -c "SELECT email, role, status FROM users WHERE email LIKE '%@seed.lamviec360.com' ORDER BY role;"
+```
+
 ### 2FA note (T04): Before sending, grab the OTP:
 
 ```bash
-docker logs lv360-backend --tail 10 | grep OTP
+docker logs lv360-backend --tail 10 2>&1 | grep OTP
 ```
 Paste it into the otp_code field in T04 body.
 
