@@ -14,6 +14,8 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.core.i18n import DEFAULT_LANG, Lang, MessageCode, t
 from app.core.security import (
+    InvalidTokenException,
+    TokenExpiredException,
     create_access_token,
     create_invite_token,
     create_refresh_token,
@@ -24,6 +26,7 @@ from app.core.security import (
     hash_token,
     verify_password,
 )
+from app.models.audit import AuditLog
 from app.models.user import (
     AccountType,
     RefreshToken,
@@ -175,8 +178,11 @@ def register_verify(user_id: UUID, otp_code: str, db: Session, lang: Lang = DEFA
 
 # ── Login ──────────────────────────────────────────────────────────────
 
+MAX_FAILED_LOGIN_ATTEMPTS = 3
+
+
 def login(email: str, password: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
-    """Authenticate user. company_admin requires 2FA."""
+    """Authenticate user. company_admin requires 2FA. Locks after 3 failed attempts (BR-015)."""
     user = db.query(User).filter(User.email == email).first()
     if not user or not user.password_hash:
         raise HTTPException(
@@ -184,7 +190,24 @@ def login(email: str, password: str, db: Session, lang: Lang = DEFAULT_LANG) -> 
             detail={"code": MessageCode.INVALID_CREDENTIALS, "message": t(MessageCode.INVALID_CREDENTIALS, lang)},
         )
 
+    # US-005 AC1: locked account cannot login even with correct password
+    if user.status == UserStatus.locked:
+        raise HTTPException(
+            status_code=423,
+            detail={"code": MessageCode.ACCOUNT_LOCKED, "message": t(MessageCode.ACCOUNT_LOCKED, lang)},
+        )
+
     if not verify_password(password, user.password_hash):
+        # US-005: increment failed_login_count, lock at 3
+        user.failed_login_count += 1
+        if user.failed_login_count >= MAX_FAILED_LOGIN_ATTEMPTS:
+            user.status = UserStatus.locked
+            db.add(AuditLog(
+                user_id=user.id,
+                action="ACCOUNT_LOCKED",
+                detail=f"Account locked after {MAX_FAILED_LOGIN_ATTEMPTS} consecutive failed login attempts",
+            ))
+        db.commit()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={"code": MessageCode.INVALID_CREDENTIALS, "message": t(MessageCode.INVALID_CREDENTIALS, lang)},
@@ -201,6 +224,11 @@ def login(email: str, password: str, db: Session, lang: Lang = DEFAULT_LANG) -> 
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"code": MessageCode.ACCOUNT_PENDING, "message": t(MessageCode.ACCOUNT_PENDING, lang)},
         )
+
+    # US-005 AC2: reset counter on successful login
+    if user.failed_login_count > 0:
+        user.failed_login_count = 0
+        db.commit()
 
     # company_admin requires 2FA (AUTH-FR-009)
     if user.role == UserRole.company_admin:
@@ -348,8 +376,9 @@ def forgot_password(email: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
 
 def reset_password(token: str, new_password: str, db: Session, lang: Lang = DEFAULT_LANG) -> dict:
     """Validate reset JWT → update password → revoke all refresh tokens."""
-    payload = decode_reset_token(token)
-    if not payload:
+    try:
+        payload = decode_reset_token(token)
+    except (TokenExpiredException, InvalidTokenException):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": MessageCode.RESET_LINK_INVALID, "message": t(MessageCode.RESET_LINK_INVALID, lang)},
@@ -364,6 +393,16 @@ def reset_password(token: str, new_password: str, db: Session, lang: Lang = DEFA
         )
 
     user.password_hash = hash_password(new_password)
+
+    # US-005 AC4: password reset unlocks a locked account
+    if user.status == UserStatus.locked:
+        user.status = UserStatus.active
+        user.failed_login_count = 0
+        db.add(AuditLog(
+            user_id=user.id,
+            action="ACCOUNT_UNLOCKED",
+            detail="Account unlocked via password reset",
+        ))
 
     # Revoke ALL refresh tokens (AUTH-FR-004 / BR)
     db.query(RefreshToken).filter(
@@ -400,13 +439,19 @@ def create_invitation(email: str, role: UserRole, company_id: UUID, invited_by: 
     # TODO: send via SendGrid in production
     print(f"[INVITE] Team invite for {email}: {invite_link}")
 
-    return {"invitation_id": invite_id, "code": MessageCode.INVITE_SENT, "message": t(MessageCode.INVITE_SENT, lang)}
+    return {"invitation_id": invite_id, "invite_token": jwt_token, "code": MessageCode.INVITE_SENT, "message": t(MessageCode.INVITE_SENT, lang)}
 
 
 def get_invitation(token: str, db: Session, lang: Lang = DEFAULT_LANG) -> TeamInvitation:
     """Validate invite JWT → return invitation details."""
-    payload = decode_invite_token(token)
-    if not payload:
+    try:
+        payload = decode_invite_token(token)
+    except TokenExpiredException:
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail={"code": MessageCode.INVITE_EXPIRED, "message": t(MessageCode.INVITE_EXPIRED, lang)},
+        )
+    except InvalidTokenException:
         raise HTTPException(
             status_code=status.HTTP_410_GONE,
             detail={"code": MessageCode.INVITE_INVALID, "message": t(MessageCode.INVITE_INVALID, lang)},

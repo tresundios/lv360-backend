@@ -1461,8 +1461,10 @@
                   "pm.test('Status 201', () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
                   "pm.test('Has invitation_id', () => pm.expect(j.invitation_id).to.be.a('string'));",
+                  "pm.test('Has invite_token', () => pm.expect(j.invite_token).to.be.a('string'));",
                   "pm.test('Has message', () => pm.expect(j.message).to.be.a('string'));",
-                  "pm.collectionVariables.set('invitationId', j.invitation_id);"
+                  "pm.collectionVariables.set('invitationId', j.invitation_id);",
+                  "pm.collectionVariables.set('inviteToken', j.invite_token);"
                 ]
               }
             }
@@ -1603,7 +1605,6 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Replace INVITE_TOKEN_HERE with real token from invite email or DB",
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
                   "pm.test('Has email', () => pm.expect(j.email).to.be.a('string'));",
@@ -1617,7 +1618,7 @@
           "request": {
             "auth": { "type": "noauth" },
             "method": "GET",
-            "url": "{{baseUrl}}/api/v1/auth/invite/INVITE_TOKEN_HERE"
+            "url": "{{baseUrl}}/api/v1/auth/invite/{{inviteToken}}"
           }
         },
         {
@@ -1643,7 +1644,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"INVITE_TOKEN_HERE\",\n  \"full_name\": \"New HR Hire\",\n  \"password\": \"Test1234!\"\n}"
+              "raw": "{\n  \"token\": \"{{inviteToken}}\",\n  \"full_name\": \"New HR Hire\",\n  \"password\": \"Test1234!\"\n}"
             },
             "url": "{{baseUrl}}/api/v1/auth/invite/accept"
           }

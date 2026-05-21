@@ -10,7 +10,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.i18n import Lang, MessageCode, parse_accept_language, t
-from app.core.security import decode_access_token
+from app.core.security import InvalidTokenException, TokenExpiredException, decode_access_token
 from app.database import get_db
 from app.models.user import User, UserRole, UserStatus
 
@@ -34,8 +34,14 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    payload = decode_access_token(credentials.credentials)
-    if payload is None:
+    try:
+        payload = decode_access_token(credentials.credentials)
+    except TokenExpiredException:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": MessageCode.TOKEN_EXPIRED, "message": t(MessageCode.TOKEN_EXPIRED, lang)},
+        )
+    except InvalidTokenException:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={"code": MessageCode.SESSION_INVALIDATED, "message": t(MessageCode.SESSION_INVALIDATED, lang)},

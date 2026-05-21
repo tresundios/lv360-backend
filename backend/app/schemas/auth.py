@@ -149,6 +149,7 @@ class InviteCreateRequest(BaseModel):
 
 class InviteCreateResponse(BaseModel):
     invitation_id: UUID
+    invite_token: str
     code: str
     message: str
 

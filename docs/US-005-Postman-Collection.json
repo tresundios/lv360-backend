@@ -1,0 +1,626 @@
+{
+  "info": {
+    "name": "US-005 — F2.5 Account Lockout Validation",
+    "description": "Validates all acceptance criteria for US-005: Account Lockout.\nTests lockout after 3 failed attempts, counter reset on success, HTTP 423, and unlock via password reset.\n\nPre-requisites:\n- make up\n- make seed\n\nBase URL: http://localhost:8000\nSeed password: Test1234!",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "testEmail", "value": "js.01@seed.lamviec360.com", "type": "string" },
+    { "key": "correctPassword", "value": "Test1234!", "type": "string" },
+    { "key": "wrongPassword", "value": "WrongPass999!", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "00 — Setup",
+      "item": [
+        {
+          "name": "S01 — Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Backend healthy', () => {",
+                  "  pm.expect(pm.response.json().status).to.eql('healthy');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "S02 — Verify test user can login (baseline)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — baseline login works', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Token issued', () => pm.expect(j.access_token).to.be.a('string').and.not.empty);",
+                  "pm.collectionVariables.set('accessToken', j.access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{correctPassword}}\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 — AC1: Lock after 3 consecutive failures",
+      "description": "AC1: 3 consecutive wrong passwords → account locked (status=locked), HTTP 423 on 4th attempt.",
+      "item": [
+        {
+          "name": "S03 — Failed attempt #1 → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — wrong password rejected', () => pm.response.to.have.status(401));",
+                  "pm.test('Returns INVALID_CREDENTIALS', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S04 — Failed attempt #2 → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — 2nd wrong password rejected', () => pm.response.to.have.status(401));",
+                  "pm.test('Returns INVALID_CREDENTIALS', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S05 — Failed attempt #3 → 401 (triggers lock)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — 3rd wrong password triggers lock', () => pm.response.to.have.status(401));",
+                  "pm.test('Returns INVALID_CREDENTIALS (lock happens server-side)', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S06 — 4th attempt (correct password) → 423 ACCOUNT_LOCKED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 423 — account is locked', () => pm.response.to.have.status(423));",
+                  "const j = pm.response.json();",
+                  "pm.test('Returns ACCOUNT_LOCKED code', () => {",
+                  "  pm.expect(j.detail.code).to.eql('ACCOUNT_LOCKED');",
+                  "});",
+                  "pm.test('Message mentions locked', () => {",
+                  "  pm.expect(j.detail.message.toLowerCase()).to.include('locked');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{correctPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S07 — 5th attempt (wrong password) → still 423",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 423 — still locked on wrong password', () => pm.response.to.have.status(423));",
+                  "pm.test('Returns ACCOUNT_LOCKED', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('ACCOUNT_LOCKED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S08 — Locked account → 423 (Vietnamese)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 423', () => pm.response.to.have.status(423));",
+                  "pm.test('Vietnamese message contains khóa', () => {",
+                  "  pm.expect(pm.response.json().detail.message).to.include('khóa');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "vi" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{correctPassword}}\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 — AC4: Unlock via password reset",
+      "description": "AC4: Account unlocked only when Super Admin issues password reset.",
+      "item": [
+        {
+          "name": "S09 — Trigger forgot-password for locked user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns FORGOT_PASSWORD_SENT', () => {",
+                  "  pm.expect(pm.response.json().code).to.eql('FORGOT_PASSWORD_SENT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/forgot-password",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S10 — Reset password (paste token from logs)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// After running S09, get the reset token from backend logs:",
+                  "// docker compose -f docker-compose.local.yml --env-file .env.local logs backend --tail=5",
+                  "// Copy the token= value and paste it in the request body below.",
+                  "// Or set collection variable 'resetToken' manually."
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — password reset + unlock', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns PASSWORD_RESET_SUCCESS', () => {",
+                  "  pm.expect(pm.response.json().code).to.eql('PASSWORD_RESET_SUCCESS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/reset-password",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"PASTE_RESET_TOKEN_FROM_LOGS\", \"new_password\": \"Test1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "S11 — Login after unlock → 200 (account active again)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — account unlocked, login works', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Token issued after unlock', () => {",
+                  "  pm.expect(j.access_token).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{correctPassword}}\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 — AC2: Counter reset on success",
+      "description": "AC2: 2 failures then 1 success → failed_login_count reset, account NOT locked.",
+      "item": [
+        {
+          "name": "S12 — Failed attempt #1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S13 — Failed attempt #2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S14 — Correct password → 200 (counter reset, NOT locked)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — success resets counter', () => pm.response.to.have.status(200));",
+                  "pm.test('Token issued (account NOT locked)', () => {",
+                  "  pm.expect(pm.response.json().access_token).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{correctPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S15 — Verify counter is fully reset (3 more failures needed to lock)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// After counter reset, 1 more failure should NOT lock",
+                  "pm.test('Status 401 — first failure after reset', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S16 — Correct login still works (not locked after 1 failure)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — still active after 1 failure post-reset', () => pm.response.to.have.status(200));",
+                  "pm.test('Token issued', () => {",
+                  "  pm.expect(pm.response.json().access_token).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{correctPassword}}\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 — AC5: Audit log (check via logs)",
+      "description": "AC5: Lock event logged to audit log with timestamp. Verified by re-locking and checking DB or logs.",
+      "item": [
+        {
+          "name": "S17 — Fail #1 (setup for lock)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S18 — Fail #2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S19 — Fail #3 → triggers lock + audit log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — 3rd failure triggers lock', () => pm.response.to.have.status(401));",
+                  "pm.test('INVALID_CREDENTIALS returned (lock is server-side)', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('INVALID_CREDENTIALS');",
+                  "});",
+                  "// Audit log verification:",
+                  "// Run: docker compose -f docker-compose.local.yml --env-file .env.local exec postgres psql -U postgres -d lv360 -c \"SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 5;\"",
+                  "// Expected: action='ACCOUNT_LOCKED', created_at with timestamp"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{wrongPassword}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S20 — Confirm locked → 423",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 423 — confirmed locked', () => pm.response.to.have.status(423));",
+                  "pm.test('ACCOUNT_LOCKED', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('ACCOUNT_LOCKED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{testEmail}}\", \"password\": \"{{correctPassword}}\"}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

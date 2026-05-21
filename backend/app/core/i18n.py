@@ -34,11 +34,13 @@ class MessageCode(str, Enum):
     INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
     ACCOUNT_SUSPENDED = "ACCOUNT_SUSPENDED"
     ACCOUNT_PENDING = "ACCOUNT_PENDING"
+    ACCOUNT_LOCKED = "ACCOUNT_LOCKED"
 
     # ── Logout ────────────────────────────────────────────────────────
     LOGOUT_SUCCESS = "LOGOUT_SUCCESS"
 
     # ── Token / Session ───────────────────────────────────────────────
+    TOKEN_EXPIRED = "TOKEN_EXPIRED"
     SESSION_INVALIDATED = "SESSION_INVALIDATED"
     ACCOUNT_INVALID = "ACCOUNT_INVALID"
 
@@ -118,12 +120,20 @@ _TRANSLATIONS: dict[MessageCode, dict[Lang, str]] = {
         "vi": "Tài khoản chưa được xác minh. Vui lòng xác minh OTP.",
         "en": "Account not yet verified. Please verify your OTP.",
     },
+    MessageCode.ACCOUNT_LOCKED: {
+        "vi": "Tài khoản đã bị khóa do nhập sai mật khẩu nhiều lần. Vui lòng liên hệ quản trị viên.",
+        "en": "Account has been locked due to multiple failed login attempts. Please contact an administrator.",
+    },
     # Logout
     MessageCode.LOGOUT_SUCCESS: {
         "vi": "Đăng xuất thành công.",
         "en": "Logged out successfully.",
     },
     # Token / Session
+    MessageCode.TOKEN_EXPIRED: {
+        "vi": "Token đã hết hạn. Vui lòng đăng nhập lại.",
+        "en": "Token has expired. Please log in again.",
+    },
     MessageCode.SESSION_INVALIDATED: {
         "vi": "Phiên đã hết hạn. Vui lòng đăng nhập lại.",
         "en": "Session expired. Please log in again.",

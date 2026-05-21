@@ -42,6 +42,7 @@ class UserStatus(str, enum.Enum):
     pending = "pending"
     active = "active"
     suspended = "suspended"
+    locked = "locked"
 
 
 # ── Users ──────────────────────────────────────────────────────────────
@@ -67,6 +68,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_login = Column(DateTime(timezone=True), nullable=True)
     ai_abuse_count = Column(Integer, server_default="0", nullable=False)
+    failed_login_count = Column(Integer, server_default="0", nullable=False)
 
     # Relationships
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
@@ -89,7 +91,7 @@ class RefreshToken(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     token_hash = Column(String(255), nullable=False)
-    expires_at = Column(DateTime(timezone=True), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
     revoked = Column(Boolean, server_default="false", nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -107,7 +109,7 @@ class TeamInvitation(Base):
     email = Column(String(255), nullable=False)
     role = Column(Enum(UserRole, name="user_role_enum", create_type=False), nullable=False)
     token_hash = Column(String(255), nullable=False)
-    expires_at = Column(DateTime(timezone=True), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
     accepted = Column(Boolean, server_default="false", nullable=False)
     revoked = Column(Boolean, server_default="false", nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -10,13 +10,25 @@ from typing import Any
 from uuid import UUID
 
 import jwt as pyjwt
-from jwt.exceptions import InvalidTokenError
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHashError
 
 from app.config import get_settings
 
 settings = get_settings()
+
+
+# ── Custom exceptions ────────────────────────────────────────────────
+
+class TokenExpiredException(Exception):
+    """Raised when a JWT token has expired."""
+    pass
+
+
+class InvalidTokenException(Exception):
+    """Raised when a JWT token is tampered, malformed, or otherwise invalid."""
+    pass
 
 # ── Password hashing ──────────────────────────────────────────────────
 
@@ -58,14 +70,17 @@ def create_refresh_token(user_id: UUID) -> tuple[str, str, datetime]:
     return raw, token_hash, expires_at
 
 
-def decode_access_token(token: str) -> dict[str, Any] | None:
+def decode_access_token(token: str) -> dict[str, Any]:
+    """Decode an access JWT. Raises TokenExpiredException or InvalidTokenException."""
     try:
         payload = pyjwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         if payload.get("type") != "access":
-            return None
+            raise InvalidTokenException("Token type is not 'access'")
         return payload
+    except ExpiredSignatureError:
+        raise TokenExpiredException("Access token has expired")
     except InvalidTokenError:
-        return None
+        raise InvalidTokenException("Access token is invalid or tampered")
 
 
 def hash_token(raw: str) -> str:
@@ -85,14 +100,17 @@ def create_reset_token(user_id: UUID) -> str:
     return pyjwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 
-def decode_reset_token(token: str) -> dict[str, Any] | None:
+def decode_reset_token(token: str) -> dict[str, Any]:
+    """Decode a password-reset JWT. Raises TokenExpiredException or InvalidTokenException."""
     try:
         payload = pyjwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         if payload.get("type") != "password_reset":
-            return None
+            raise InvalidTokenException("Token type is not 'password_reset'")
         return payload
+    except ExpiredSignatureError:
+        raise TokenExpiredException("Reset token has expired")
     except InvalidTokenError:
-        return None
+        raise InvalidTokenException("Reset token is invalid or tampered")
 
 
 def create_invite_token(invitation_id: UUID, email: str) -> tuple[str, str]:
@@ -110,11 +128,14 @@ def create_invite_token(invitation_id: UUID, email: str) -> tuple[str, str]:
     return raw, token_hash
 
 
-def decode_invite_token(token: str) -> dict[str, Any] | None:
+def decode_invite_token(token: str) -> dict[str, Any]:
+    """Decode a team-invite JWT. Raises TokenExpiredException or InvalidTokenException."""
     try:
         payload = pyjwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         if payload.get("type") != "team_invite":
-            return None
+            raise InvalidTokenException("Token type is not 'team_invite'")
         return payload
+    except ExpiredSignatureError:
+        raise TokenExpiredException("Invite token has expired")
     except InvalidTokenError:
-        return None
+        raise InvalidTokenException("Invite token is invalid or tampered")

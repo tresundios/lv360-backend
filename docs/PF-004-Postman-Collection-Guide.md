@@ -217,7 +217,7 @@ AUTH-FR-007: Only `super_admin` and `company_admin` can create invites.
 | # | Request | Method | Endpoint | Auth | Expected |
 |---|---------|--------|----------|------|----------|
 | P20 | Login super_admin | `POST` | `/api/v1/auth/login` | None | 200 |
-| P21 | Create invite | `POST` | `/api/v1/auth/invite` | Bearer (SA) | 201, `code: INVITE_SENT` |
+| P21 | Create invite | `POST` | `/api/v1/auth/invite` | Bearer (SA) | 201, `code: INVITE_SENT`, `invite_token` auto-saved |
 | P22a | Login job_seeker | `POST` | `/api/v1/auth/login` | None | 200, saves token |
 | P22b | job_seeker creates invite | `POST` | `/api/v1/auth/invite` | Bearer (JS) | 403 |
 | P23a | Login hr_recruiter | `POST` | `/api/v1/auth/login` | None | 200, saves token |

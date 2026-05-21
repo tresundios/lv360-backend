@@ -8,6 +8,7 @@ from app.models.user import (  # noqa: F401
     AccountType,
     UserStatus,
 )
+from app.models.audit import AuditLog  # noqa: F401
 from app.models.company import (  # noqa: F401
     Company,
     Job,

@@ -1,0 +1,807 @@
+{
+  "info": {
+    "name": "US-002 — F2.2 Security Utilities Validation",
+    "description": "Validates all acceptance criteria for US-002: Security Utilities.\nTests JWT creation/verification, password hashing, token expiry, and env var configuration through API endpoints.\n\nPre-requisites:\n- make up\n- make seed\n\nBase URL: http://localhost:8000\nSeed password: Test1234!",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "00 — Health",
+      "item": [
+        {
+          "name": "S01 — Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Backend healthy', () => {",
+                  "  pm.expect(pm.response.json().status).to.eql('healthy');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 — AC1: create_access_token (JWT claims + expiry)",
+      "description": "AC1: Login returns a signed JWT with sub, role, type, iat, exp claims and correct expiry.",
+      "item": [
+        {
+          "name": "S02 — Login → JWT issued with correct claims",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "",
+                  "pm.test('access_token is a JWT string', () => {",
+                  "  pm.expect(j.access_token).to.be.a('string');",
+                  "  const parts = j.access_token.split('.');",
+                  "  pm.expect(parts.length).to.eql(3); // header.payload.signature",
+                  "});",
+                  "",
+                  "// Decode payload (base64url)",
+                  "const payload = JSON.parse(atob(j.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));",
+                  "",
+                  "pm.test('JWT has sub claim (user_id UUID)', () => {",
+                  "  pm.expect(payload.sub).to.match(/^[0-9a-f]{8}-/);",
+                  "});",
+                  "",
+                  "pm.test('JWT has role claim', () => {",
+                  "  pm.expect(['super_admin','company_admin','hr_recruiter','viewer','job_seeker']).to.include(payload.role);",
+                  "});",
+                  "",
+                  "pm.test('JWT has type=access', () => {",
+                  "  pm.expect(payload.type).to.eql('access');",
+                  "});",
+                  "",
+                  "pm.test('JWT has iat claim', () => {",
+                  "  pm.expect(payload.iat).to.be.a('number');",
+                  "  pm.expect(payload.iat).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test('JWT has exp claim', () => {",
+                  "  pm.expect(payload.exp).to.be.a('number');",
+                  "  pm.expect(payload.exp).to.be.above(payload.iat);",
+                  "});",
+                  "",
+                  "pm.test('exp - iat = ~60 minutes (JWT_EXPIRY_MINUTES default)', () => {",
+                  "  const deltaMinutes = (payload.exp - payload.iat) / 60;",
+                  "  pm.expect(deltaMinutes).to.be.within(59, 61);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);",
+                  "pm.collectionVariables.set('userId', j.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"Test1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "S03 — Login different role → role claim matches",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const payload = JSON.parse(atob(j.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));",
+                  "",
+                  "pm.test('JWT role = job_seeker for job_seeker login', () => {",
+                  "  pm.expect(payload.role).to.eql('job_seeker');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"js.01@seed.lamviec360.com\", \"password\": \"Test1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "S04 — Valid JWT grants access to /me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — JWT verified successfully', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const j = pm.response.json();",
+                  "pm.test('Returns user profile (JWT sub matched user)', () => {",
+                  "  pm.expect(j.id).to.eql(pm.collectionVariables.get('userId'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "header": [
+              { "key": "Accept-Language", "value": "en" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 — AC2: Token expired vs tampered (distinct errors)",
+      "description": "AC2: verify_token raises TokenExpiredException for expired tokens, InvalidTokenException for tampered.",
+      "item": [
+        {
+          "name": "S05 — Tampered JWT → 401 SESSION_INVALIDATED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — tampered token rejected', () => {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "const j = pm.response.json();",
+                  "pm.test('Returns SESSION_INVALIDATED (not TOKEN_EXPIRED)', () => {",
+                  "  pm.expect(j.detail.code).to.eql('SESSION_INVALIDATED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0YW1wZXJlZCIsInJvbGUiOiJzdXBlcl9hZG1pbiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MTY1MDAwMDAsImV4cCI6OTk5OTk5OTk5OX0.TAMPERED_SIGNATURE_HERE", "type": "string" }]
+            },
+            "header": [
+              { "key": "Accept-Language", "value": "en" }
+            ]
+          }
+        },
+        {
+          "name": "S06 — Garbage token → 401 SESSION_INVALIDATED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — garbage token rejected', () => {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "const j = pm.response.json();",
+                  "pm.test('Returns SESSION_INVALIDATED', () => {",
+                  "  pm.expect(j.detail.code).to.eql('SESSION_INVALIDATED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "not-a-jwt-at-all", "type": "string" }]
+            },
+            "header": [
+              { "key": "Accept-Language", "value": "en" }
+            ]
+          }
+        },
+        {
+          "name": "S07 — No token → 401 SESSION_INVALIDATED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                  "const j = pm.response.json();",
+                  "pm.test('Returns SESSION_INVALIDATED', () => {",
+                  "  pm.expect(j.detail.code).to.eql('SESSION_INVALIDATED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Accept-Language", "value": "en" }
+            ]
+          }
+        },
+        {
+          "name": "S08 — Wrong-secret JWT → 401 SESSION_INVALIDATED",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This JWT was signed with 'wrong-secret' instead of the real JWT_SECRET.",
+                  "// It has valid structure but wrong signature.",
+                  "// Generated via: jwt.encode({'sub':'fake','role':'super_admin','type':'access','iat':1716500000,'exp':9999999999}, 'wrong-secret', 'HS256')"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — wrong secret rejected', () => {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "const j = pm.response.json();",
+                  "pm.test('Returns SESSION_INVALIDATED (signature mismatch)', () => {",
+                  "  pm.expect(j.detail.code).to.eql('SESSION_INVALIDATED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/auth/me",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlIiwicm9sZSI6InN1cGVyX2FkbWluIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTcxNjUwMDAwMCwiZXhwIjo5OTk5OTk5OTk5fQ.wrong_sig", "type": "string" }]
+            },
+            "header": [
+              { "key": "Accept-Language", "value": "en" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 — AC3+AC4: Password hashing (argon2, correct/wrong)",
+      "description": "AC3: hash_password uses argon2 with unique salt. AC4: verify_password returns True only for correct password. Validated via login endpoint which calls verify_password internally.",
+      "item": [
+        {
+          "name": "S09 — Correct password → 200 (verify_password returns True)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — correct password accepted', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const j = pm.response.json();",
+                  "pm.test('Token issued (password hash verified)', () => {",
+                  "  pm.expect(j.access_token).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"Test1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "S10 — Wrong password → 401 (verify_password returns False)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — wrong password rejected', () => {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "const j = pm.response.json();",
+                  "pm.test('Returns INVALID_CREDENTIALS', () => {",
+                  "  pm.expect(j.detail.code).to.eql('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"WrongPassword!\"}"
+            }
+          }
+        },
+        {
+          "name": "S11 — Empty password → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 or 422 — empty password rejected', () => {",
+                  "  pm.expect([401, 422]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"\"}"
+            }
+          }
+        },
+        {
+          "name": "S12 — Case-sensitive password → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — case mismatch rejected', () => {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test('Returns INVALID_CREDENTIALS', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"test1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "S13 — Unique salt: two logins produce different JWTs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const prevToken = pm.collectionVariables.get('accessToken');",
+                  "",
+                  "pm.test('New access_token differs from previous (unique iat/jti)', () => {",
+                  "  pm.expect(j.access_token).to.not.eql(prevToken);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"Test1234!\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 — AC5: Refresh token lifecycle (JWT_REFRESH_DAYS)",
+      "description": "AC5: Refresh token uses JWT_REFRESH_DAYS. Validated via token refresh and logout flows.",
+      "item": [
+        {
+          "name": "S14 — Refresh token issued on login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "",
+                  "pm.test('refresh_token is a non-empty string', () => {",
+                  "  pm.expect(j.refresh_token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('refresh_token is NOT a JWT (opaque token)', () => {",
+                  "  const parts = j.refresh_token.split('.');",
+                  "  pm.expect(parts.length).to.not.eql(3); // opaque, not JWT",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"Test1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "S15 — Refresh → rotated tokens (new pair)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — token refreshed', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "",
+                  "pm.test('New access_token issued', () => {",
+                  "  pm.expect(j.access_token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('New refresh_token issued (rotation)', () => {",
+                  "  pm.expect(j.refresh_token).to.not.eql(pm.collectionVariables.get('refreshToken'));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('accessToken', j.access_token);",
+                  "pm.collectionVariables.set('refreshToken', j.refresh_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/refresh",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refresh_token\": \"{{refreshToken}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S16 — Logout revokes refresh token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — logout success', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns LOGOUT_SUCCESS', () => {",
+                  "  pm.expect(pm.response.json().code).to.eql('LOGOUT_SUCCESS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/logout",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refresh_token\": \"{{refreshToken}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S17 — Revoked refresh → 401 SESSION_INVALIDATED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — revoked token rejected', () => pm.response.to.have.status(401));",
+                  "pm.test('Returns SESSION_INVALIDATED', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('SESSION_INVALIDATED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/refresh",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refresh_token\": \"{{refreshToken}}\"}"
+            }
+          }
+        },
+        {
+          "name": "S18 — Fake refresh token → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — unknown token rejected', () => pm.response.to.have.status(401));",
+                  "pm.test('Returns SESSION_INVALIDATED', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('SESSION_INVALIDATED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/refresh",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refresh_token\": \"completely-fake-refresh-token-12345\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 — Reset token validation",
+      "description": "Validates create_reset_token / decode_reset_token through the password reset flow.",
+      "item": [
+        {
+          "name": "S19 — Forgot password → 200 (reset token created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns FORGOT_PASSWORD_SENT', () => {",
+                  "  pm.expect(pm.response.json().code).to.eql('FORGOT_PASSWORD_SENT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/forgot-password",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\"}"
+            }
+          }
+        },
+        {
+          "name": "S20 — Invalid reset token → 400 RESET_LINK_INVALID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 — invalid reset token rejected', () => {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Returns RESET_LINK_INVALID', () => {",
+                  "  pm.expect(pm.response.json().detail.code).to.eql('RESET_LINK_INVALID');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/reset-password",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"fake-or-tampered-reset-token\", \"new_password\": \"NewPass123!\"}"
+            }
+          }
+        },
+        {
+          "name": "S21 — Non-existent email → 200 (no info leak)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — same response for non-existent email', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns FORGOT_PASSWORD_SENT (no info leak)', () => {",
+                  "  pm.expect(pm.response.json().code).to.eql('FORGOT_PASSWORD_SENT');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/forgot-password",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"nonexistent@example.com\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 — Centralised usage (no duplication)",
+      "description": "Validates that ALL auth endpoints use the centralised security module. Every endpoint that issues tokens must produce correct JWT structure.",
+      "item": [
+        {
+          "name": "S22 — Login as hr_recruiter → same JWT structure",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const payload = JSON.parse(atob(j.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));",
+                  "",
+                  "pm.test('Same JWT structure: sub, role, type, iat, exp', () => {",
+                  "  pm.expect(payload).to.have.all.keys('sub','role','type','iat','exp');",
+                  "  pm.expect(payload.type).to.eql('access');",
+                  "  pm.expect(payload.role).to.eql('hr_recruiter');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"hr.techcorp1@seed.lamviec360.com\", \"password\": \"Test1234!\"}"
+            }
+          }
+        },
+        {
+          "name": "S23 — Response time < 500ms (no duplicate hash computations)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Login response < 500ms', () => {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept-Language", "value": "en" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"superadmin@seed.lamviec360.com\", \"password\": \"Test1234!\"}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

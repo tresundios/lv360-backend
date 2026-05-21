@@ -667,6 +667,7 @@ class TestInviteEndpoint:
         invite_id = uuid.uuid4()
         mock_invite.return_value = {
             "invitation_id": invite_id,
+            "invite_token": "mock-jwt-invite-token",
             "code": MessageCode.INVITE_SENT,
             "message": t(MessageCode.INVITE_SENT, "en"),
         }
