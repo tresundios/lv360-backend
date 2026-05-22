@@ -21,7 +21,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - backend-network
+      - lv360-shared-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -44,7 +44,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - backend-network
+      - lv360-shared-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 30s
@@ -58,7 +58,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - backend-network
+      - lv360-shared-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -75,7 +75,7 @@ services:
       - ./backups:/backups
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - backend-network
+      - lv360-shared-network
     command: >
       sh -c "
       while true; do
@@ -93,6 +93,5 @@ volumes:
     external: false
 
 networks:
-  backend-network:
-    driver: bridge
-    name: lv360-backend-network
+  lv360-shared-network:
+    external: true

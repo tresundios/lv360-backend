@@ -1,4 +1,4 @@
-.PHONY: up down logs build test migrate shell clean rebuild seed seed-reset setup
+.PHONY: up down logs build test migrate shell clean rebuild seed seed-reset setup deploy-dev network-create
 
 # Local development
 up:
@@ -64,7 +64,10 @@ python:
 	docker compose -f docker-compose.local.yml --env-file .env.local exec backend python
 
 # Production deployment
-deploy-dev:
+network-create:
+	docker network create lv360-shared-network 2>/dev/null || echo "Network already exists"
+
+deploy-dev: network-create
 	docker compose -f docker-compose.dev.yml --env-file .env.dev pull
 	docker compose -f docker-compose.dev.yml --env-file .env.dev up -d
 

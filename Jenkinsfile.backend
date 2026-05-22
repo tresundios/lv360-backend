@@ -86,9 +86,10 @@ pipeline {
 
                     def backendRelevant = changedFiles.split('\n').any { file ->
                         file.startsWith('backend/') ||
+                        file.startsWith('app/') ||
                         file.startsWith('docker-compose') ||
-                        file.startsWith('env/') ||
-                        file.startsWith('jenkins/Jenkinsfile.backend')
+                        file.startsWith('.env') ||
+                        file.startsWith('Jenkinsfile')
                     }
 
                     if (!backendRelevant && changedFiles != '') {
@@ -225,22 +226,19 @@ pipeline {
                             git config user.name "Deploy User"
                             # Stash any local changes before pull
                             git stash push -m "Auto-stash before deploy" || true
-                            git pull origin ${params.TARGET_ENV} || true
+                            git pull origin dev || true
 
                             # Pull new images (both specific version and latest tag)
                             docker pull ${IMAGE_FULL}
                             docker pull ${IMAGE_LATEST}
 
-                            # Update the env file with new image tag
-                            sed -i 's|DOCKER_IMAGE_TAG=.*|DOCKER_IMAGE_TAG=${IMAGE_TAG}|' env/.env.${params.TARGET_ENV}
-
                             # Export env vars so docker compose interpolation can read them
                             set -a
-                            source env/.env.${params.TARGET_ENV}
+                            source .env.${params.TARGET_ENV}
                             set +a
 
                             # Stop ALL containers from this compose project
-                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} down --remove-orphans || true
+                            docker compose --env-file .env.${params.TARGET_ENV} -f ${COMPOSE_FILE} down --remove-orphans || true
 
                             # Kill any rogue containers still binding required ports
                             for PORT in 5432 8000 6379; do
@@ -251,29 +249,15 @@ pipeline {
                                 fi
                             done
 
+                            # Create shared network if it doesn't exist
+                            docker network create lv360-shared-network 2>/dev/null || true
+
                             # Start supporting services (postgres, redis) then backend
-                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d postgres redis
+                            docker compose --env-file .env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d postgres redis
                             sleep 5
 
                             # Start backend with the new image
-                            docker compose --env-file env/.env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d backend
-
-                            # Create .env file in container for app config
-                            docker exec lv360_backend_dev sh -c 'cat > /app/.env << EOF
-POSTGRES_DB=lv360
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=lv360_dev_password
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-REDIS_HOST=redis
-REDIS_PORT=6379
-REDIS_URL=redis://redis:6379/0
-JWT_SECRET=dev_jwt_secret_key_change_in_production
-CORS_ORIGINS=https://appdev.lamviec360.com,https://dev.lamviec360.com
-EOF'
-
-                            # Restart backend to pick up new env
-                            docker restart lv360_backend_dev
+                            docker compose --env-file .env.${params.TARGET_ENV} -f ${COMPOSE_FILE} up -d backend
 
                             # Wait for container to be ready
                             echo "Waiting for container to start..."
